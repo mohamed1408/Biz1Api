@@ -1,0 +1,163 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <UserSecretsId>a2ea8d02-cb51-4c62-8ce2-35bde93ef782</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\**" />
+    <Content Remove="Migrations\**" />
+    <EmbeddedResource Remove="Migrations\**" />
+    <None Remove="Migrations\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\dbConnector.cs" />
+    <Compile Remove="Models\EncryptDecrypt.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Migrations\20200914110029_gggggggggg.cs" />
+    <Compile Include="Migrations\20200914110029_gggggggggg.Designer.cs" />
+    <Compile Include="Migrations\20200914110239_gggggggggg1.cs" />
+    <Compile Include="Migrations\20200914110239_gggggggggg1.Designer.cs" />
+    <Compile Include="Migrations\20200915112510_lsdflsdfl.cs" />
+    <Compile Include="Migrations\20200915112510_lsdflsdfl.Designer.cs" />
+    <Compile Include="Migrations\20200926063049_dfjhjilfdsg.cs" />
+    <Compile Include="Migrations\20200926063049_dfjhjilfdsg.Designer.cs" />
+    <Compile Include="Migrations\20200926063733_dfjhjilfdsgk.cs" />
+    <Compile Include="Migrations\20200926063733_dfjhjilfdsgk.Designer.cs" />
+    <Compile Include="Migrations\20200930070713_dsfgsdf.cs" />
+    <Compile Include="Migrations\20200930070713_dsfgsdf.Designer.cs" />
+    <Compile Include="Migrations\20200930075028_dsfgsdf4.cs" />
+    <Compile Include="Migrations\20200930075028_dsfgsdf4.Designer.cs" />
+    <Compile Include="Migrations\20200930090512_xdfgjkdfgkls.cs" />
+    <Compile Include="Migrations\20200930090512_xdfgjkdfgkls.Designer.cs" />
+    <Compile Include="Migrations\20200930112900_xdfgjkdfgklsfghfgh.cs" />
+    <Compile Include="Migrations\20200930112900_xdfgjkdfgklsfghfgh.Designer.cs" />
+    <Compile Include="Migrations\20201002084613_lkdflksjdflksdf.cs" />
+    <Compile Include="Migrations\20201002084613_lkdflksjdflksdf.Designer.cs" />
+    <Compile Include="Migrations\20201006050135_asasdasd.cs" />
+    <Compile Include="Migrations\20201006050135_asasdasd.Designer.cs" />
+    <Compile Include="Migrations\20201007115413_pref_kotgrp.cs" />
+    <Compile Include="Migrations\20201007115413_pref_kotgrp.Designer.cs" />
+    <Compile Include="Migrations\20201026101215_sdfsd.cs" />
+    <Compile Include="Migrations\20201026101215_sdfsd.Designer.cs" />
+    <Compile Include="Migrations\20201104072631_fsdfsdf.cs" />
+    <Compile Include="Migrations\20201104072631_fsdfsdf.Designer.cs" />
+    <Compile Include="Migrations\20201104074428_fsdfsdfp.cs" />
+    <Compile Include="Migrations\20201104074428_fsdfsdfp.Designer.cs" />
+    <Compile Include="Migrations\20201105034434_ppqq.cs" />
+    <Compile Include="Migrations\20201105034434_ppqq.Designer.cs" />
+    <Compile Include="Migrations\20201112093838_asd.cs" />
+    <Compile Include="Migrations\20201112093838_asd.Designer.cs" />
+    <Compile Include="Migrations\20201116120119_sdfadfdf.cs" />
+    <Compile Include="Migrations\20201116120119_sdfadfdf.Designer.cs" />
+    <Compile Include="Migrations\20201117110219_sdfdsf.cs" />
+    <Compile Include="Migrations\20201117110219_sdfdsf.Designer.cs" />
+    <Compile Include="Migrations\20201120043432_sdfsdf.cs" />
+    <Compile Include="Migrations\20201120043432_sdfsdf.Designer.cs" />
+    <Compile Include="Migrations\20201127054318_sdfsdf1.cs" />
+    <Compile Include="Migrations\20201127054318_sdfsdf1.Designer.cs" />
+    <Compile Include="Migrations\20201204090927_satunamepass.cs" />
+    <Compile Include="Migrations\20201204090927_satunamepass.Designer.cs" />
+    <Compile Include="Migrations\20201217041408_jdfklj.cs" />
+    <Compile Include="Migrations\20201217041408_jdfklj.Designer.cs" />
+    <Compile Include="Migrations\20210108051006_qwerty.cs" />
+    <Compile Include="Migrations\20210108051006_qwerty.Designer.cs" />
+    <Compile Include="Migrations\20210128043149_storepaymenttypes.cs" />
+    <Compile Include="Migrations\20210128043149_storepaymenttypes.Designer.cs" />
+    <Compile Include="Migrations\20210128114544_alerts.cs" />
+    <Compile Include="Migrations\20210128114544_alerts.Designer.cs" />
+    <Compile Include="Migrations\20210129113919_alert1.cs" />
+    <Compile Include="Migrations\20210129113919_alert1.Designer.cs" />
+    <Compile Include="Migrations\20210208055809_qwerty123456.cs" />
+    <Compile Include="Migrations\20210208055809_qwerty123456.Designer.cs" />
+    <Compile Include="Migrations\20210326044919_qwerty1234.cs" />
+    <Compile Include="Migrations\20210326044919_qwerty1234.Designer.cs" />
+    <Compile Include="Migrations\20210409062602_qwerty1234567890.cs" />
+    <Compile Include="Migrations\20210409062602_qwerty1234567890.Designer.cs" />
+    <Compile Include="Migrations\20210417084115_qweqwe.cs" />
+    <Compile Include="Migrations\20210417084115_qweqwe.Designer.cs" />
+    <Compile Include="Migrations\20210421073111_qwertyhgfderwednesday.cs" />
+    <Compile Include="Migrations\20210421073111_qwertyhgfderwednesday.Designer.cs" />
+    <Compile Include="Migrations\20210422063942_shkuh.cs" />
+    <Compile Include="Migrations\20210422063942_shkuh.Designer.cs" />
+    <Compile Include="Migrations\20210422064348_shkuh111.cs" />
+    <Compile Include="Migrations\20210422064348_shkuh111.Designer.cs" />
+    <Compile Include="Migrations\20210429185529_qwertyuiopasdfghjkl.cs" />
+    <Compile Include="Migrations\20210429185529_qwertyuiopasdfghjkl.Designer.cs" />
+    <Compile Include="Migrations\20210513073143_thursday2021may.cs" />
+    <Compile Include="Migrations\20210513073143_thursday2021may.Designer.cs" />
+    <Compile Include="Migrations\20210522060042_ordertypepref.cs" />
+    <Compile Include="Migrations\20210522060042_ordertypepref.Designer.cs" />
+    <Compile Include="Migrations\20210522060241_ordertypepref1.cs" />
+    <Compile Include="Migrations\20210522060241_ordertypepref1.Designer.cs" />
+    <Compile Include="Migrations\20210522062017_orderstatusbttn.cs" />
+    <Compile Include="Migrations\20210522062017_orderstatusbttn.Designer.cs" />
+    <Compile Include="Migrations\20210522065926_option1.cs" />
+    <Compile Include="Migrations\20210522065926_option1.Designer.cs" />
+    <Compile Include="Migrations\20210525063426_ordstsbtn1.cs" />
+    <Compile Include="Migrations\20210525063426_ordstsbtn1.Designer.cs" />
+    <Compile Include="Migrations\20210525093358_ordstsbtn2.cs" />
+    <Compile Include="Migrations\20210525093358_ordstsbtn2.Designer.cs" />
+    <Compile Include="Migrations\20210605045306_testorder1.cs" />
+    <Compile Include="Migrations\20210605045306_testorder1.Designer.cs" />
+    <Compile Include="Migrations\20210611081234_ss.cs" />
+    <Compile Include="Migrations\20210611081234_ss.Designer.cs" />
+    <Compile Include="Migrations\20210616085804_denomtype_denomentry.cs" />
+    <Compile Include="Migrations\20210616085804_denomtype_denomentry.Designer.cs" />
+    <Compile Include="Migrations\20210616090018_denomination.cs" />
+    <Compile Include="Migrations\20210616090018_denomination.Designer.cs" />
+    <Compile Include="Migrations\20210616104131_denomination1.cs" />
+    <Compile Include="Migrations\20210616104131_denomination1.Designer.cs" />
+    <Compile Include="Migrations\20210616105355_denomentry1.cs" />
+    <Compile Include="Migrations\20210616105355_denomentry1.Designer.cs" />
+    <Compile Include="Migrations\20210618063616_denomination2.cs" />
+    <Compile Include="Migrations\20210618063616_denomination2.Designer.cs" />
+    <Compile Include="Migrations\20210618063812_denomination3.cs" />
+    <Compile Include="Migrations\20210618063812_denomination3.Designer.cs" />
+    <Compile Include="Migrations\20210618094025_denomentry2.cs" />
+    <Compile Include="Migrations\20210618094025_denomentry2.Designer.cs" />
+    <Compile Include="Migrations\20210618102540_denomentry3.cs" />
+    <Compile Include="Migrations\20210618102540_denomentry3.Designer.cs" />
+    <Compile Include="Migrations\20210621113525_denomentry4.cs" />
+    <Compile Include="Migrations\20210621113525_denomentry4.Designer.cs" />
+    <Compile Include="Migrations\20210622033644_order54.cs" />
+    <Compile Include="Migrations\20210622033644_order54.Designer.cs" />
+    <Compile Include="Migrations\20210622100626_denomentry5.cs" />
+    <Compile Include="Migrations\20210622100626_denomentry5.Designer.cs" />
+    <Compile Include="Migrations\20210626084619_order55.cs" />
+    <Compile Include="Migrations\20210626084619_order55.Designer.cs" />
+    <Compile Include="Migrations\20210628063059_denomentry6.cs" />
+    <Compile Include="Migrations\20210628063059_denomentry6.Designer.cs" />
+    <Compile Include="Migrations\20210701083640_dummy.cs" />
+    <Compile Include="Migrations\20210701083640_dummy.Designer.cs" />
+    <Compile Include="Migrations\20210701083738_denomentry7.cs" />
+    <Compile Include="Migrations\20210701083738_denomentry7.Designer.cs" />
+    <Compile Include="Migrations\20210701083846_denomentry8.cs" />
+    <Compile Include="Migrations\20210701083846_denomentry8.Designer.cs" />
+    <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="FirebaseAdmin" Version="1.16.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.2.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" />
+    <PackageReference Include="RestSharp" Version="106.11.4" />
+  </ItemGroup>
+
+</Project>
