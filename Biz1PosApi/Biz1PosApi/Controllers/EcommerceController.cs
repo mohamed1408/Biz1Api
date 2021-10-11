@@ -1,6 +1,7 @@
 ﻿using Biz1BookPOS.Models;
 using Biz1PosApi.Models;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,15 @@ using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using System.Net.Mime;
 using System.Text;
+
 
 namespace Biz1PosApi.Controllers
 {
@@ -23,12 +29,20 @@ namespace Biz1PosApi.Controllers
     {
         private POSDbContext db;
         private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
-        public IConfiguration Configuration { get; }
+        public static IHostingEnvironment _environment;
+        private object fileUploader;
 
-        public EcommerceController(POSDbContext contextOptions, IConfiguration configuration)
+        public IConfiguration Configuration { get; }
+        protected void Page_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        public EcommerceController(POSDbContext contextOptions, IConfiguration configuration, IHostingEnvironment environment)
         {
             db = contextOptions;
             Configuration = configuration;
+            _environment = environment;
         }
 
         // GET: EcommerceController
@@ -140,31 +154,18 @@ namespace Biz1PosApi.Controllers
                 db.SaveChanges();
             }
 
-            string otp = send_otp_email(email);
+            string otp = send_otp_emailandphone(email, phoneno);
+
             customer.OTP = otp;
             db.Entry(customer).State = EntityState.Modified;
             db.SaveChanges();
-            //MailMessage mail = new MailMessage();
-            //SmtpClient SmtpServer = new SmtpClient("smtp.zoho.com");
-
-            //mail.From = new MailAddress("admin@biz1book.com");
-            //mail.To.Add(email);
-            //mail.Subject = "Test Mail";
-            //mail.Body = "https://localhost:44383/api/Login/password_reset?jwt=" + GenerateExpirableToken(email);
-
-            //SmtpServer.Port = 587;
-            //SmtpServer.Credentials = new System.Net.NetworkCredential("admin@biz1book.com", "Sairam@11");
-            //SmtpServer.EnableSsl = true;
-
-            //SmtpServer.Send(mail);
-            //return Ok("Email Sent!");
-
             var response = new
             {
                 status = 200,
-                customerid = customer.Id,
-                name = customer.Name,
-                storeid = customer.StoreId,
+                //customerid = customer.Id,
+                //name = customer.Name,
+                //storeid = customer.StoreId,
+                //Phoneno= customer.PhoneNo
 
             };
             return Ok(response);
@@ -554,7 +555,7 @@ namespace Biz1PosApi.Controllers
         {
             string[] saAllowedCharacters = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
             string sRandomOTP = GenerateRandomOTP(4, saAllowedCharacters);
-            //string to = "prince.gopi67@gmail.com"; //To address    
+            string to = "prince.gopi67@gmail.com"; //To address    
             string from = "fbcakes.biz1@gmail.com"; //From address    
             MailMessage message = new MailMessage(from, toemail);
             string mailbody = "Use this (OTP) One Time Password to validate your Login: G-" + sRandomOTP;
@@ -569,6 +570,46 @@ namespace Biz1PosApi.Controllers
             client.UseDefaultCredentials = false;
             client.Credentials = basicCredential1;
             client.Send(message);
+
+            return sRandomOTP;
+        }
+
+
+        public string send_otp_emailandphone(string toemail, string tophone)
+        {
+            string[] saAllowedCharacters = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+            string sRandomOTP = GenerateRandomOTP(4, saAllowedCharacters);
+            string to = "prince.gopi67@gmail.com"; //To address    
+            string from = "fbcakes.biz1@gmail.com"; //From address    
+            MailMessage message = new MailMessage(from, toemail);
+            string mailbody = "Use this (OTP) One Time Password to validate your Login: G-" + sRandomOTP;
+            message.Subject = "Welcome to FBcakes";
+            message.Body = mailbody;
+            message.BodyEncoding = Encoding.UTF8;
+            message.IsBodyHtml = true;
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587); //Gmail smtp    
+            NetworkCredential basicCredential1 = new
+            NetworkCredential("fbcakes.biz1@gmail.com", "PassworD@1");
+            client.EnableSsl = true;
+            client.UseDefaultCredentials = false;
+            client.Credentials = basicCredential1;
+            client.Send(message);
+
+            var myclient = new RestClient("https://api.msg91.com/api/v5/flow/");
+            var request = new RestRequest(Method.POST);
+
+            request.AddHeader("authkey", "346987Aj0taFCM5fad0e44P1");
+            request.AddHeader("content-type", "application/JSON");
+
+            JObject payload = new JObject(
+              new JProperty("flow_id", "60f67abdd043a85bca31c381"),
+              new JProperty("var", sRandomOTP),
+              new JProperty("sender", "FBCAKE"),
+              new JProperty("mobiles", tophone)
+              );
+            request.AddParameter("application/JSON", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
+            IRestResponse response = myclient.Execute(request);
+
             return sRandomOTP;
         }
 
@@ -628,8 +669,9 @@ namespace Biz1PosApi.Controllers
 
 
 
-            string otp = send_otp_email((string)data.Email);
-            customer.OTP = otp;
+            // string otp = send_myotp_email((string)data.Email);
+            // string otp = send_otp_email2((string)data.Email,"918838300292");
+            // customer.OTP = otp;
             db.Entry(customer).State = EntityState.Modified;
             db.SaveChanges();
             //MailMessage mail = new MailMessage();
@@ -852,7 +894,6 @@ namespace Biz1PosApi.Controllers
             // return Json(db.Orders.Where(x => x.CustomerId == CustomerId).ToList());
 
             var check = db.Orders.Where(x => x.CustomerId == CustomerId).FirstOrDefault();
-
             if (check == null)
             {
                 var responce = new
@@ -864,42 +905,31 @@ namespace Biz1PosApi.Controllers
             }
             else
             {
+
                 return Json(db.Orders.Where(x => x.CustomerId == CustomerId).ToList());
 
             }
+
         }
 
         [HttpGet("getOrderitemdetails")]
         public IActionResult getOrderitemdetails(int OrderId)
         {
-            try
-            {
-                var check = db.OrderItems.Where(x => x.OrderId == OrderId).FirstOrDefault();
+            var check = db.OrderItems.Where(x => x.OrderId == OrderId).FirstOrDefault();
 
-                if (check == null)
-                {
-                    var responce = new
-                    {
-                        status = 500,
-                        message = "Currently No OrdersItems!"
-                    };
-                    return Ok(responce);
-                }
-                else
-                {
-                    return Json(db.OrderItems.Where(x => x.OrderId == OrderId).ToList());
-
-                }
-            }
-            catch (Exception e)
+            if (check == null)
             {
-                var error = new
+                var responce = new
                 {
-                    error = new Exception(e.Message, e.InnerException),
-                    status = 0,
-                    msg = "Something went wrong  Contact our service provider"
+                    status = 500,
+                    message = "Currently No OrdersItems!"
                 };
-                return Json(error);
+                return Ok(responce);
+            }
+            else
+            {
+                return Json(db.OrderItems.Where(x => x.OrderId == OrderId).ToList());
+
             }
         }
 
@@ -961,7 +991,6 @@ namespace Biz1PosApi.Controllers
                     //orderItem.Product = item.Product;
                     orderItem.Note = item.Note;
                     orderItem.TotalAmount = item.TotalAmount;
-                    orderItem.IsStockUpdate = false;
                     db.OrderItems.Add(orderItem);
                     db.SaveChanges();
                 }
@@ -988,5 +1017,612 @@ namespace Biz1PosApi.Controllers
             }
         }
 
+        [HttpGet("getproducts2")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult getproducts2(int companyId)
+        {
+            // var mystore = db.Stores.Where(x => x.CompanyId == companyId);
+            var products = db.Products.Where(x => x.CompanyId == companyId).ToList();
+            List<Option> options = new List<Option>();
+            foreach (var option in db.Options.Where(x => x.CompanyId == 3))
+            {
+                if (db.ProductOptionGroups.Where(x => x.OptionGroupId == option.OptionGroupId).Any() && db.OptionGroups.Find(option.OptionGroupId).OptionGroupType == 1)
+                {
+                    int productid = db.ProductOptionGroups.Where(x => x.OptionGroupId == option.OptionGroupId).FirstOrDefault().ProductId;
+                    if (products.Where(x => x.Id == productid).Count() > 0)
+                    {
+                        option.ProductId = productid;
+                        options.Add(option);
+                    }
+                }
+            }
+            var data = new
+            {
+                categories = db.Categories.Where(x => x.CompanyId == companyId).ToList(),
+                products = db.Products.Where(x => x.CompanyId == companyId).ToList(),
+                options = options,
+                // store=mystore
+            };
+            return Ok(data);
+        }
+
+
+        //public string send_otp_phone(string tophone)
+
+        [HttpPost("send_otp_phone")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult send_otp_phone(string tophone)
+        {
+            string[] saAllowedCharacters = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+            string sRandomOTP = GenerateRandomOTP(4, saAllowedCharacters);
+
+            var client = new RestClient("https://api.msg91.com/api/v5/flow/");
+            var request = new RestRequest(Method.POST);
+
+            request.AddHeader("authkey", "346987Aj0taFCM5fad0e44P1");
+            request.AddHeader("content-type", "application/JSON");
+
+            //request.AddParameter("flow_id", "60f67abdd043a85bca31c381", ParameterType.GetOrPost);
+            //request.AddParameter("var", "5454", ParameterType.GetOrPost);
+            //request.AddParameter("sender", "FBCAKE", ParameterType.GetOrPost);
+            //request.AddParameter("mobiles", tophone, ParameterType.GetOrPost);
+            //request.AddParameter("application/JSON", ParameterType.GetOrPost);
+            //client.Get(request);
+
+            JObject payload = new JObject(
+                new JProperty("flow_id", "60f67abdd043a85bca31c381"),
+                new JProperty("var", "5454"),
+                new JProperty("sender", "FBCAKE"),
+                new JProperty("mobiles", tophone)
+                );
+            request.AddParameter("application/JSON", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
+            IRestResponse response = client.Execute(request);
+
+            var responce = new
+            {
+                status = 200,
+                message = " OTP SEND"
+            };
+            return Ok(responce);
+
+        }
+
+
+        // Ecom
+        public string send_otp_email2(string phoneno)
+        {
+            string[] saAllowedCharacters = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+            string sRandomOTP = GenerateRandomOTP(4, saAllowedCharacters);
+            var myclient = new RestClient("https://api.msg91.com/api/v5/flow/");
+            var request = new RestRequest(Method.POST);
+
+            request.AddHeader("authkey", "346987Aj0taFCM5fad0e44P1");
+            request.AddHeader("content-type", "application/JSON");
+
+            JObject payload = new JObject(
+              new JProperty("flow_id", "60f67abdd043a85bca31c381"),
+              new JProperty("var", sRandomOTP),
+              new JProperty("sender", "FBCAKE"),
+              new JProperty("mobiles", phoneno)
+              );
+            request.AddParameter("application/JSON", JsonConvert.SerializeObject(payload), ParameterType.RequestBody);
+            IRestResponse response = myclient.Execute(request);
+            return sRandomOTP;
+        }
+
+
+        [HttpGet("customer_login2")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult customer_login2(string email, string PhoneNo, int companyId)
+        {
+            Customer customer = new Customer();
+            if (db.Customers.Where(x => x.PhoneNo == PhoneNo).Any())
+            {
+                customer = db.Customers.Where(x => x.PhoneNo == PhoneNo).FirstOrDefault();
+            }
+
+            else
+            {
+                customer.CompanyId = companyId;
+                customer.CreatedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                customer.LastRedeemDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                customer.ModifiedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                customer.Email = email;
+                customer.PhoneNo = PhoneNo;
+                db.Customers.Add(customer);
+                db.SaveChanges();
+            }
+
+            //string otp = send_otp_email(email);
+            string otp = send_otp_email2(PhoneNo);
+            customer.OTP = otp;
+            db.Entry(customer).State = EntityState.Modified;
+            db.SaveChanges();
+
+            var response = new
+            {
+                status = 200,
+                customerid = customer.Id,
+                name = customer.Name,
+                storeid = customer.StoreId,
+
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("verify_otp2")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult verify_otp2(string PhoneNo, string otp)
+        {
+            Customer customer = new Customer();
+            customer = db.Customers.Where(x => x.PhoneNo == PhoneNo).FirstOrDefault();
+            if (otp == customer.OTP)
+            {
+                var response = new
+                {
+                    customer.Id,
+                    status = 200,
+                    msg = "OTP Verification Successfull.",
+                    customerid = customer.Id,
+                    name = customer.Name,
+                    storeid = customer.StoreId,
+                };
+                return Ok(response);
+            }
+            else
+            {
+                var response = new
+                {
+                    status = 0,
+                    msg = "OTP Verification Failed."
+                };
+                return Ok(response);
+            }
+        }
+
+
+        //automation react native email
+        [HttpPost("sendemail")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult sendemail(string subject, string body, [FromForm] IFormFile[] files, [FromBody] string[] toaddresses)
+        {
+            //string to = "prince.gopi67@gmail.com"; //To address    
+
+            string from = "gopi.biz1@gmail.com"; //From address   
+
+            MailMessage message = new MailMessage(from, toaddresses[0]);
+            foreach (var m in toaddresses)
+            {
+                message.To.Add(m);
+            }
+
+            message.From = new MailAddress("fbcakes.biz1@gmail.com", "I AM GOPI");
+            string mailbody = body;
+            message.Subject = subject;
+
+            message.Body = mailbody;
+            message.BodyEncoding = Encoding.UTF8;
+            message.IsBodyHtml = true;
+            foreach (IFormFile file in files)
+            {
+                message.Attachments.Add(new Attachment(ImageUpload(file)));
+            }
+
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587); //Gmail smtp    
+            NetworkCredential basicCredential1 = new
+            NetworkCredential("fbcakes.biz1@gmail.com", "PassworD@1");
+            client.EnableSsl = true;
+            client.UseDefaultCredentials = false;
+            client.Credentials = basicCredential1;
+
+            try
+            {
+                client.Send(message);
+                var response = new
+                {
+                    status = 200,
+                    msg = "send Success",
+                };
+                return Ok(response);
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+                var response = new
+                {
+                    status = 500,
+                    msg = "Error",
+                    err = ex,
+                };
+                return Ok(response);
+            }
+        }
+
+
+        public string ImageUpload(IFormFile file)
+        {
+            try
+            {
+                string baseUrl = _environment.WebRootPath;
+                string subdir = "\\images\\";
+                if (!Directory.Exists(_environment.WebRootPath + subdir))
+                {
+                    Directory.CreateDirectory(_environment.WebRootPath + subdir);
+                }
+                using (FileStream filestream = System.IO.File.Create(_environment.WebRootPath + subdir + file.FileName))
+                {
+                    file.CopyTo(filestream);
+                    filestream.Flush();
+                    var response = new
+                    {
+                        // url = "https://biz1pos.azurewebsites.net/images/"+file.FileName
+                        url = _environment.WebRootPath + subdir + file.FileName
+                    };
+                    return response.url;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = new
+                {
+                    status = 0,
+                    msg = new Exception(ex.Message, ex.InnerException)
+                };
+                return "Error uploading image";
+            }
+        }
+
+        [HttpPost("sendemail2")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult sendemail2(string subject, string body, string[] to)
+        {
+            MailMessage message = new MailMessage();
+            message.To.Add(to[0]);
+
+            foreach (var m in to)
+            {
+                message.To.Add(m);
+            }
+
+            message.From = new MailAddress("myfbcakes.biz1@gmail.com", "I AM GOPI");
+            message.Subject = subject;
+            message.Body = body;
+
+            message.BodyEncoding = Encoding.UTF8;
+            message.IsBodyHtml = true;
+
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587); //Gmail smtp    
+            NetworkCredential basicCredential1 = new
+            NetworkCredential("fbcakes.biz1@gmail.com", "PassworD@1");
+            client.EnableSsl = true;
+            client.UseDefaultCredentials = false;
+            client.Credentials = basicCredential1;
+
+            try
+            {
+                client.Send(message);
+                var response = new
+                {
+                    status = 200,
+                    msg = "send Success",
+                };
+                return Ok(response);
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+                var response = new
+                {
+                    status = 500,
+                    msg = "Error",
+                    err = ex,
+                };
+                return Ok(response);
+            }
+        }
+
+
+        [HttpPost("sendemail3")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult sendemail3(string subject, string body, [FromBody] string[] to)
+        {
+            MailMessage message = new MailMessage();
+            message.To.Add(to[0]);
+
+            foreach (var m in to)
+            {
+                message.To.Add(m);
+            }
+
+            message.From = new MailAddress("myfbcakes.biz1@gmail.com", "I AM GOPI");
+            message.Subject = subject;
+            message.Body = body;
+
+            message.BodyEncoding = Encoding.UTF8;
+            message.IsBodyHtml = true;
+
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587); //Gmail smtp    
+            NetworkCredential basicCredential1 = new
+            NetworkCredential("fbcakes.biz1@gmail.com", "PassworD@1");
+            client.EnableSsl = true;
+            client.UseDefaultCredentials = false;
+            client.Credentials = basicCredential1;
+
+            try
+            {
+                client.Send(message);
+                var response = new
+                {
+                    status = 200,
+                    msg = "send Success",
+                };
+                return Ok(response);
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+                var response = new
+                {
+                    status = 500,
+                    msg = "Error",
+                    err = ex,
+                };
+                return Ok(response);
+            }
+        }
+
+
+        [HttpPost("placeorder2")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult placeorder2([FromForm] string payload)
+        {
+            int orderid = 0;
+            Order order = new Order();
+            // IRestResponse paymentresponse;
+            using (var dbContextTransaction = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    dynamic pay_load = JsonConvert.DeserializeObject(payload);
+                    dynamic items = pay_load.items;
+                    order.AllItemDisc = 0;
+                    order.AllItemTaxDisc = 0;
+                    order.AllItemTotalDisc = 0;
+                    order.BillAmount = (double)pay_load.total;
+                    order.BillDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                    order.BillDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                    order.BillStatusId = 1;
+                    order.CompanyId = pay_load.companyid;
+                    order.DiscAmount = 0;
+                    order.DiscPercent = 0;
+                    order.IsAdvanceOrder = true;
+                    order.ModifiedDate = order.BillDate;
+                    order.Note = "";
+                    order.OrderDiscount = 0;
+                    order.OrderedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                    order.OrderedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                    order.OrderNo = db.Orders.Where(x => x.OrderTypeId == 7 && x.CompanyId == 3).Any() ? db.Orders.Where(x => x.OrderTypeId == 7 && x.CompanyId == 3).Max(x => x.OrderNo) : 1;
+                    order.InvoiceNo = "w" + order.OrderNo;
+                    order.OrderStatusId = 1;
+                    order.OrderTaxDisc = 0;
+                    order.OrderTotDisc = 0;
+                    order.OrderTypeId = 7;
+                    order.PaidAmount = order.BillAmount;
+                    order.CustomerId = pay_load.customerid;
+                    order.CustomerAddressId = pay_load.customeraddressid;
+                    order.PreviousStatusId = 0;
+                    order.RefundAmount = 0;
+                    order.StoreId = 22;
+                    order.Tax1 = (double)pay_load.tax1;
+                    order.Tax2 = (double)pay_load.tax2;
+                    order.Tax3 = (double)pay_load.tax3;
+                    db.Orders.Add(order);
+                    db.SaveChanges();
+
+                    orderid = order.Id;
+
+                    Transaction transaction = new Transaction();
+                    transaction.Amount = order.BillAmount;
+                    transaction.CompanyId = order.CompanyId;
+                    transaction.CustomerId = order.CustomerId;
+                    transaction.OrderId = order.Id;
+                    // transaction.PaymentTypeId = pay_load.PaymentTypeId;
+                    transaction.PaymentTypeId = 1;
+                    transaction.StoreId = order.StoreId;
+                    transaction.TransDate = order.BillDate;
+                    transaction.TransDateTime = order.BillDateTime;
+                    transaction.TranstypeId = 1;
+                    transaction.UserId = null;
+
+                    KOT kot = new KOT();
+                    kot.CompanyId = order.CompanyId;
+                    kot.CreatedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                    kot.Instruction = "";
+                    kot.KOTNo = "0";
+                    kot.KOTStatusId = 0;
+                    kot.ModifiedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                    kot.OrderId = order.Id;
+                    kot.StoreId = order.StoreId;
+                    db.KOTs.Add(kot);
+                    db.SaveChanges();
+
+                    foreach (var item in items)
+                    {
+                        TaxGroup taxGroup = db.TaxGroups.Find((int)item.TaxGroupId);
+                        OrderItem orderItem = new OrderItem();
+                        orderItem.CategoryId = item.CategoryId;
+                        orderItem.ComplementryQty = item.ComplementryQty == null ? 0 : item.ComplementryQty;
+                        orderItem.DiscAmount = 0;
+                        orderItem.DiscPercent = 0;
+                        orderItem.Extra = 0;
+                        orderItem.ItemDiscount = 0;
+                        orderItem.KitchenUserId = null;
+                        orderItem.KOTId = 0;
+                        orderItem.Message = item.Message;
+                        orderItem.Note = "";
+                        orderItem.OrderDiscount = 0;
+                        orderItem.Price = item.TotalPrice;
+                        orderItem.ProductId = item.Id;
+                        //orderItem.Quantity = item.Quantity;
+                        orderItem.Quantity = 1;
+                        orderItem.StatusId = 1;
+                        orderItem.Tax1 = taxGroup.Tax1;
+                        orderItem.Tax2 = taxGroup.Tax2;
+                        orderItem.Tax3 = taxGroup.Tax3;
+                        orderItem.TaxItemDiscount = 0;
+                        orderItem.TaxOrderDiscount = 0;
+                        orderItem.TotalAmount = item.TotalPrice * (1 + (taxGroup.Tax1 + taxGroup.Tax2 + taxGroup.Tax3) / 100);
+                        orderItem.OrderId = order.Id;
+                        orderItem.KOTId = kot.Id;
+                        db.OrderItems.Add(orderItem);
+                        db.SaveChanges();
+                        foreach (var variant in item.variants)
+                        {
+                            OrdItemOptions itemOptions = new OrdItemOptions();
+                            itemOptions.OptionId = variant.Id;
+                            itemOptions.OrderItemId = orderItem.Id;
+                            itemOptions.Price = variant.Price;
+                            db.OrdItemOptions.Add(itemOptions);
+                            db.SaveChanges();
+                        }
+                        foreach (var addon in item.addons)
+                        {
+                            OrdItemOptions itemOptions = new OrdItemOptions();
+                            itemOptions.OptionId = addon.Id;
+                            itemOptions.OrderItemId = orderItem.Id;
+                            itemOptions.Price = addon.Price;
+                            db.OrdItemOptions.Add(itemOptions);
+                            db.SaveChanges();
+                        }
+                    }
+                    dbContextTransaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    dbContextTransaction.Rollback();
+                    var error = new
+                    {
+                        error = new Exception(e.Message, e.InnerException),
+                        msg = "error occur"
+                    };
+                    return Json(error);
+                }
+                var response = new
+                {
+                    status = 200,
+                    orderid,
+                    order,
+                    msg = "saved!",
+                };
+
+                return Json(response);
+            }
+        }
+
+
+        [HttpGet("getOrderlistdetails2")]
+        public IActionResult getOrderdetails2(int CustomerId)
+        {
+            var check = db.Orders.Where(x => x.CustomerId == CustomerId).FirstOrDefault();
+            if (check == null)
+            {
+                var responce = new
+                {
+                    status = 500,
+                    message = "Currently No Orders!"
+                };
+                return Ok(responce);
+            }
+            else
+            {
+                var orderlist = db.Orders.Where(x => x.CustomerId == CustomerId).ToList();
+                var oId = orderlist.Select(x => new { x.Id }).ToList();
+                var count = orderlist.Count;
+
+                foreach (var item in oId)
+                {
+                    var orderitems = db.OrderItems.Where(x => x.OrderId == item.Id).ToList();
+                    var responce2 = new
+                    {
+                        orderitem = orderitems,
+                    };
+                    return Ok(responce2);
+                }
+
+                var responce = new
+                {
+
+                };
+                return Ok(responce);
+            }
+
+        }
+
+
+
+        [HttpGet("getmsgOrderitem")]
+        public IActionResult getmsgOrderitem(int OrderId)
+        {
+            var check = db.OrderItems.Where(x => x.OrderId == OrderId).FirstOrDefault();
+
+            if (check == null)
+            {
+                var responce = new
+                {
+                    status = 500,
+                    message = "Currently No OrdersItems!"
+                };
+                return Ok(responce);
+
+            }
+            else
+            {
+                var orderitems = db.OrderItems.Where(x => x.OrderId == OrderId).ToList();
+                var responce = new
+                {
+                    orderitems = orderitems,
+                };
+                return Ok(responce);
+            }
+        }
+
+        [HttpGet("getOrderitemdetails2")]
+        public IActionResult getOrderitemdetails2(int customerid)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.SPGBtest", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("@customerid", customerid));
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+
+            string[] catStr = new String[20];
+            for (int k = 0; k < ds.Tables.Count; k++)
+            {
+                for (int j = 0; j < ds.Tables[k].Rows.Count; j++)
+                {
+                    catStr[k] += ds.Tables[k].Rows[j].ItemArray[0].ToString();
+                }
+                if (catStr[k] == null)
+                {
+                    catStr[k] = "";
+                }
+            }
+            var response = new
+            {
+                orders = JsonConvert.DeserializeObject(catStr[0])
+            };
+            return Json(response);
+        }
+
+
     }
+
 }

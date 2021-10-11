@@ -571,6 +571,7 @@ namespace Biz1BookPOS.Controllers
         //b = Convert.FromBase64String(encrString);
         //decrypted = System.Text.ASCIIEncoding.ASCII.GetString(b);
         //Console.WriteLine(decrypted)
+        [HttpGet("ecrptpass")]
 
         public string EnryptString(string strEncrypted)
         {
@@ -590,7 +591,7 @@ namespace Biz1BookPOS.Controllers
                 };
                 return ("");
             }
-            }
+        }
 
     }
 

@@ -31,6 +31,8 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
+                var time = 0;
+                var time1 = DateTime.Now;
                 //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
                 SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
                 sqlCon.Open();
@@ -50,7 +52,7 @@ namespace Biz1PosApi.Controllers
                 sqlAdp.Fill(ds);
 
                 DataTable table = ds.Tables[0];
-
+                var time2 = DateTime.Now;
                 string[] catStr = new String[20];
                 for (int k = 0; k < ds.Tables.Count; k++)
                 {
@@ -63,6 +65,7 @@ namespace Biz1PosApi.Controllers
                         catStr[k] = "";
                     }
                 }
+                var time3 = DateTime.Now;
                 if (tables == "all")
                 {
                     var data = new
@@ -132,10 +135,14 @@ namespace Biz1PosApi.Controllers
                                 new { Id = 2, Status = "Swiggy" },
                                 new { Id = 3, Status = "Zomato" },
                                 new { Id = 4, Status = "FoodPanda" }
-                            }
+                            },
+                            sqltime = time2 - time1,
+                            deserializationtime = time3 - time2,
+                            
                         //}
                         //}
                     };
+                    var time4 = DateTime.Now;
                     sqlCon.Close();
                     return Ok(data);
                 }

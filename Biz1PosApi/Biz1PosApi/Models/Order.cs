@@ -79,6 +79,8 @@ namespace Biz1BookPOS.Models
         [Column(TypeName = "Date")]
         public DateTime OrderedDate { get; set; }//------------------
 
+        public TimeSpan OrderedTime { get; set; }//------------------
+
         [DataType(DataType.Date)]
         public DateTime? DeliveryDateTime { get; set; }//------------------
 
@@ -96,6 +98,7 @@ namespace Biz1BookPOS.Models
         public string RiderStatusDetails { get; set; }
         public bool FoodReady { get; set; }//------------------
         public bool Closed { get; set; }//------------------
+        public bool isPaid { get; set; }//------------------
         public string OrderJson { get; set; }
         public string ItemJson { get; set; }
         public string ChargeJson { get; set; }

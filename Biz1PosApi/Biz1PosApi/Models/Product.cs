@@ -30,7 +30,9 @@ namespace Biz1BookPOS.Models
         public string ProductCode { get; set; }
         public string BarCode { get; set; }
         public bool isactive { get; set; }
+        public bool isonline { get; set; }
         public int? SortOrder { get; set; }
+        public int? GroupSortOrder { get; set; }
         public bool Recomended { get; set; }
         public int? minquantity { get; set; }
         public int? minblock { get; set; }
@@ -58,5 +60,6 @@ namespace Biz1BookPOS.Models
         public int CompanyId { get; set; }
         public virtual Company Company { get; set; }
         public bool? IsSaleProdGroup { get; set; }
+        public bool? IsQtyPredefined { get; set; }
     }
 }

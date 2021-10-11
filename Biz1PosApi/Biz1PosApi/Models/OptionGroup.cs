@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Biz1PosApi.Models
 {
     public class OptionGroup
-     {
+    {
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }

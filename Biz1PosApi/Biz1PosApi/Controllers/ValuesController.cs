@@ -31,6 +31,8 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Data.SqlClient;
+using System.Data;
 //using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Biz1PosApi.Controllers
@@ -57,6 +59,7 @@ namespace Biz1PosApi.Controllers
             db = contextOptions;
             _environment = environment;
             _log = log;
+            Configuration = config;
         }
 
 
@@ -620,6 +623,42 @@ namespace Biz1PosApi.Controllers
             //}
             _uhubContext.Clients.All.Announce(message);
             _uhubContext.Clients.All.NewOrder("swiggy", 4444, 44);
+        }
+
+        [HttpPost("customerdata")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult customerdata()
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+
+            SqlCommand cmd = new SqlCommand("dbo.POSOrderData", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+
+            DataTable table = ds.Tables[0];
+            return Json(ds.Tables[0]);
+        }
+        [HttpGet("bulkcustomerdata")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult bulkcustomerdata(int companyid, DateTime from)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+
+            SqlCommand cmd = new SqlCommand("dbo.bulkcustomerdata", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+            cmd.Parameters.Add(new SqlParameter("@from", from));
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+
+            DataTable table = ds.Tables[0];
+            return Json(ds.Tables[0]);
         }
     }
 }

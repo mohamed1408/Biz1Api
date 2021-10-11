@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Biz1BookPOS.Models;
+using Biz1PosApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -103,6 +104,129 @@ namespace Biz1PosApi.Controllers
                     report = ds.Tables[0],
                 };
                 sqlCon.Close();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("DeliveryOrderReport")]
+        public IActionResult DeliveryOrderReport(int storeid, int companyid, DateTime? fromdate, DateTime? todate)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.DeliveryOrderReport", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@fromDate", fromdate));
+                cmd.Parameters.Add(new SqlParameter("@toDate", todate));
+                cmd.Parameters.Add(new SqlParameter("@storeId", storeid));
+                cmd.Parameters.Add(new SqlParameter("@companyId", companyid));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    report = ds.Tables[0],
+                };
+                sqlCon.Close();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("OrderTypeReport")]
+        public IActionResult OrderTypeReport(int storeid, int companyid, DateTime? fromdate, DateTime? todate, int ordertypeid)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.OrderTypeReport", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@fromDate", fromdate));
+                cmd.Parameters.Add(new SqlParameter("@toDate", todate));
+                cmd.Parameters.Add(new SqlParameter("@storeId", storeid));
+                cmd.Parameters.Add(new SqlParameter("@companyId", companyid));
+                cmd.Parameters.Add(new SqlParameter("@ordertypeid", ordertypeid));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    report = ds.Tables[0],
+                };
+                sqlCon.Close();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
+        [HttpPost("add_report_preset")]
+        public IActionResult add_report_preset([FromBody]ReportPreset preset)
+        {
+            try
+            {
+                db.ReportPresets.Add(preset);
+                db.SaveChanges();
+                var response = new
+                {
+                    status = 200,
+                    message = "success",
+                };
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
+        [HttpGet("delete_report_preset")]
+        public IActionResult delete_report_preset(int presetid)
+        {
+            try
+            {
+                db.ReportPresets.Remove(db.ReportPresets.Find(presetid));
+                db.SaveChanges();
+                var response = new
+                {
+                    status = 200,
+                    message = "success",
+                };
                 return Ok(response);
             }
             catch (Exception e)

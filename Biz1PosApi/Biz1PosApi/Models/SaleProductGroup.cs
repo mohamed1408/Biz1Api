@@ -33,6 +33,9 @@ namespace Biz1PosApi.Models
         [ForeignKey("Option")]
         public int? OptionId { get; set; }
         public virtual Option Option { get; set; }
+        public double? Factor { get; set; }
+        public int? SortOrder { get; set; }
+        public bool? IsOnline { get; set; }
 
     }
 }

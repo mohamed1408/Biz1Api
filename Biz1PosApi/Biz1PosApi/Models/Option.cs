@@ -19,6 +19,7 @@ namespace Biz1PosApi.Models
         public double DeliveryPrice { get; set; }
         public double UPPrice { get; set; }
         public bool IsSynced { get; set; }
+        public bool IsSingleQtyOption { get; set; }
 
         [ForeignKey("OptionGroup")]
         public int? OptionGroupId { get; set; }

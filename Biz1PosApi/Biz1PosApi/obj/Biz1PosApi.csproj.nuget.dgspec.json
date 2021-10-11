@@ -1,20 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Biz1\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {}
+    "E:\\Work\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {}
   },
   "projects": {
-    "E:\\Biz1\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {
+    "E:\\Work\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Biz1\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
+        "projectUniqueName": "E:\\Work\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
         "projectName": "Biz1PosApi",
-        "projectPath": "E:\\Biz1\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
+        "projectPath": "E:\\Work\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
         "packagesPath": "C:\\Users\\ALAN-DESKTOP\\.nuget\\packages\\",
-        "outputPath": "E:\\Biz1\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi\\obj\\",
+        "outputPath": "E:\\Work\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
           "C:\\Users\\ALAN-DESKTOP\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -25,7 +26,8 @@
           "netcoreapp2.2"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {}
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "netcoreapp2.2": {
@@ -56,11 +58,6 @@
               "target": "Package",
               "version": "[2.2.0, )",
               "autoReferenced": true
-            },
-            "Microsoft.AspNetCore.Razor.Design": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[2.2.0, )"
             },
             "Microsoft.AspNetCore.SignalR.Core": {
               "target": "Package",

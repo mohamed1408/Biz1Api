@@ -21,6 +21,8 @@ namespace Biz1PosApi.Models
         public string CashOutJson { get; set; }
         public string TransactionJson { get; set; }
         public int? EntryTypeId { get; set; }
+        public double? errorvalue { get; set; }
+        public double? lastcomparedvalue { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime EntryDateTime { get; set; }

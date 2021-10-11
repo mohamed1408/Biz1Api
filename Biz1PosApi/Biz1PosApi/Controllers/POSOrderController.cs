@@ -531,8 +531,8 @@ namespace Biz1PosApi.Controllers
 
                             cmd.Parameters.Add(new SqlParameter("@orderjson", payload.OrderJson));
                             cmd.Parameters.Add(new SqlParameter("@paymenttypeid", paymenttypeid));
-                            cmd.Parameters.Add(new SqlParameter("@storepaymenttypeid", storepaymenttypeid));
-                            cmd.Parameters.Add(new SqlParameter("@customerid", customerid));
+                            //cmd.Parameters.Add(new SqlParameter("@storepaymenttypeid", storepaymenttypeid));
+                            //cmd.Parameters.Add(new SqlParameter("@customerid", customerid));
                             DataSet ds = new DataSet();
                             SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
                             sqlAdp.Fill(ds);
@@ -594,10 +594,15 @@ namespace Biz1PosApi.Controllers
                 try
                 {
                     dynamic raworder = JsonConvert.DeserializeObject(payload.OrderJson);
+                    if(raworder.DiscAmount == null)
+                    {
+                        raworder.DiscAmount = 0;
+                    }
                     string orderjson = payload.OrderJson;
                     raworder.Id = raworder.OrderId;
                     Order order = raworder.ToObject<Order>();
                     order.OrderStatusId = raworder.OrderStatusId;
+
                     foreach (string citem in raworder.changeditems)
                     {
                         if (citem == "transaction")
@@ -2093,7 +2098,103 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpGet("customerdata")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult customerdata(int storeid, int companyid)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
 
+                SqlCommand cmd = new SqlCommand("dbo.customerdata", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+
+                DataTable table = ds.Tables[0];
+                return Json(table);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("getOrderById")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult getOrderById(int orderid)
+        {
+            try
+            {
+                Order order = db.Orders.Find(orderid);
+                return Json(order);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("getOtherStoreOrders")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult getOtherStoreOrders(int storeid)
+        {
+            try
+            {
+                int[] pendingStatusIds = { 0, 1, 2, 3, 4 };
+                int[] advancedOrderTypeIds = { 2, 3, 4 };
+                
+                DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                List<Order> order = db.Orders.Where(o => (o.OrderedDate == today || pendingStatusIds.Contains(o.OrderStatusId) || o.BillAmount != o.PaidAmount) && o.DeliveryStoreId == storeid && advancedOrderTypeIds.Contains(o.OrderTypeId)).ToList();
+                return Json(order);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("getUnfinishedOrders")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult getUnfinishedOrders(int storeid)
+        {
+            try
+            {
+                int[] pendingStatusIds = { 0,1,2,3,4 };
+                int[] advancedOrderTypeIds = { 2,3,4 };
+
+                DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                List<Order> order = db.Orders.Where(o => (o.OrderedDate == today || pendingStatusIds.Contains(o.OrderStatusId) || o.BillAmount != o.PaidAmount) && o.StoreId == storeid && advancedOrderTypeIds.Contains(o.OrderTypeId) && o.OrderJson != null).ToList();
+                return Json(order);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
         [HttpGet("onlineorderstatuschange")]
         [EnableCors("AllowOrigin")]
         public IActionResult onlineorderstatuschange(int orderid, int statusid)

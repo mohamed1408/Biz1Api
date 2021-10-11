@@ -1544,7 +1544,7 @@ namespace Biz1PosApi.Controllers
                 int companyId = db.Stores.Find(storeId).CompanyId;
                 string UPOrderId = Json.order.details.id.ToString();
                 string platform = Json.order.details.channel.ToString();
-
+                string storename = db.Stores.Find(storeId).Name;
                 Json.order.details.platformorderid = Json.order.details.ext_platforms[0].id;
                 foreach (var orderitem in Json.order.items)
                 {
@@ -1578,6 +1578,7 @@ namespace Biz1PosApi.Controllers
                     db.UPOrders.Add(order);
                     db.SaveChanges();
                     _log.LogInformation("Order Payload --storeid - " + storeId + " --orderid - " + order.UPOrderId);
+                    NotifyNewOrder(storeId, storename, "", platform, Int32.Parse(UPOrderId));
                 }
                 var response = new
                 {
@@ -1858,6 +1859,7 @@ namespace Biz1PosApi.Controllers
                         //dynamic os_json = JsonConvert.DeserializeObject(order.OrderStatusDetails);
                         //json.completed = json.timestamp_unix;
                         //order.OrderStatusDetails = JsonConvert.SerializeObject(os_json);
+                        
                     }
                     if (upOrder.AcceptedTimeStamp == null)
                     {

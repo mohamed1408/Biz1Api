@@ -146,6 +146,46 @@
     <Compile Include="Migrations\20210701083738_denomentry7.Designer.cs" />
     <Compile Include="Migrations\20210701083846_denomentry8.cs" />
     <Compile Include="Migrations\20210701083846_denomentry8.Designer.cs" />
+    <Compile Include="Migrations\20210713100358_dummy2.cs" />
+    <Compile Include="Migrations\20210713100358_dummy2.Designer.cs" />
+    <Compile Include="Migrations\20210713100626_denomentry9.cs" />
+    <Compile Include="Migrations\20210713100626_denomentry9.Designer.cs" />
+    <Compile Include="Migrations\20210713104150_denomentry10.cs" />
+    <Compile Include="Migrations\20210713104150_denomentry10.Designer.cs" />
+    <Compile Include="Migrations\20210714042508_denomentry11.cs" />
+    <Compile Include="Migrations\20210714042508_denomentry11.Designer.cs" />
+    <Compile Include="Migrations\20210719051220_order600.cs" />
+    <Compile Include="Migrations\20210719051220_order600.Designer.cs" />
+    <Compile Include="Migrations\20210731065403_option2.cs" />
+    <Compile Include="Migrations\20210731065403_option2.Designer.cs" />
+    <Compile Include="Migrations\20210818055705_predefinedqty_product_bool.cs" />
+    <Compile Include="Migrations\20210818055705_predefinedqty_product_bool.Designer.cs" />
+    <Compile Include="Migrations\20210818095339_cakeqtys.cs" />
+    <Compile Include="Migrations\20210818095339_cakeqtys.Designer.cs" />
+    <Compile Include="Migrations\20210818102353_cakeqtys1.cs" />
+    <Compile Include="Migrations\20210818102353_cakeqtys1.Designer.cs" />
+    <Compile Include="Migrations\20210818102857_cakeqtys2.cs" />
+    <Compile Include="Migrations\20210818102857_cakeqtys2.Designer.cs" />
+    <Compile Include="Migrations\20210818103250_cakeqtys3.cs" />
+    <Compile Include="Migrations\20210818103250_cakeqtys3.Designer.cs" />
+    <Compile Include="Migrations\20210820092453_pd.cs" />
+    <Compile Include="Migrations\20210820092453_pd.Designer.cs" />
+    <Compile Include="Migrations\20210831094410_saleprdgrp.cs" />
+    <Compile Include="Migrations\20210831094410_saleprdgrp.Designer.cs" />
+    <Compile Include="Migrations\20210831094546_pdqty2.cs" />
+    <Compile Include="Migrations\20210831094546_pdqty2.Designer.cs" />
+    <Compile Include="Migrations\20210923043748_reportpreset_1.cs" />
+    <Compile Include="Migrations\20210923043748_reportpreset_1.Designer.cs" />
+    <Compile Include="Migrations\20210923045213_reportpreset_2.cs" />
+    <Compile Include="Migrations\20210923045213_reportpreset_2.Designer.cs" />
+    <Compile Include="Migrations\20210923050117_reportpreset_3.cs" />
+    <Compile Include="Migrations\20210923050117_reportpreset_3.Designer.cs" />
+    <Compile Include="Migrations\20210928101656_aasasas.cs" />
+    <Compile Include="Migrations\20210928101656_aasasas.Designer.cs" />
+    <Compile Include="Migrations\20211011090930_QuatiyGrop.cs" />
+    <Compile Include="Migrations\20211011090930_QuatiyGrop.Designer.cs" />
+    <Compile Include="Migrations\20211011091116_optionqtygroup.cs" />
+    <Compile Include="Migrations\20211011091116_optionqtygroup.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 
@@ -153,7 +193,6 @@
     <PackageReference Include="EntityFramework" Version="6.4.4" />
     <PackageReference Include="FirebaseAdmin" Version="1.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.2.4" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" />

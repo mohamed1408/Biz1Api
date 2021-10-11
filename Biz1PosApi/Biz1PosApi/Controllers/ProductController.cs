@@ -661,7 +661,8 @@ namespace Biz1BookPOS.Controllers
                     units = db.Units.ToList(),
                     productType = db.ProductTypes.ToList(),
                     Kot = db.KOTGroups.Where(k => k.CompanyId == compId).ToList(),
-
+                    PredefinedQuantities = db.PredefinedQuantities.Where(x => x.ProductId == id).ToList(),
+                    CakeQuantities = db.CakeQuantities.ToList()
                 };
                 return Json(prod);
             }
@@ -954,6 +955,51 @@ namespace Biz1BookPOS.Controllers
                     msg = "The data updated successfully"
                 };
 
+                return Json(error);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+
+        }
+        [HttpPost("UpdatePredefQtys")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult UpdatePredefQtys(int productid, [FromBody]List<PredefinedQuantity> predefinedqtys)
+        {
+            try
+            {
+                Product product = db.Products.Find(productid);
+
+                db.PredefinedQuantities.UpdateRange(predefinedqtys.Where(x => x.Id > 0 && !x.isdeleted));
+                db.PredefinedQuantities.AddRange(predefinedqtys.Where(x => x.Id == 0));
+                db.PredefinedQuantities.RemoveRange(predefinedqtys.Where(x => x.Id > 0 && x.isdeleted));
+                db.SaveChanges();
+
+                if (db.PredefinedQuantities.Where(x => x.ProductId == productid).Any())
+                {
+                    product.IsQtyPredefined = true;
+                }
+                else
+                {
+                    product.IsQtyPredefined = false;
+                }
+
+                db.Entry(product).State = EntityState.Modified;
+                db.SaveChanges();
+
+                var error = new
+                {
+                    status = 200,
+                    msg = "The data updated successfully",
+                    predfqtys = db.PredefinedQuantities.Where(x => x.ProductId == productid).ToList()
+                };
                 return Json(error);
             }
             catch (Exception e)

@@ -106,5 +106,10 @@ namespace Biz1BookPOS.Models
         public DbSet<DenomEntry> DenomEntries { get; set; }
         public DbSet<Denomination> Denominations { get; set; }
         public DbSet<SaleProductGroup> SaleProductGroups { get; set; }
+        public DbSet<PredefinedQuantity> PredefinedQuantities { get; set; }
+        public DbSet<CakeQuantity> CakeQuantities { get; set; }
+        public DbSet<ReportPreset> ReportPresets { get; set; }
+        public DbSet<QuantityGroup> QuantityGroups{ get; set; }
+        public DbSet<OptionQtyGroup> OptionQtyGroups{ get; set; }
     }
 }
