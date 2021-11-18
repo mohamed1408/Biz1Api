@@ -69,42 +69,37 @@ namespace Biz1PosApi.Controllers
             return Json(prod);
         }
         [HttpGet("GetProductsNoptions")]
-        public IActionResult GetProductsNoptions(int companyid, int? catId, string desc)
+        public IActionResult GetProductsNoptions(int companyid, int? categoryid, string desc, int? saleproductid)
         {
-            if (desc == null) desc = "";
-            var productOption = from pog in db.ProductOptionGroups
-                                join p in db.Products on pog.ProductId equals p.Id
-                                join opg in db.OptionGroups on pog.OptionGroupId equals opg.Id
-                                join op in db.Options on opg.Id equals op.OptionGroupId
-                                join c in db.Categories on p.CategoryId equals c.Id
-                                where pog.CompanyId == companyid && opg.OptionGroupType == 1 &&
-                                p.isactive == true && (catId == null || catId == 0 || p.CategoryId == catId || c.ParentCategoryId == catId)
-                                //&& (desc == "" || p.Name.ToUpper().Contains(desc.ToUpper()))
-                                && (desc == "" || (p.Name + "-" + op.Name).ToUpper().Contains(desc.ToUpper()))
-                                //op.Name.ToUpper().Contains(desc.ToUpper()))
-                                select new { p.Id, Name = p.Name + "-" + op.Name, OptionId = op.Id, p.CategoryId };
-            var exceptProds = from pog in db.ProductOptionGroups
-                              join p in db.Products on pog.ProductId equals p.Id
-                              join opg in db.OptionGroups on pog.OptionGroupId equals opg.Id
-                              where pog.CompanyId == companyid && p.IsSaleProdGroup != true &&
-                              opg.OptionGroupType == 1
-                              select new { p.Id, p.Name };
-            var prod = from p in db.Products
-                       join c in db.Categories on p.CategoryId equals c.Id
-                       where p.CompanyId == companyid && p.isactive == true
-                             && (catId == null || catId == 0 ||
-                             p.CategoryId == catId || c.ParentCategoryId == catId)
-                             && (desc == "" || p.Name.ToUpper().Contains(desc.ToUpper()))
-                              && !(from s in exceptProds select s.Id).Contains(p.Id)
-                       select new { p.Id, p.Name };
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.SaleProductsNoptions", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
 
-            //var prod1 = db.Products.Where(s => s.CompanyId == companyid && s.isactive == true
-            //               && s.IsSaleProdGroup == false && (catId == null || catId == 0 || s.CategoryId == catId))
-            //  .Select(s => new { s.Id, s.Name }).Except(exceptProds).ToList();
-            //var prod = db.Products.Where(s => s.CompanyId == companyid && s.isactive == true && s.IsSaleProdGroup != true)
-            //    .Select(s => new { s.Id, s.Name }).ToList();
-            var data = new { productOption = productOption, prod = prod };
-            return Json(data);
+                cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+                cmd.Parameters.Add(new SqlParameter("@categoryid", categoryid));
+                cmd.Parameters.Add(new SqlParameter("@searchterm", desc));
+                cmd.Parameters.Add(new SqlParameter("@saleproductid", saleproductid));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+
+                DataTable table = ds.Tables[0];
+                var data = new { productOption = table };
+                return Json(data);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
         }
         [HttpPost("Save")]
         [EnableCors("AllowOrigin")]
@@ -139,7 +134,7 @@ namespace Biz1PosApi.Controllers
                         double? factor = item.Factor;
                         bool? isOnline = item.IsOnline;
                         var existing = db.SaleProductGroups.Where(s => s.SaleProductId == saleProductId
-                                   && s.StockProductId == stockProductId && s.CompanyId == companyId).ToList();
+                                   && s.StockProductId == stockProductId && s.CompanyId == companyId && s.OptionId == optionId).ToList();
                         if (existing.Count() == 0)
                         {
                             SaleProductGroup saleProductGroup = new SaleProductGroup();

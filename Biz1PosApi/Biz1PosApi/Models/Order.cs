@@ -79,6 +79,12 @@ namespace Biz1BookPOS.Models
         [Column(TypeName = "Date")]
         public DateTime OrderedDate { get; set; }//------------------
 
+        [Column(TypeName = "Date")]
+        public DateTime? DeliveryDate { get; set; }//------------------
+
+        [Column(TypeName = "Date")]
+        public DateTime? DeliveredDate { get; set; }//------------------
+
         public TimeSpan OrderedTime { get; set; }//------------------
 
         [DataType(DataType.Date)]

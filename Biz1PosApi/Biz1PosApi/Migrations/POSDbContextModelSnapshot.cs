@@ -362,7 +362,13 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int?>("CustomerId");
 
+                    b.Property<DateTime?>("DeliveredDate")
+                        .HasColumnType("Date");
+
                     b.Property<DateTime?>("DeliveredDateTime");
+
+                    b.Property<DateTime?>("DeliveryDate")
+                        .HasColumnType("Date");
 
                     b.Property<DateTime?>("DeliveryDateTime");
 

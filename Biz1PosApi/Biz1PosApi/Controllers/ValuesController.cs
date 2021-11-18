@@ -641,6 +641,29 @@ namespace Biz1PosApi.Controllers
             DataTable table = ds.Tables[0];
             return Json(ds.Tables[0]);
         }
+        [HttpPost("instamojotest")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult instamojotest([FromForm]double amount)
+        {
+            try
+            {
+                var response = new
+                {
+                    message = "Data recieved successfully!",
+                    status = 200
+                };
+                return Json(response);
+            }
+            catch(Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 200
+                };
+                return Json(error);
+            }
+        }
         [HttpGet("bulkcustomerdata")]
         [EnableCors("AllowOrigin")]
         public IActionResult bulkcustomerdata(int companyid, DateTime from)

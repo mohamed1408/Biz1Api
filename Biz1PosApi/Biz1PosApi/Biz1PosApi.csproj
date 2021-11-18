@@ -186,6 +186,12 @@
     <Compile Include="Migrations\20211011090930_QuatiyGrop.Designer.cs" />
     <Compile Include="Migrations\20211011091116_optionqtygroup.cs" />
     <Compile Include="Migrations\20211011091116_optionqtygroup.Designer.cs" />
+    <Compile Include="Migrations\20211108084155_deliverydate.cs" />
+    <Compile Include="Migrations\20211108084155_deliverydate.Designer.cs" />
+    <Compile Include="Migrations\20211108085037_deliverydate_n.cs" />
+    <Compile Include="Migrations\20211108085037_deliverydate_n.Designer.cs" />
+    <Compile Include="Migrations\20211108090055_delivereddate.cs" />
+    <Compile Include="Migrations\20211108090055_delivereddate.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 

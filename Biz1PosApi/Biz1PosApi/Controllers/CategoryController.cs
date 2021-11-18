@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Biz1BookPOS.Models;
@@ -7,6 +9,7 @@ using Biz1PosApi.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -18,9 +21,11 @@ namespace Biz1PosApi.Controllers
     public class CategoryController : Controller
     {
         private POSDbContext db;
-        public CategoryController(POSDbContext contextOptions)
+        public IConfiguration Configuration { get; }
+        public CategoryController(POSDbContext contextOptions, IConfiguration configuration)
         {
             db = contextOptions;
+            Configuration = configuration;
         }
         // GET: api/<controller>
         [HttpGet]
@@ -200,6 +205,31 @@ namespace Biz1PosApi.Controllers
             };
 
             return Json(error);
+        }
+
+        [HttpPost("CopyToSaleProductGroup")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult CopyToSaleProductGroup(int companyId, [FromBody]int[] catIds)
+        {
+            var list = new[] {new{message = "", success = 0}}.ToList();
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.CopyCategoryToSaleProductGroup", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add(new SqlParameter("@categoryId", 0));
+            cmd.Parameters.Add(new SqlParameter("@companyId", companyId));
+            list.RemoveAll(x => x.success == 0);
+            foreach(int catId in catIds)
+            {
+                cmd.Parameters[0].Value = catId;
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                DataTable table = ds.Tables[0];
+                list.Add(new { message = ds.Tables[0].Rows[0].ItemArray[0].ToString(), success = (int)ds.Tables[0].Rows[0].ItemArray[1] });
+            }
+
+            return Json(list);
         }
 
         [HttpGet("EditVariant")]

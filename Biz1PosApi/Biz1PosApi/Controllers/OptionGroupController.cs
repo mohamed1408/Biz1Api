@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Biz1BookPOS.Models;
@@ -7,6 +9,7 @@ using Biz1PosApi.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -15,11 +18,14 @@ namespace Biz1PosApi.Controllers
     [Route("api/[controller]")]
     public class OptionGroupController : Controller
     {
+        public IConfiguration Configuration { get; }
         private POSDbContext db;
-        public OptionGroupController(POSDbContext contextOptions)
+        public OptionGroupController(POSDbContext contextOptions, IConfiguration configuration)
         {
             db = contextOptions;
+            Configuration = configuration;
         }
+
 
         public IActionResult Index()
         {
@@ -402,6 +408,69 @@ namespace Biz1PosApi.Controllers
             }
 
         }
+        [HttpGet("getMapedProducts")]
+        public IActionResult getMapedProducts(int CompanyId, int OptionGroupId)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.Product_OptionGroups", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("@CompanyId", CompanyId));
+            cmd.Parameters.Add(new SqlParameter("@OptionGroupId", OptionGroupId));
+
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+            DataTable table = ds.Tables[0];
+            var response = new
+            {
+                Products = ds.Tables[0]
+            };
+            return Ok(response);
+        }
+
+        [HttpPost("BulkSave")]
+        public IActionResult BulkSave(int OptionGroupId, int CompanyId, [FromBody] int[] ProductIds)
+        {
+            try
+            {
+                List<ProductOptionGroup> delpogs = db.ProductOptionGroups.Where(x => x.OptionGroupId == OptionGroupId && !ProductIds.Contains(x.ProductId)).ToList();
+                foreach (int productId in ProductIds)
+                {
+                    if (!db.ProductOptionGroups.Where(x => x.OptionGroupId == OptionGroupId && x.ProductId == productId).Any())
+                    {
+                        ProductOptionGroup pog = new ProductOptionGroup();
+                        pog.CompanyId = CompanyId;
+                        pog.CreatedDate = DateTime.Now;
+                        pog.ModifiedDate = DateTime.Now;
+                        pog.OptionGroupId = OptionGroupId;
+                        pog.ProductId = productId;
+                        db.ProductOptionGroups.Add(pog);
+                        db.SaveChanges();
+                    }
+                }
+                db.ProductOptionGroups.RemoveRange(delpogs);
+                db.SaveChanges();
+                var response = new
+                {
+                    message = "success",
+                    status = 200
+                };
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                var error = new
+                {
+                    error = new Exception(ex.Message, ex.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
         //[HttpGet("GetOptions")]
         //[EnableCors("AllowOrigin")]
         //public IActionResult GetOptions(int companyid)

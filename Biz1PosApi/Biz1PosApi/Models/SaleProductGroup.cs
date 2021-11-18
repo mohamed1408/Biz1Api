@@ -36,6 +36,5 @@ namespace Biz1PosApi.Models
         public double? Factor { get; set; }
         public int? SortOrder { get; set; }
         public bool? IsOnline { get; set; }
-
     }
 }

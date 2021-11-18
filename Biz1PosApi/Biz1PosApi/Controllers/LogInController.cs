@@ -572,7 +572,6 @@ namespace Biz1BookPOS.Controllers
         //decrypted = System.Text.ASCIIEncoding.ASCII.GetString(b);
         //Console.WriteLine(decrypted)
         [HttpGet("ecrptpass")]
-
         public string EnryptString(string strEncrypted)
         {
             try

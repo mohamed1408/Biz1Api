@@ -39,8 +39,7 @@ namespace Biz1PosApi.Controllers
                 SqlCommand cmd = new SqlCommand("dbo.StoreData", sqlCon);
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                cmd.Parameters.Add(new SqlParameter("@compId", compId))
-                    ;
+                cmd.Parameters.Add(new SqlParameter("@compId", compId));
                 cmd.Parameters.Add(new SqlParameter("@storeId", storeId));
                 cmd.Parameters.Add(new SqlParameter("@modDate", null));
                 cmd.Parameters.Add(new SqlParameter("@table", tables));
@@ -173,7 +172,7 @@ namespace Biz1PosApi.Controllers
                 streprd =  from sp in db.StoreProducts
                            join p in db.Products on sp.ProductId equals p.Id
                            where sp.StoreId ==storeId
-                           select new {p.Description,sp.Price,sp.TakeawayPrice,sp.DeliveryPrice,sp.StoreId,sp.CompanyId,sp.ProductId,sp.Id, sp.SortOrder, sp.Recommended},
+                           select new {p.Name, p.Description,sp.Price,sp.TakeawayPrice,sp.DeliveryPrice,sp.StoreId,sp.CompanyId,sp.ProductId,sp.Id, sp.SortOrder, sp.Recommended},
                 streopt = from os in db.StoreOptions
                           join o in db.Options on os.OptionId equals o.Id
                           where os.StoreId ==storeId

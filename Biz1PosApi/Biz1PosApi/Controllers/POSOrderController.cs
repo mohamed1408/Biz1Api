@@ -618,6 +618,7 @@ namespace Biz1PosApi.Controllers
                     if(order.OrderStatusId == 5)
                     {
                         order.DeliveredDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                        order.DeliveredDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
                     }
                     db.Entry(order).State = EntityState.Modified;
                     db.SaveChanges();

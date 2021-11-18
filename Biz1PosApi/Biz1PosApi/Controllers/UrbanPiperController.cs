@@ -36,6 +36,7 @@ namespace Biz1PosApi.Controllers
         private static readonly HttpClient httpClient = new HttpClient();
         private static TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         readonly ILogger<UrbanPiperController> _log;
+        private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
 
         public IConfiguration Configuration { get; }
         public UrbanPiperController(POSDbContext contextOptions, IConfiguration configuration, IHubContext<ChatHub> hubContext, ILogger<UrbanPiperController> log, IHubContext<UrbanPiperHub, IHubClient> uhubContext)
@@ -1546,12 +1547,14 @@ namespace Biz1PosApi.Controllers
                 string platform = Json.order.details.channel.ToString();
                 string storename = db.Stores.Find(storeId).Name;
                 Json.order.details.platformorderid = Json.order.details.ext_platforms[0].id;
+                int i = 0;
                 foreach (var orderitem in Json.order.items)
                 {
+                    i++;
                     orderitem.refid = orderitem.merchant_id;
                     foreach (var option in orderitem.options_to_add)
                     {
-                        orderitem.refid += "_" + option.merchant_id;
+                        orderitem.refid += i.ToString() + "_" + option.merchant_id;
                     }
                     foreach (var option in orderitem.options_to_add)
                     {
@@ -1832,6 +1835,8 @@ namespace Biz1PosApi.Controllers
                     {
                         order.PreviousStatusId = order.OrderStatusId;
                         order.OrderStatusId = 5;
+                        order.DeliveredDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                        order.DeliveredDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
                         //dynamic os_json = JsonConvert.DeserializeObject(order.OrderStatusDetails);
                         //json.completed = json.timestamp_unix;
                         //order.OrderStatusDetails = JsonConvert.SerializeObject(os_json);
