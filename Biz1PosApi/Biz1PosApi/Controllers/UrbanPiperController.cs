@@ -90,7 +90,8 @@ namespace Biz1PosApi.Controllers
                 Options = ds.Tables[2],
                 TaxGroups = db.TaxGroups.Where(x => x.CompanyId == compId).ToList(),
                 Charges = db.AdditionalCharges.Where(x => x.CompanyId == compId).ToList(),
-                Categories = db.Categories.Where(x => x.CompanyId == compId).ToList()
+                Categories = db.Categories.Where(x => x.CompanyId == compId).ToList(),
+                Tags = db.UPTags.Where(x => x.CompanyId == compId).ToList()
             };
             sqlCon.Close();
             return Json(prod);
@@ -543,6 +544,13 @@ namespace Biz1PosApi.Controllers
             }
             catch (Exception e)
             {
+                // Get stack trace for the exception with source file information
+                var st = new StackTrace(e, true);
+                // Get the top stack frame
+                var frame = st.GetFrame(0);
+                // Get the line number from the stack frame
+                var line = frame.GetFileLineNumber();
+
                 dynamic json = value;
                 string response = json.reference;
                 if(response != null)
@@ -556,7 +564,8 @@ namespace Biz1PosApi.Controllers
                 {
                     error = new Exception(e.Message, e.InnerException),
                     status = 0,
-                    msg = "Something went wrong  Contact our service provider"
+                    msg = "Something went wrong  Contact our service provider",
+                    errorLine = line
                 };
                 return StatusCode(500, error);
             }

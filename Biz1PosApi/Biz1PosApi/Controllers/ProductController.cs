@@ -100,6 +100,7 @@ namespace Biz1BookPOS.Controllers
                     int OptionId = 0;
                     int TaxGroupId = 0;
                     float Optionprice = 0;
+                    List<TaxGroup> taxgroup = db.TaxGroups.Where(x => x.CompanyId == companyId).ToList();
                     foreach (var prod in productJson)
                     {
                         errorpd = JsonConvert.SerializeObject(prod);
@@ -168,6 +169,7 @@ namespace Biz1BookPOS.Controllers
                         //////////product
                         ///
                         var product = db.Products.Where(x => x.CompanyId == companyId).ToList();
+                        Product availableProd = null;
                         foreach (var prd in product)
                         {
                             string svar1 = Regex.Replace(prd.Description.ToString(), @"\s", "");
@@ -189,7 +191,6 @@ namespace Biz1BookPOS.Controllers
                             prodt.CategoryId = CategoryId;
                             prodt.UnitId = 2;
                             prodt.isactive = true;
-                            var taxgroup = db.TaxGroups.Where(x => x.CompanyId == companyId).ToList();
 
                             foreach (var taxgrp in taxgroup)
                             {
@@ -232,7 +233,50 @@ namespace Biz1BookPOS.Controllers
                                 }
                             }
                         }
+                        else
+                        {
+                            Product prodt = db.Products.Find(ProductId);
+                            //prodt.CompanyId = companyId;
+                            prodt.Description = FirstCharToUpper(prod.Product.ToString());
+                            prodt.Name = FirstCharToUpper(prod.Product.ToString());
+                            prodt.CategoryId = CategoryId;
+                            prodt.UnitId = 2;
+                            prodt.isactive = true;
 
+                            foreach (var taxgrp in taxgroup)
+                            {
+                                string staxgrp1 = Regex.Replace(prod.TaxGroup.ToString(), @"\s", "");
+                                string staxgrp2 = Regex.Replace(taxgrp.Description.ToString(), @"\s", "");
+
+                                if (string.Equals((string)staxgrp1, staxgrp2, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    prodt.TaxGroupId = taxgrp.Id;
+                                    break;
+
+                                }
+                            }
+                            prodt.ProductTypeId = prod.Type;
+                            prodt.Price = prod.Price;
+                            prodt.TakeawayPrice = prod.Price;
+                            prodt.DeliveryPrice = prod.Price;
+                            prodt.UPPrice = prod.Price;
+                            //prodt.CreatedDate = DateTime.Now;
+                            prodt.ModifiedDate = DateTime.Now;
+                            db.Entry(prodt).State = EntityState.Modified;
+                            List<StoreProduct> storeProducts = db.StoreProducts.Where(x => x.ProductId == ProductId).ToList();
+                            foreach(StoreProduct sp in storeProducts)
+                            {
+                                //sp.ProductId = prodt.Id;
+                                //sp.CompanyId = companyId;
+                                sp.Price = prod.Price;
+                                sp.TakeawayPrice = prod.Price;
+                                sp.DeliveryPrice = prod.Price;
+                                //sp.StoreId = str.Id;
+                                //sp.CreatedDate = DateTime.Now;
+                                sp.ModifiedDate = DateTime.Now;
+                                db.Entry(prodt).State = EntityState.Modified;
+                            }
+                        }
                         ///////Optiongroup
                         ///
                         var optiongrp = db.OptionGroups.Where(x => x.CompanyId == companyId).ToList();

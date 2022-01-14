@@ -192,6 +192,10 @@
     <Compile Include="Migrations\20211108085037_deliverydate_n.Designer.cs" />
     <Compile Include="Migrations\20211108090055_delivereddate.cs" />
     <Compile Include="Migrations\20211108090055_delivereddate.Designer.cs" />
+    <Compile Include="Migrations\20211228085002_uptag.cs" />
+    <Compile Include="Migrations\20211228085002_uptag.Designer.cs" />
+    <Compile Include="Migrations\20211228085107_uptag1.cs" />
+    <Compile Include="Migrations\20211228085107_uptag1.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 

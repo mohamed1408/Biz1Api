@@ -189,7 +189,7 @@ namespace Biz1PosApi.Controllers
             }
         }
         [HttpGet("Prediction")]
-        public IActionResult Prediction(int companyid, int storeid, int saleproductid)
+        public IActionResult Prediction(int companyid, int storeid, int saleproductid, int customduration, TimeSpan from, TimeSpan to)
         {
             try
             {
@@ -200,14 +200,18 @@ namespace Biz1PosApi.Controllers
                 cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
                 cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
                 cmd.Parameters.Add(new SqlParameter("@saleproductid", saleproductid));
+                cmd.Parameters.Add(new SqlParameter("@customduration", customduration));
+                cmd.Parameters.Add(new SqlParameter("@from", from));
+                cmd.Parameters.Add(new SqlParameter("@to", to));
                 DataSet ds = new DataSet();
                 SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
                 sqlAdp.Fill(ds);
                 var response = new
                 {
                     status = 200,
-                    beforenow = ds.Tables[0],
-                    afternow = ds.Tables[1]
+                    dateinfo = ds.Tables[0],
+                    beforeNow = ds.Tables[1],
+                    afterNow = ds.Tables[2]
                 };
                 sqlCon.Close();
                 return Ok(response);
@@ -223,7 +227,44 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
-
+        [HttpGet("PredictionItems")]
+        public IActionResult PredictionItems(DateTime searchdate, TimeSpan from, TimeSpan to, int storeid, int companyid, int saleproductid)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.PredictionItems", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+                cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+                cmd.Parameters.Add(new SqlParameter("@date", searchdate));
+                cmd.Parameters.Add(new SqlParameter("@from", from));
+                cmd.Parameters.Add(new SqlParameter("@to", to));
+                cmd.Parameters.Add(new SqlParameter("@saleproductid", saleproductid));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    items = ds.Tables[0]
+                };
+                sqlCon.Close();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        
         [HttpPost("add_report_preset")]
         public IActionResult add_report_preset([FromBody]ReportPreset preset)
         {

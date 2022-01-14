@@ -53,7 +53,8 @@ namespace Biz1PosApi.Controllers
                                Option = l.Name,
                                spg.StockProductId,
                                spg.Id,
-                               spg.Factor
+                               spg.Factor,
+                               p.IsSaleProdGroup
                            }
 
             };
@@ -88,6 +89,37 @@ namespace Biz1PosApi.Controllers
 
                 DataTable table = ds.Tables[0];
                 var data = new { productOption = table };
+                return Json(data);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("GetSPGProducts")]
+        public IActionResult GetSPGProducts(int companyid, int saleproductid)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.GetSPGProducts", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+                cmd.Parameters.Add(new SqlParameter("@saleproductid", saleproductid));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+
+                DataTable table = ds.Tables[0];
+                var data = new { products = table };
                 return Json(data);
             }
             catch (Exception e)
@@ -151,9 +183,8 @@ namespace Biz1PosApi.Controllers
                     }
                     foreach (var item in removeItemJson)
                     {
-                        int stockProductId = item.StockProductId;
-                        var saleproduct = db.SaleProductGroups.Where(s => s.StockProductId == stockProductId &&
-                          s.SaleProductId == saleProductId && s.CompanyId == companyId).FirstOrDefault();
+                        int spgId = item.spgId;
+                        var saleproduct = db.SaleProductGroups.Find(spgId);
                         db.SaleProductGroups.Remove(saleproduct);
                     }
                     db.SaveChanges();

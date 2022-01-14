@@ -2769,6 +2769,25 @@ namespace Biz1PosApi.Migrations
                     b.ToTable("UPProducts");
                 });
 
+            modelBuilder.Entity("Biz1PosApi.Models.UPTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId");
+
+                    b.Property<string>("Platform");
+
+                    b.Property<string>("Tag");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("UPTags");
+                });
+
             modelBuilder.Entity("Biz1PosApi.Models.UrbanPiperKey", b =>
                 {
                     b.Property<int>("Id")
@@ -4160,6 +4179,14 @@ namespace Biz1PosApi.Migrations
                     b.HasOne("Biz1BookPOS.Models.Store", "Store")
                         .WithMany()
                         .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.UPTag", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

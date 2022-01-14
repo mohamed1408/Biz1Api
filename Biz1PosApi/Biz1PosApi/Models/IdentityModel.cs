@@ -111,5 +111,6 @@ namespace Biz1BookPOS.Models
         public DbSet<ReportPreset> ReportPresets { get; set; }
         public DbSet<QuantityGroup> QuantityGroups{ get; set; }
         public DbSet<OptionQtyGroup> OptionQtyGroups{ get; set; }
+        public DbSet<UPTag> UPTags{ get; set; }
     }
 }

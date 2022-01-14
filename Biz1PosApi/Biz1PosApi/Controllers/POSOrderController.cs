@@ -602,7 +602,6 @@ namespace Biz1PosApi.Controllers
                     raworder.Id = raworder.OrderId;
                     Order order = raworder.ToObject<Order>();
                     order.OrderStatusId = raworder.OrderStatusId;
-
                     foreach (string citem in raworder.changeditems)
                     {
                         if (citem == "transaction")
@@ -620,6 +619,9 @@ namespace Biz1PosApi.Controllers
                         order.DeliveredDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
                         order.DeliveredDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
                     }
+                    order.DeliveryDate = order.DeliveryDateTime == null ? order.OrderedDate : order.DeliveryDateTime;
+                    order.DeliveryStoreId = order.DeliveryStoreId == null ? order.StoreId : order.DeliveryStoreId;
+                    order.OrderedTime = db.Orders.Where(x => x.Id == order.Id).AsNoTracking().FirstOrDefault().OrderedTime;
                     db.Entry(order).State = EntityState.Modified;
                     db.SaveChanges();
                     if(order.DeliveryStoreId != null)
@@ -742,7 +744,7 @@ namespace Biz1PosApi.Controllers
             {
                 kotobj.OrderId = orderid;
                 KOT kOT = kotobj.ToObject<KOT>();
-                if (!db.KOTs.Where(x => x.refid == kOT.refid).Any())
+                if (!db.KOTs.Where(x => x.refid == kOT.refid && x.OrderId == orderid).Any())
                 {
                     db.KOTs.Add(kOT);
                     db.SaveChanges();
@@ -2224,6 +2226,123 @@ namespace Biz1PosApi.Controllers
                 };
                 return Json(error);
             }
+        }
+        [HttpGet("Getpendingorder")]
+        public IActionResult Getpendingorder(int CompanyId, int storeId)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.PendingOrder", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("@CompanyId", CompanyId));
+            cmd.Parameters.Add(new SqlParameter("@storeId ", storeId));
+
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+            DataTable table = ds.Tables[0];
+            var response = new
+            {
+                Orders = ds.Tables[0]
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("GetOrderId")]
+        public IActionResult GetOrderId(int orderid)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.OrderItemsbyOrderid", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add(new SqlParameter("@orderid", orderid));
+
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+            DataTable table = ds.Tables[0];
+            var response = new
+            {
+                Orders = ds.Tables[0]
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("GetTransactionId")]
+        public IActionResult GetTransactionId(int orderid)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.TransactionByOrderId", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add(new SqlParameter("@orderid", orderid));
+
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+            DataTable table = ds.Tables[0];
+            var response = new
+            {
+                Transactions = ds.Tables[0]
+            };
+            return Ok(response);
+        }
+        [HttpGet("GetKotInspect")]
+        public IActionResult GetKotInspect(int storeId, int CompanyId, int MinQty, int RemainingHrs)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.KOTInspect", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add(new SqlParameter("@storeId", @storeId));
+            cmd.Parameters.Add(new SqlParameter("@CompanyId", @CompanyId));
+            cmd.Parameters.Add(new SqlParameter("@MinQty", @MinQty));
+            cmd.Parameters.Add(new SqlParameter("@RemainingHrs", @RemainingHrs));
+
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+            DataTable table = ds.Tables[0];
+            var response = new
+            {
+                Orders = ds.Tables[0]
+            };
+            return Ok(response);
+        }
+
+
+        [HttpGet("GetKOTInspectdetail")]
+        public IActionResult GetKOTInspectdetail(int orderid)
+        {
+            //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.KOTInspectDetail", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("@orderid", orderid));
+
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+
+            DataTable table = ds.Tables[0];
+
+            string[] catStr = new String[20];
+            for (int k = 0; k < ds.Tables.Count; k++)
+            {
+                for (int j = 0; j < ds.Tables[k].Rows.Count; j++)
+                {
+                    catStr[k] += ds.Tables[k].Rows[j].ItemArray[0].ToString();
+                }
+                if (catStr[k] == null)
+                {
+                    catStr[k] = "";
+                }
+            }
+            object kOTs = JsonConvert.DeserializeObject(catStr[0]);
+            return Ok(kOTs);
         }
     }
 
