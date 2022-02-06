@@ -20,6 +20,7 @@ using Biz1PosApi.Hubs;
 using System.Net.Mail;
 using System.Text;
 using System.Net;
+using Microsoft.Extensions.DependencyInjection;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Biz1PosApi.Controllers
@@ -27,6 +28,8 @@ namespace Biz1PosApi.Controllers
     [Route("api/[controller]")]
     public class POSOrderController : Controller
     {
+        private readonly IServiceScopeFactory _serviceScopeFactory;
+
         // GET: api/<controller>
         private int OrderId;
         private object Order;
@@ -38,12 +41,13 @@ namespace Biz1PosApi.Controllers
         private IHubContext<UrbanPiperHub, IHubClient> _uhubContext;
         private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         public IConfiguration Configuration { get; }
-        public POSOrderController(POSDbContext contextOptions, IConfiguration configuration, IHubContext<ChatHub> hubContext, IHubContext<UrbanPiperHub, IHubClient> uhubContext)
+        public POSOrderController(POSDbContext contextOptions, IConfiguration configuration, IHubContext<ChatHub> hubContext, IHubContext<UrbanPiperHub, IHubClient> uhubContext, IServiceScopeFactory serviceScopeFactory)
         {
             db = contextOptions;
             Configuration = configuration;
             _hubContext = hubContext;
             _uhubContext = uhubContext;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         // GET: api/<controller>
@@ -2312,6 +2316,27 @@ namespace Biz1PosApi.Controllers
         }
 
 
+        //[HttpGet("testTask")]
+        //public IActionResult testTask(int orderid)
+        //{
+        //    _queue.QueueBackgroundWorkItem(async token =>
+        //    {
+        //        using (var scope = _serviceScopeFactory.CreateScope())
+        //        {
+        //            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+        //            sqlCon.Open();
+        //            SqlCommand cmd = new SqlCommand("dbo.SaveUPOrder_", sqlCon);
+        //            cmd.CommandType = CommandType.StoredProcedure;
+
+        //            cmd.Parameters.Add(new SqlParameter("@uporderid", orderid));
+
+        //            DataSet ds = new DataSet();
+        //            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+        //            sqlAdp.Fill(ds);
+        //        }
+        //    });
+        //    return Ok("In progress..");
+        //}
         [HttpGet("GetKOTInspectdetail")]
         public IActionResult GetKOTInspectdetail(int orderid)
         {

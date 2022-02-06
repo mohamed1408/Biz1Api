@@ -24,6 +24,9 @@ using Microsoft.AspNetCore.Internal;
 //using Microsoft.AspNet.SignalR;
 //using Microsoft.Owin.Cors;
 using Microsoft.AspNetCore.Owin;
+using Biz1PosApi.Models;
+using Biz1PosApi.Services;
+using System.Threading.Channels;
 
 namespace Biz1PosApi
 {
@@ -37,10 +40,14 @@ namespace Biz1PosApi
         }
 
         public IConfiguration Configuration { get; }
-
+        //private readonly IHubContext<UrbanPiperHub, IHubClient> _hubContext;
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddSingleton<OrderRepository>(_ => new OrderRepository(Configuration.GetConnectionString("myconn")));
+            //services.AddSingleton<ILoggerService, OrderService>();
+            //services.AddHostedService<OrderService>();
+
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => {
@@ -57,6 +64,10 @@ namespace Biz1PosApi
                 });
             });
             services.AddDbContext<POSDbContext>(item => item.UseSqlServer(Configuration.GetConnectionString("myconn")));
+            
+            services.AddHostedService<UPOrderService>();
+            services.AddSingleton(Channel.CreateUnbounded<UPRawPayload>());
+            
             services.AddSignalR();
             services
             .AddMvc()

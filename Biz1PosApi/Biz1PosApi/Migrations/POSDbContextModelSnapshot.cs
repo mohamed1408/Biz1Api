@@ -2821,6 +2821,33 @@ namespace Biz1PosApi.Migrations
                     b.ToTable("UrbanPiperKeys");
                 });
 
+            modelBuilder.Entity("Biz1PosApi.Models.UrbanPiperOrder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AcceptedTimeStamp");
+
+                    b.Property<string>("Json");
+
+                    b.Property<int>("OrderStatusId");
+
+                    b.Property<DateTime>("OrderedDateTime");
+
+                    b.Property<string>("RiderDetails");
+
+                    b.Property<int>("StoreId");
+
+                    b.Property<int>("UPOrderId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoreId");
+
+                    b.ToTable("UrbanPiperOrders");
+                });
+
             modelBuilder.Entity("Biz1PosApi.Models.UrbanPiperStore", b =>
                 {
                     b.Property<int>("Id")
@@ -4200,6 +4227,14 @@ namespace Biz1PosApi.Migrations
                     b.HasOne("Biz1BookPOS.Models.Company", "Company")
                         .WithMany()
                         .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.UrbanPiperOrder", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Store", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

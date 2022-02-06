@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SignalR;
 //using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,6 +23,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace Biz1PosApi.Controllers
@@ -30,6 +32,9 @@ namespace Biz1PosApi.Controllers
     //[Authorize(Roles = "Administrator")]
     public class UrbanPiperController : Controller
     {
+        //private readonly IServiceScopeFactory _serviceScopeFactory;
+        //private readonly ILoggerService loggerService;
+
         private POSDbContext db;
         private IHubContext<ChatHub> _hubContext;
         private IHubContext<UrbanPiperHub, IHubClient> _uhubContext;
@@ -1531,6 +1536,252 @@ namespace Biz1PosApi.Controllers
         {
             SaveOnlineOrder(data,0);
         }
+        //[HttpPost("SaveOrder")]
+        //public IActionResult SaveOrder([FromBody] JObject data)
+        //{
+        //    Task.Run(() => SaveOrderAsync(data));
+        //    var response = new
+        //    {
+        //        status = 200,
+        //        message = "Task running..."
+        //    };
+        //    return Json(response);
+        //}
+        [HttpGet("sptest")]
+        public IActionResult sptest(int uporderid)
+        {
+            try
+            {
+                db.Database.ExecuteSqlCommand($"EXECUTE SaveUPOrder_ {uporderid}");
+                var response = new
+                {
+                    status = 200,
+                    msg = "Task Running..."
+                };
+                return Ok(response);
+            }
+            catch(Exception e)
+            {
+                var response = new
+                {
+                    status = 500,
+                    error = new Exception(e.Message, e.InnerException)
+                };
+                return Ok(response);
+            }
+        }
+        [HttpGet("ChannelTest")]
+        public async Task<IActionResult> ChannelTest([FromServices]Channel<UPOrderPayload> channel, int uporderid)
+        {
+            try
+            {
+                UPOrderPayload payload = new UPOrderPayload()
+                {
+                    UPOrderId = uporderid,
+                    StoreId = 22,
+                    Platform = "Zomato"
+                };
+                await channel.Writer.WriteAsync(payload);
+                var response = new
+                {
+                    status = 200,
+                    msg = "Task Running..."
+                };
+                return Ok(response);
+            }
+            catch(Exception e)
+            {
+                var response = new
+                {
+                    status = 500,
+                    error = new Exception(e.Message, e.InnerException)
+                };
+                return Ok(response);
+            }
+        }
+
+        [HttpPost("SaveOrderAsyncTest")]
+        public async Task<IActionResult> SaveOrderAsyncTest([FromBody]JObject data)
+        {
+            try
+            {
+                dynamic Json = data;
+                int storeId = 0;
+                if (Json.order.store.merchant_ref_id.ToString().Contains("-"))
+                {
+                    String[] strlist = Json.order.store.merchant_ref_id.ToString().Split("-");
+                    //upstore.BrandId = Int16.Parse(strlist[0]);
+                    storeId = Int16.Parse(strlist[1]);
+                }
+                else
+                {
+                    storeId = Json.order.store.merchant_ref_id;
+                }
+                Store store = await db.Stores.FindAsync(storeId);
+                int companyId = store.CompanyId;
+                string UPOrderId = Json.order.details.id.ToString();
+                string platform = Json.order.details.channel.ToString();
+                string storename = store.Name;
+                Json.order.details.platformorderid = Json.order.details.ext_platforms[0].id;
+                int i = 0;
+                foreach (var orderitem in Json.order.items)
+                {
+                    i++;
+                    orderitem.refid = orderitem.merchant_id;
+                    foreach (var option in orderitem.options_to_add)
+                    {
+                        orderitem.refid += i.ToString() + "_" + option.merchant_id;
+                    }
+                    foreach (var option in orderitem.options_to_add)
+                    {
+                        option.itemrefid = orderitem.refid;
+                    }
+                }
+                var statusDetail = new
+                {
+                    accepted = 0,
+                    foodready = 0,
+                    dispatched = 0,
+                    delivered = 0
+                };
+                _log.LogInformation(storeId.GetType().ToString());
+                UPOrder uPOrder = new UPOrder();
+                uPOrder.StoreId = 22;
+                uPOrder.Json = "";
+                uPOrder.UPOrderId = 1234;
+                uPOrder.OrderStatusId = 0;
+                uPOrder.OrderedDateTime = DateTime.Now;
+                uPOrder.AcceptedTimeStamp = "";
+                db.UPOrders.Add(uPOrder);
+                db.SaveChanges();
+                return Json(uPOrder);
+            }
+            catch(Exception e)
+            {
+                var error = new
+                {
+                    status = 500,
+                    error = new Exception(e.Message, e.InnerException)
+                };
+                return Ok(error);
+            }
+        }
+        [HttpPost("SaveOrderAsync")]
+        public async Task<IActionResult> SaveOrderAsync([FromBody]JObject data, [FromServices]Channel<UPRawPayload> channel)
+        {
+            try
+            {
+                dynamic Json = data;
+                string JsonString = JsonConvert.SerializeObject(Json);
+                string UPOrderId = Json.order.details.id.ToString();
+                if(!await db.Orders.Where(x => x.UPOrderId == Int32.Parse(UPOrderId)).AnyAsync())
+                {
+                    UPRawPayload rawPayload = new UPRawPayload()
+                    {
+                        Payload = JsonString
+                    };
+                    await channel.Writer.WriteAsync(rawPayload);
+                }
+                //int storeId = 0;
+                //if (Json.order.store.merchant_ref_id.ToString().Contains("-"))
+                //{
+                //    String[] strlist = Json.order.store.merchant_ref_id.ToString().Split("-");
+                //    //upstore.BrandId = Int16.Parse(strlist[0]);
+                //    storeId = Int16.Parse(strlist[1]);
+                //}
+                //else
+                //{
+                //    storeId = Json.order.store.merchant_ref_id;
+                //}
+
+                //int companyId = db.Stores.Find(storeId).CompanyId;
+                //string UPOrderId = Json.order.details.id.ToString();
+                //string platform = Json.order.details.channel.ToString();
+                //string storename = db.Stores.Find(storeId).Name;
+                //Json.order.details.platformorderid = Json.order.details.ext_platforms[0].id;
+                //int i = 0;
+                //foreach (var orderitem in Json.order.items)
+                //{
+                //    i++;
+                //    orderitem.refid = orderitem.merchant_id;
+                //    foreach (var option in orderitem.options_to_add)
+                //    {
+                //        orderitem.refid += i.ToString() + "_" + option.merchant_id;
+                //    }
+                //    foreach (var option in orderitem.options_to_add)
+                //    {
+                //        option.itemrefid = orderitem.refid;
+                //    }
+                //}
+                //if (!db.UrbanPiperOrders.Where(x => x.UPOrderId == Int32.Parse(UPOrderId)).Any())
+                //{
+
+                //    UrbanPiperOrder order = new UrbanPiperOrder();
+                //    order.StoreId = storeId;
+                //    order.Json = JsonConvert.SerializeObject(Json);
+                //    order.UPOrderId = Json.order.details.id;
+                //    order.OrderStatusId = 0;
+                //    order.OrderedDateTime = UnixTimeStampToDateTime(Json.order.details.created.ToObject<Int64>());
+                //    var j_string = new
+                //    {
+                //        accepted = 0,
+                //        foodready = 0,
+                //        dispatched = 0,
+                //        delivered = 0
+                //    };
+                //    order.AcceptedTimeStamp = JsonConvert.SerializeObject(j_string);
+                //    db.UrbanPiperOrders.Add(order);
+                //    db.SaveChanges();
+                //    _log.LogInformation("Order Payload --storeid - " + storeId + " --orderid - " + order.UPOrderId);
+                //    UPOrderPayload payload = new UPOrderPayload()
+                //    {
+                //        UPOrderId = order.UPOrderId,
+                //        StoreId = order.StoreId,
+                //        Platform = platform
+                //    };
+                //    await channel.Writer.WriteAsync(payload);
+
+                //    Console.WriteLine($"SignalR Event: NewOrder @ {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE)} for store {storename}");
+                //}
+                var response = new
+                {
+                    status = 200,
+                    msg = "Task Running..."
+                };
+                return Ok(response);
+            }
+            catch(Exception e)
+            {
+                var error = new
+                {
+                    status = 500,
+                    error = new Exception(e.Message, e.InnerException)
+                };
+                return Ok(error);
+            }
+        }
+
+        public static void SaveOrder(int UPOrderId, string connectionString)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(connectionString);
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.SaveUPOrder_", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@uporderid", UPOrderId));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                Console.WriteLine("Success Saved Order To DB");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"Message: {e.Message} InnerException: {e.InnerException.Message}");
+            }
+        }
 
         [HttpPost("Order")]
         [EnableCors("AllowOrigin")]
@@ -1690,17 +1941,46 @@ namespace Biz1PosApi.Controllers
                 }
             }
         }
+        [HttpGet("TestSignalR")]
+        public IActionResult TestSignalR(int uporderid)
+        {
+            NotifyNewOrder(22, "Test", "", "zomato", uporderid);
+            return Json(new { status = 200 });
+        }
         public async void NotifyNewOrder(int storeid, string storename, string room, string platform, int UPOrderId)
         {
             Console.WriteLine($"Order Saved: NewOrder @ {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE)} for store {storename} in room {room}");
-            var orders = db.UPOrders.Where(x => x.StoreId == storeid).ToList();
-            await _hubContext.Clients.Group(room).SendAsync("order", orders);
-            await _hubContext.Clients.Group(room).SendAsync("NewOrder", "New Order!!");
-            await _uhubContext.Clients.Group(room).NewOrder(platform, UPOrderId, storeid);
+            //var orders = db.UPOrders.Where(x => x.StoreId == storeid).ToList();
+            //await _hubContext.Clients.Group(room).SendAsync("order", orders);
+            //await _hubContext.Clients.Group(room).SendAsync("NewOrder", "New Order!!");
+            //await _uhubContext.Clients.Group(room).NewOrder(platform, UPOrderId, storeid);
             await _uhubContext.Clients.All.NewOrder(platform, UPOrderId, storeid);
             Console.WriteLine($"SignalR Event: NewOrder @ {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE)} for store {storename} in room {room}");
         }
 
+        [HttpGet("GetUPOrder")]
+        public IActionResult GetUPOrder(int uporderid)
+        {
+            try
+            {
+                Order order = db.Orders.Where(x => x.UPOrderId == uporderid).FirstOrDefault();
+                var response = new
+                {
+                    status = 200,
+                    order
+                };
+                return Json(response);
+            }
+            catch(Exception e)
+            {
+                var error = new
+                {
+                    status = 500,
+                    error = new Exception(e.Message, e.InnerException)
+                };
+                return Json(error);
+            }
+        }
         [HttpGet("OrderStatus")]
         public IActionResult OrderStatus(int orderId, string statusdata, int companyId, int storeid, int orderstatusid)
         {

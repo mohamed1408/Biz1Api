@@ -683,5 +683,21 @@ namespace Biz1PosApi.Controllers
             DataTable table = ds.Tables[0];
             return Json(ds.Tables[0]);
         }
+
+        [HttpGet("emailTemplate")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult emailTemplate()
+        {
+            string htmlString = System.IO.File.ReadAllText(_environment.WebRootPath + "\\email_template.html");
+            htmlString = htmlString.Replace("CUSTOMER_NAME", "Nisha Agarwal");
+            htmlString = htmlString.Replace("PHONE_NO", "1234567890");
+            htmlString = htmlString.Replace("CUSTOMER_ADDRESS", "Karnataka");
+            htmlString = htmlString.Replace("ERROR_STRING", "index cannot be less than zero.");
+            var response = new
+            {
+                htmlString
+            };
+            return Json(response);
+        }
     }
 }
