@@ -164,132 +164,132 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
-        [HttpGet("GetDataAsync")]
-        public async Task<IActionResult> GetDataAsync(int storeId, int compId)
-        {
-            try
-            {
-                int[] pendingStatusIds = { 0, 1, 2, 3, 4 };
-                int[] advancedOrderTypeIds = { 2, 3, 4 };
+        //[HttpGet("GetDataAsync")]
+        //public async Task<IActionResult> GetDataAsync(int storeId, int compId)
+        //{
+        //    try
+        //    {
+        //        int[] pendingStatusIds = { 0, 1, 2, 3, 4 };
+        //        int[] advancedOrderTypeIds = { 2, 3, 4 };
 
-                DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+        //        DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
 
-                var CategoryTask = db.Categories.Where(x => x.CompanyId == compId).ToListAsync();
-                var TaxGroupTask = db.TaxGroups.Where(x => x.CompanyId == compId).ToListAsync();
-                var ProductTask = db.Products.Where(x => x.CompanyId == compId).ToListAsync();
-                var DiningAreaTask = db.DiningAreas.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToListAsync();
-                var DiningTableTask = db.DiningTables.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToListAsync();
-                var DiscountRuleTask = db.DiscountRules.Where(x => x.CompanyId == compId).ToListAsync();
-                var AdditionalChargeTask = db.AdditionalCharges.Where(x => x.CompanyId == compId).ToListAsync();
-                var OrderTypeTask = db.OrderTypes.ToListAsync();
-                var CustomersTask = db.Customers.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToListAsync();
-                var PaymentTypeTask = db.PaymentTypes.ToListAsync();
-                var KotGroupsTask = db.KOTGroups.Where(x => x.CompanyId == compId).ToListAsync();
-                var StorePaymentTypesTask = db.StorePaymentTypes.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToListAsync();
-                var StoresTask = db.Stores.Where(x => x.CompanyId == compId).ToListAsync();
-                var PendingOrderTask = db.Orders.Where(o => (o.OrderedDate == today || pendingStatusIds.Contains(o.OrderStatusId) || o.BillAmount != o.PaidAmount) && o.StoreId == storeId && advancedOrderTypeIds.Contains(o.OrderTypeId) && o.OrderJson != null).ToListAsync();
+        //        var CategoryTask = db.Categories.Where(x => x.CompanyId == compId).ToListAsync();
+        //        var TaxGroupTask = db.TaxGroups.Where(x => x.CompanyId == compId).ToListAsync();
+        //        var ProductTask = db.Products.Where(x => x.CompanyId == compId).ToListAsync();
+        //        var DiningAreaTask = db.DiningAreas.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToListAsync();
+        //        var DiningTableTask = db.DiningTables.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToListAsync();
+        //        var DiscountRuleTask = db.DiscountRules.Where(x => x.CompanyId == compId).ToListAsync();
+        //        var AdditionalChargeTask = db.AdditionalCharges.Where(x => x.CompanyId == compId).ToListAsync();
+        //        var OrderTypeTask = db.OrderTypes.ToListAsync();
+        //        var CustomersTask = db.Customers.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToListAsync();
+        //        var PaymentTypeTask = db.PaymentTypes.ToListAsync();
+        //        var KotGroupsTask = db.KOTGroups.Where(x => x.CompanyId == compId).ToListAsync();
+        //        var StorePaymentTypesTask = db.StorePaymentTypes.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToListAsync();
+        //        var StoresTask = db.Stores.Where(x => x.CompanyId == compId).ToListAsync();
+        //        var PendingOrderTask = db.Orders.Where(o => (o.OrderedDate == today || pendingStatusIds.Contains(o.OrderStatusId) || o.BillAmount != o.PaidAmount) && o.StoreId == storeId && advancedOrderTypeIds.Contains(o.OrderTypeId) && o.OrderJson != null).ToListAsync();
 
-                await Task.WhenAll(CategoryTask, TaxGroupTask, ProductTask, DiningAreaTask, DiningTableTask, DiscountRuleTask, AdditionalChargeTask, OrderTypeTask, CustomersTask, PaymentTypeTask, KotGroupsTask, StorePaymentTypesTask, StoresTask, PendingOrderTask);
+        //        await Task.WhenAll(CategoryTask, TaxGroupTask, ProductTask, DiningAreaTask, DiningTableTask, DiscountRuleTask, AdditionalChargeTask, OrderTypeTask, CustomersTask, PaymentTypeTask, KotGroupsTask, StorePaymentTypesTask, StoresTask, PendingOrderTask);
 
-                var Category = CategoryTask.Result;
-                var TaxGroup = TaxGroupTask.Result;
-                var Product = ProductTask.Result;
-                var DiningArea = DiningAreaTask.Result;
-                var DiningTable = DiningTableTask.Result;
-                var DiscountRule = DiscountRuleTask.Result;
-                var AdditionalCharge = AdditionalChargeTask.Result;
-                var OrderType = OrderTypeTask.Result;
-                var Customers = CustomersTask.Result;
-                var PaymentType = PaymentTypeTask.Result;
-                var KotGroups = KotGroupsTask.Result;
-                var StorePaymentTypes = StorePaymentTypesTask.Result;
-                var Stores = StoresTask.Result;
-                var PendingOrder = PendingOrderTask.Result;
+        //        var Category = CategoryTask.Result;
+        //        var TaxGroup = TaxGroupTask.Result;
+        //        var Product = ProductTask.Result;
+        //        var DiningArea = DiningAreaTask.Result;
+        //        var DiningTable = DiningTableTask.Result;
+        //        var DiscountRule = DiscountRuleTask.Result;
+        //        var AdditionalCharge = AdditionalChargeTask.Result;
+        //        var OrderType = OrderTypeTask.Result;
+        //        var Customers = CustomersTask.Result;
+        //        var PaymentType = PaymentTypeTask.Result;
+        //        var KotGroups = KotGroupsTask.Result;
+        //        var StorePaymentTypes = StorePaymentTypesTask.Result;
+        //        var Stores = StoresTask.Result;
+        //        var PendingOrder = PendingOrderTask.Result;
 
-                var response = new
-                {
-                    status = 200,
-                    Category,
-                    TaxGroup,
-                    Product,
-                    DiningArea,
-                    DiningTable,
-                    DiscountRule,
-                    AdditionalCharge,
-                    OrderType,
-                    Customers,
-                    PaymentType,
-                    KotGroups,
-                    StorePaymentTypes,
-                    Stores
-                };
-                return Json(response);
-            }
-            catch(Exception e)
-            {
-                var response = new
-                {
-                    status = 500,
-                    error = new Exception(e.Message, e.InnerException)
-                };
-                return Json(response);
-            }
-        }
-        [HttpGet("GetData")]
-        public IActionResult GetData(int storeId, int compId)
-        {
-            try
-            {
-                int[] pendingStatusIds = { 0, 1, 2, 3, 4 };
-                int[] advancedOrderTypeIds = { 2, 3, 4 };
+        //        var response = new
+        //        {
+        //            status = 200,
+        //            Category,
+        //            TaxGroup,
+        //            Product,
+        //            DiningArea,
+        //            DiningTable,
+        //            DiscountRule,
+        //            AdditionalCharge,
+        //            OrderType,
+        //            Customers,
+        //            PaymentType,
+        //            KotGroups,
+        //            StorePaymentTypes,
+        //            Stores
+        //        };
+        //        return Json(response);
+        //    }
+        //    catch(Exception e)
+        //    {
+        //        var response = new
+        //        {
+        //            status = 500,
+        //            error = new Exception(e.Message, e.InnerException)
+        //        };
+        //        return Json(response);
+        //    }
+        //}
+        //[HttpGet("GetData")]
+        //public IActionResult GetData(int storeId, int compId)
+        //{
+        //    try
+        //    {
+        //        int[] pendingStatusIds = { 0, 1, 2, 3, 4 };
+        //        int[] advancedOrderTypeIds = { 2, 3, 4 };
 
-                DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+        //        DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
 
-                var Category = db.Categories.Where(x => x.CompanyId == compId).ToList();
-                var TaxGroup = db.TaxGroups.Where(x => x.CompanyId == compId).ToList();
-                var Product = db.Products.Where(x => x.CompanyId == compId).ToList();
-                var DiningArea = db.DiningAreas.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToList();
-                var DiningTable = db.DiningTables.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToList();
-                var DiscountRule = db.DiscountRules.Where(x => x.CompanyId == compId).ToList();
-                var AdditionalCharge = db.AdditionalCharges.Where(x => x.CompanyId == compId).ToList();
-                var OrderType = db.OrderTypes.ToList();
-                var Customers = db.Customers.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToList();
-                var PaymentType = db.PaymentTypes.ToList();
-                var KotGroups = db.KOTGroups.Where(x => x.CompanyId == compId).ToList();
-                var StorePaymentTypes = db.StorePaymentTypes.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToList();
-                var Stores = db.Stores.Where(x => x.CompanyId == compId).ToList();
-                var PendingOrder = db.Orders.Where(o => (o.OrderedDate == today || pendingStatusIds.Contains(o.OrderStatusId) || o.BillAmount != o.PaidAmount) && o.StoreId == storeId && advancedOrderTypeIds.Contains(o.OrderTypeId) && o.OrderJson != null).ToList();
+        //        var Category = db.Categories.Where(x => x.CompanyId == compId).ToList();
+        //        var TaxGroup = db.TaxGroups.Where(x => x.CompanyId == compId).ToList();
+        //        var Product = db.Products.Where(x => x.CompanyId == compId).ToList();
+        //        var DiningArea = db.DiningAreas.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToList();
+        //        var DiningTable = db.DiningTables.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToList();
+        //        var DiscountRule = db.DiscountRules.Where(x => x.CompanyId == compId).ToList();
+        //        var AdditionalCharge = db.AdditionalCharges.Where(x => x.CompanyId == compId).ToList();
+        //        var OrderType = db.OrderTypes.ToList();
+        //        var Customers = db.Customers.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToList();
+        //        var PaymentType = db.PaymentTypes.ToList();
+        //        var KotGroups = db.KOTGroups.Where(x => x.CompanyId == compId).ToList();
+        //        var StorePaymentTypes = db.StorePaymentTypes.Where(x => x.CompanyId == compId && x.StoreId == storeId).ToList();
+        //        var Stores = db.Stores.Where(x => x.CompanyId == compId).ToList();
+        //        var PendingOrder = db.Orders.Where(o => (o.OrderedDate == today || pendingStatusIds.Contains(o.OrderStatusId) || o.BillAmount != o.PaidAmount) && o.StoreId == storeId && advancedOrderTypeIds.Contains(o.OrderTypeId) && o.OrderJson != null).ToList();
 
-                var response = new
-                {
-                    status = 200,
-                    Category,
-                    TaxGroup,
-                    Product,
-                    DiningArea,
-                    DiningTable,
-                    DiscountRule,
-                    AdditionalCharge,
-                    OrderType,
-                    Customers,
-                    PaymentType,
-                    KotGroups,
-                    StorePaymentTypes,
-                    Stores,
-                    PendingOrder
-                };
-                return Json(response);
-            }
-            catch(Exception e)
-            {
-                var response = new
-                {
-                    status = 500,
-                    error = new Exception(e.Message, e.InnerException)
-                };
-                return Json(response);
-            }
-        }
+        //        var response = new
+        //        {
+        //            status = 200,
+        //            Category,
+        //            TaxGroup,
+        //            Product,
+        //            DiningArea,
+        //            DiningTable,
+        //            DiscountRule,
+        //            AdditionalCharge,
+        //            OrderType,
+        //            Customers,
+        //            PaymentType,
+        //            KotGroups,
+        //            StorePaymentTypes,
+        //            Stores,
+        //            PendingOrder
+        //        };
+        //        return Json(response);
+        //    }
+        //    catch(Exception e)
+        //    {
+        //        var response = new
+        //        {
+        //            status = 500,
+        //            error = new Exception(e.Message, e.InnerException)
+        //        };
+        //        return Json(response);
+        //    }
+        //}
         // GET api/<controller>/5
         [HttpGet("GetPrice")]
         public IActionResult GetPrice(int storeId)

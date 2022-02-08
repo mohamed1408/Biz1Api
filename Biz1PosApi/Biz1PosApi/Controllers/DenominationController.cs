@@ -163,6 +163,47 @@ namespace Biz1PosApi.Controllers
             }
         }
 
+        [HttpGet("denomReport_")]
+        public ActionResult denomReport_(int companyid, DateTime from, DateTime to, float margin)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+
+                SqlCommand cmd = new SqlCommand("dbo.DenomEntryReport_", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@fromdateTime", from));
+                cmd.Parameters.Add(new SqlParameter("@todateTime", to));
+                cmd.Parameters.Add(new SqlParameter("@companyId", companyid));
+                cmd.Parameters.Add(new SqlParameter("@margin", margin));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var obj = new
+                {
+                    status = 200,
+                    badStores = ds.Tables[0],
+                    missingStores = ds.Tables[1]
+                };
+                sqlCon.Close();
+                return Json(obj);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = "error",
+                    msg = "Something went wrong  Contact our service provider",
+                    orders = new JArray()
+                };
+                return Json(error);
+            }
+        }
+
         // GET: DeniminationController/Details/5
         public ActionResult Details(int id)
         {

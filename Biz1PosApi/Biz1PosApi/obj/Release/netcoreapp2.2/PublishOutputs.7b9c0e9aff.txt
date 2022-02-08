@@ -1,4 +1,5 @@
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\audio\plucky.mp3
+E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\email_template.html
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\htmlpages\password_reset.html
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\1471.jpg
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\1473.jpg
@@ -24,6 +25,10 @@ E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\w
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\1555.jpg
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\1560.jpg
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\Koala.jpg
+E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\image-1.jpeg
+E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\image-2.png
+E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\image-3.png
+E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\image-4.png
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\js\signalr\dist\browser\signalr.js
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\js\signalr\dist\browser\signalr.min.js
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\logs\myapp-20200814.txt

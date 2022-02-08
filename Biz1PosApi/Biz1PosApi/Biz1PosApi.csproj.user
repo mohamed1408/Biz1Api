@@ -3,6 +3,6 @@
   <PropertyGroup>
     <NameOfLastUsedPublishProfile>E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\Properties\PublishProfiles\biz1pos - Web Deploy1.pubxml</NameOfLastUsedPublishProfile>
     <Controller_SelectedScaffolderID>MvcControllerWithActionsScaffolder</Controller_SelectedScaffolderID>
-    <Controller_SelectedScaffolderCategoryPath>root/Controller</Controller_SelectedScaffolderCategoryPath>
+    <Controller_SelectedScaffolderCategoryPath>root/Common/MVC/Controller</Controller_SelectedScaffolderCategoryPath>
   </PropertyGroup>
 </Project>
