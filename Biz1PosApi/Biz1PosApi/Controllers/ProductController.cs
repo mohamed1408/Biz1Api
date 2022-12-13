@@ -62,6 +62,41 @@ namespace Biz1BookPOS.Controllers
         {
             return "value";
         }
+        [HttpGet("CompanyProducts")]
+        public IActionResult CompanyProducts(int companyid, int storeid)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.CompanyProducts", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+            cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+
+            string jstring = "";
+            for (int j = 0; j < ds.Tables[0].Rows.Count; j++)
+            {
+                jstring += ds.Tables[0].Rows[j].ItemArray[0].ToString();
+            }
+
+            return Json(JsonConvert.DeserializeObject(jstring));
+        }
+        [HttpGet("ProductOptionGroups")]
+        public IActionResult ProductOptionGroups(int companyid)
+        {
+            var pogs = db.ProductOptionGroups.Where(p => p.CompanyId == companyid).Select(s => new { s.CompanyId, s.Id, s.OptionGroupId, s.OptionGroup.Name, s.ProductId }).ToList();
+            return Json(pogs);
+        }
+        [HttpGet("OGOptions")]
+        public IActionResult OGOptions(int ogid)
+        {
+            var options = db.Options.Where(o => o.OptionGroupId == ogid).Select(s => new { s.CompanyId, s.Id, s.OptionGroupId, s.OptionGroup.Name, s.ProductId }).ToList();
+            return Json(options);
+        }
         [HttpPost("temp")]
         public void temp([FromForm]string objData)
         {
@@ -738,6 +773,7 @@ namespace Biz1BookPOS.Controllers
                 product.ModifiedDate = DateTime.Now;
                 product.Name = product.Name;
                 product.Description = product.Description;
+                product.IsQtyPredefined = db.PredefinedQuantities.Where(x => x.ProductId == product.Id).Any();
                 if(image != null)
                 product.ImgUrl = ImageUpload(product.CompanyId, image);
                 db.Entry(product).State = EntityState.Modified;

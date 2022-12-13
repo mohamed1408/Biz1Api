@@ -1,9 +1,11 @@
 ﻿using Biz1BookPOS.Models;
+using Biz1PosApi.Hubs;
 using Biz1PosApi.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -31,6 +33,7 @@ namespace Biz1PosApi.Controllers
         private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         public static IHostingEnvironment _environment;
         private object fileUploader;
+        private IHubContext<UrbanPiperHub, IHubClient> _uhubContext;
 
         public IConfiguration Configuration { get; }
         protected void Page_Load(object sender, EventArgs e)
@@ -38,11 +41,12 @@ namespace Biz1PosApi.Controllers
 
         }
 
-        public EcommerceController(POSDbContext contextOptions, IConfiguration configuration, IHostingEnvironment environment)
+        public EcommerceController(POSDbContext contextOptions, IConfiguration configuration, IHostingEnvironment environment, IHubContext<UrbanPiperHub, IHubClient> uhubContext)
         {
             db = contextOptions;
             Configuration = configuration;
             _environment = environment;
+            _uhubContext = uhubContext;
         }
 
         // GET: EcommerceController
@@ -68,6 +72,55 @@ namespace Biz1PosApi.Controllers
         public IActionResult Indexstoredata(int id)
         {
             return Json(db.Stores.Where(x => x.Id == id).ToList());
+        }
+        [HttpGet("terstuporderping")]
+        public IActionResult terstuporderping(int storeid)
+        {
+            try
+            {
+                _uhubContext.Clients.All.NewOrder("zomato", 0, storeid);
+                var response = new
+                {
+                    status = 200,
+                    msg = "Successfully Pinged"
+                };
+                return Json(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 500,
+                    msg = "Something went wrong."
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("OrderPing")]
+        public IActionResult OrderPing(int storeid, int orderid)
+        {
+            try
+            {
+                Order order = db.Orders.Find(orderid);
+                _uhubContext.Clients.All.NewFBOrder(storeid, order.Id, "NewOrder");
+                var response = new
+                {
+                    status = 200,
+                    msg = "Successfully Pinged"
+                };
+                return Json(response);
+            }
+            catch(Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 500,
+                    msg = "Something went wrong."
+                };
+                return Json(error);
+            }
         }
 
         // GET: EcommerceController/Details/5

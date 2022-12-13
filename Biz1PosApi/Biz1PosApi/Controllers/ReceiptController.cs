@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -34,6 +35,54 @@ namespace Biz1PosApi.Controllers
         //}
 
         // GET api/<controller>/5
+        [HttpGet("Invoices")]
+        public IActionResult Invoices(int companyid, int storeid, DateTime fromdate, DateTime todate, int startid, int endid, string invoice)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+
+                SqlCommand cmd = new SqlCommand("dbo.Invoices", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@comapnyid", companyid));
+                cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+                cmd.Parameters.Add(new SqlParameter("@fromdate", fromdate));
+                cmd.Parameters.Add(new SqlParameter("@todate", todate));
+                cmd.Parameters.Add(new SqlParameter("@startid", startid));
+                cmd.Parameters.Add(new SqlParameter("@endid", endid));
+                cmd.Parameters.Add(new SqlParameter("@invoice", invoice));
+                cmd.Parameters.Add(new SqlParameter("@top", 25));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+
+                DataTable table = ds.Tables[0];
+                var data = new
+                {
+                    invoices = ds.Tables[0],
+                    tot_sales = ds.Tables[1],
+                    message = "success",
+                    status = 200
+                };
+                sqlCon.Close();
+                return Ok(data);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    invoices = Array.Empty<JObject>(),
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
         [HttpGet("Get")]
         public IActionResult Get(int StoreId, int CompanyId, int StartId, string type, string dataType, DateTime? fromdate, DateTime? todate, string invoice)
         {
@@ -364,11 +413,33 @@ namespace Biz1PosApi.Controllers
             try
             {
                 List<Transaction> transactions = transactionlist.ToObject<List<Transaction>>();
-                foreach(Transaction transaction in transactions)
+                Order order = db.Orders.Find(transactions[0].OrderId);
+                List<Transaction> oldtransactions = db.Transactions.Where(x => x.OrderId == order.Id).ToList();
+                List<Transaction> alltranasctions = new List<Transaction>();
+                alltranasctions.AddRange(oldtransactions);
+
+                dynamic json = JsonConvert.DeserializeObject(order.OrderJson);
+                foreach (Transaction transaction in transactions)
                 {
-                    db.Transactions.Add(transaction);
+                    if(!alltranasctions.Where(x => x.TransDateTime == transaction.TransDateTime && x.Amount == transaction.Amount && x.StorePaymentTypeId == transaction.StorePaymentTypeId).Any())
+                    {
+                        alltranasctions.Add(transaction);
+                        db.Transactions.Add(transaction);
+                        db.SaveChanges();
+                    }
+                }
+                double totalpaid = (alltranasctions.Where(x => x.TranstypeId == 1).Select(x => x.Amount).Sum()) - (alltranasctions.Where(x => x.TranstypeId == 2).Select(x => x.Amount).Sum());
+                
+                if(totalpaid <= order.BillAmount)
+                {
+                    order.PaidAmount = totalpaid;
+                    json.alltransactions = JToken.FromObject(alltranasctions.Select(x => new { x.Amount, x.CompanyId, x.CustomerId, x.Id, x.ModifiedDateTime, x.Notes,x.TransDate,x.TransDateTime,x.TranstypeId,x.UserId }));
+                    json.PaidAmount = totalpaid;
+                    order.OrderJson = JsonConvert.SerializeObject(json);
+                    db.Entry(order).State = EntityState.Modified;
                     db.SaveChanges();
                 }
+
                 var error = new
                 {
                     status = 200,

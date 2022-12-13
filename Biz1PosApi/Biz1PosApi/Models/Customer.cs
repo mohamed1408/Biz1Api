@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Biz1PosApi.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -38,5 +39,8 @@ namespace Biz1BookPOS.Models
 
         [DataType(DataType.Date)]
         public DateTime ModifiedDate { get; set; }
+
+        [NotMapped]
+        public List<CustomerAddress> Addresses { get; set; }
     }
 }

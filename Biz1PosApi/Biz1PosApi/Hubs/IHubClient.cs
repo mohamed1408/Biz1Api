@@ -12,9 +12,10 @@ namespace Biz1PosApi.Hubs
         Task NewOrder(string platform, int UPOrderId, int storeid);
         Task TestEvent(ValueTask<UPOrderPayload> uPOrderPayload);
         Task OrderUpdate(long UPOrderId, int storeid);
-        Task RiderStatus(int UPOrderId, string platform);
+        Task RiderStatus(int UPOrderId, int storeid);
         Task JoinMessage(string message);
         Task ConnectedUsers(List<string> users);
-        Task DeliveryOrderUpdate(int fromstore, int tostore, string invoiceno);
+        Task DeliveryOrderUpdate(int fromstore, int tostore, string invoiceno, string action);
+        Task NewFBOrder(int storeid, int orderid, string action);
     }
 }

@@ -16,6 +16,7 @@ namespace Biz1PosApi.Controllers
     public class TransactionRptController : Controller
     {
         private POSDbContext db;
+        private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
 
         public IConfiguration Configuration { get; }
         public TransactionRptController(POSDbContext contextOptions, IConfiguration configuration)
@@ -132,6 +133,49 @@ namespace Biz1PosApi.Controllers
             }
         }
 
+        [HttpGet("FBOrderPayment")]
+        public IActionResult FBOrderPayment(int orderid, int sptid)
+        {
+            try
+            {
+                Order order = db.Orders.Find(orderid);
+                order.PaidAmount = order.BillAmount;
+                List<Transaction> transactions = db.Transactions.Where(x => x.OrderId == orderid).ToList();
+                db.Transactions.RemoveRange(transactions);
+                db.SaveChanges();
+                Transaction transaction = new Transaction();
+                transaction.Amount = order.BillAmount;
+                transaction.TransDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                transaction.TransDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                transaction.PaymentTypeId = 6;
+                transaction.StorePaymentTypeId = sptid;
+                transaction.StoreId = order.StoreId;
+                transaction.OrderId = order.Id;
+                transaction.CustomerId = order.CustomerId;
+                transaction.TranstypeId = 1;
+                transaction.PaymentStatusId = 0;
+                transaction.CompanyId = order.CompanyId;
+                transaction.ModifiedDateTime = transaction.TransDateTime;
+                db.Transactions.Add(transaction);
+                db.Entry(order).State = EntityState.Modified;
+                db.SaveChanges();
+                var prod = new
+                {
+                    paymenttype = db.PaymentTypes.ToList(),
+                };
+                return Json(prod);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
 
         [HttpGet("GetRprtt")]
         public IActionResult GetRprtt(DateTime frmdate, DateTime todate, int Id, int compId, int sourceId)

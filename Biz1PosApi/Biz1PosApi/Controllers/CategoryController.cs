@@ -649,9 +649,43 @@ namespace Biz1PosApi.Controllers
             }
 
         }
+        [HttpPost("UpdateSortOrder")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult UpdateSortOrder([FromBody]JArray cats)
+        {
+            try
+            {
+                string str_payload = JsonConvert.SerializeObject(cats);
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.SaveCategorySortOrder", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
 
+                cmd.Parameters.Add(new SqlParameter("@json", str_payload));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    msg = "Success",
+                    status = 200
+                };
+                return Json(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
 
-    } }
+        }
+    } 
+}
 
 
 

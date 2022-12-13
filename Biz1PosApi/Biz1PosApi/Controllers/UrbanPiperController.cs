@@ -146,7 +146,7 @@ namespace Biz1PosApi.Controllers
                 };
                 return Json(response);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var error = new
                 {
@@ -283,12 +283,26 @@ namespace Biz1PosApi.Controllers
                 {
                     error = new Exception(e.Message, e.InnerException),
                     status = "error",
-                    msg = "Something went wrong  Contact our service provider"
+                    msg = "Something went wrong  Contact our service provider",
+                    linenum = e.StackTrace
                 };
                 return StatusCode(500, error);
             }
         }
-
+        public static int GetLineNumber(Exception ex)
+        {
+            var lineNumber = 0;
+            const string lineSearch = ":line ";
+            var index = ex.StackTrace.LastIndexOf(lineSearch);
+            if (index != -1)
+            {
+                var lineNumberText = ex.StackTrace.Substring(index + lineSearch.Length);
+                if (int.TryParse(lineNumberText, out lineNumber))
+                {
+                }
+            }
+            return lineNumber;
+        }
         [HttpPost("AddStoreCallback")]
         public IActionResult AddStoreCallback([FromBody] JObject value)
         {
@@ -307,7 +321,7 @@ namespace Biz1PosApi.Controllers
                 uPLog.Json = JsonConvert.SerializeObject(value);
                 db.UPLogs.Add(uPLog);
                 db.SaveChanges();
-                if(referenceid != null)
+                if (referenceid != null)
                 {
                     foreach (var store in json.stores)
                     {
@@ -352,11 +366,11 @@ namespace Biz1PosApi.Controllers
                                         upstore.IsSwiggy = true;
                                         upstore.Swiggy = true;
                                     }
-                                    //if (platform == "urbanpiper")
-                                    //{
-                                    //    upstore.IsUrbanPiper = true;
-                                    //    upstore.UrbanPiper = true;
-                                    //}
+                                    if (platform == "amazon")
+                                    {
+                                        upstore.IsAmazon = true;
+                                        upstore.Amazon = true;
+                                    }
                                     if (platform == "dunzo")
                                     {
                                         upstore.IsDunzo = true;
@@ -401,11 +415,11 @@ namespace Biz1PosApi.Controllers
                                         upstore.IsDunzo = false;
                                         upstore.Dunzo = false;
                                     }
-                                    //if (platform == "ubereats")
-                                    //{
-                                    //    upstore.IsUrbanPiper = false;
-                                    //    upstore.UberEats = false;
-                                    //}
+                                    if (platform == "amazon")
+                                    {
+                                        upstore.IsAmazon = false;
+                                        upstore.Amazon = false;
+                                    }
                                     //if (platform == "foodpanda")
                                     //{
                                     //    upstore.FoodPanda = false;
@@ -468,10 +482,11 @@ namespace Biz1PosApi.Controllers
                                         upstore.IsDunzo = true;
                                         upstore.Dunzo = true;
                                     }
-                                    //if (platform == "ubereats")
-                                    //{
-                                    //    upstore.UberEats = true;
-                                    //}
+                                    if (platform == "amazon")
+                                    {
+                                        upstore.IsAmazon = true;
+                                        upstore.Amazon = true;
+                                    }
                                     //if (platform == "foodpanda")
                                     //{
                                     //    upstore.FoodPanda = true;
@@ -512,10 +527,11 @@ namespace Biz1PosApi.Controllers
                                         upstore.IsDunzo = false;
                                         upstore.Dunzo = false;
                                     }
-                                    //if (platform == "ubereats")
-                                    //{
-                                    //    upstore.UberEats = false;
-                                    //}
+                                    if (platform == "amazon")
+                                    {
+                                        upstore.IsAmazon = false;
+                                        upstore.Amazon = false;
+                                    }
                                     //if (platform == "foodpanda")
                                     //{
                                     //    upstore.FoodPanda = false;
@@ -538,7 +554,7 @@ namespace Biz1PosApi.Controllers
                     msg = "Store Added/Updated successfully"
                 };
                 string response = json.reference;
-                if(response != null)
+                if (response != null)
                 {
                     WebhookResponse WebhookResponse = db.WebhookResponses.Where(x => x.RefId == response).FirstOrDefault();
                     WebhookResponse.StatusCode = 200;
@@ -558,7 +574,7 @@ namespace Biz1PosApi.Controllers
 
                 dynamic json = value;
                 string response = json.reference;
-                if(response != null)
+                if (response != null)
                 {
                     WebhookResponse WebhookResponse = db.WebhookResponses.Where(x => x.RefId == response).FirstOrDefault(); ;
                     WebhookResponse.StatusCode = 500;
@@ -826,7 +842,7 @@ namespace Biz1PosApi.Controllers
                     uPCategory.name = category.Description;
                     uPCategory.ref_id = category.Id.ToString();
                     uPCategory.sort_order = category.SortOrder;
-                    if(category.ParentCategoryId != null)
+                    if (category.ParentCategoryId != null)
                     {
                         uPCategory.parent_ref_id = new List<string>();
                         uPCategory.parent_ref_id.Add(category.ParentCategoryId.ToString());
@@ -836,7 +852,7 @@ namespace Biz1PosApi.Controllers
                 }
                 foreach (Product product in products)
                 {
-                    if(db.Categories.Find(product.CategoryId).IsUPCategory == true)
+                    if (db.Categories.Find(product.CategoryId).IsUPCategory == true)
                     {
                         UPItem uPItem = new UPItem();
                         uPItem.available = true;
@@ -851,11 +867,11 @@ namespace Biz1PosApi.Controllers
                         uPItem.tags = new JObject();
                         uPItem.price = product.UPPrice;
                         uPItem.ref_id = product.Id;
-                        uPItem.sort_order = (product.SortOrder!=null)?product.SortOrder:0;
+                        uPItem.sort_order = (product.SortOrder != null) ? product.SortOrder : 0;
                         uPItem.sold_at_store = true;
                         uPItem.title = product.Name;
                         uPItem.recommended = product.Recomended;
-                        if(product.ImgUrl != null)
+                        if (product.ImgUrl != null)
                         {
                             uPItem.img_url = product.ImgUrl;
                         }
@@ -868,9 +884,9 @@ namespace Biz1PosApi.Controllers
                     foreach (ProductOptionGroup productOptionGroup in productOptionGroups)
                     {
                         int categoryid = db.Products.Find(productOptionGroup.ProductId).CategoryId;
-                        if(db.Categories.Find(categoryid).IsUPCategory == true)
+                        if (db.Categories.Find(categoryid).IsUPCategory == true)
                         {
-                            if(masterCatalogue.option_groups.Where(x => x.ref_id == optionGroup.Id.ToString()).FirstOrDefault() != null)
+                            if (masterCatalogue.option_groups.Where(x => x.ref_id == optionGroup.Id.ToString()).FirstOrDefault() != null)
                             {
                                 masterCatalogue.option_groups.Where(x => x.ref_id == optionGroup.Id.ToString()).FirstOrDefault().item_ref_ids.Add(productOptionGroup.ProductId.ToString());
                             }
@@ -891,7 +907,7 @@ namespace Biz1PosApi.Controllers
                 }
                 foreach (Option option in options)
                 {
-                    if(masterCatalogue.option_groups.Where(x => x.ref_id == option.OptionGroupId.ToString()).FirstOrDefault() != null)
+                    if (masterCatalogue.option_groups.Where(x => x.ref_id == option.OptionGroupId.ToString()).FirstOrDefault() != null)
                     {
                         UPOption uPOption = new UPOption();
                         uPOption.available = true;
@@ -908,7 +924,7 @@ namespace Biz1PosApi.Controllers
                 }
                 foreach (TaxGroup taxGroup in taxGroups)
                 {
-                    if(products.Where(x => x.TaxGroupId == taxGroup.Id).Count() > 0)
+                    if (products.Where(x => x.TaxGroupId == taxGroup.Id).Count() > 0)
                     {
                         UPTax cgst_tax = new UPTax();
                         cgst_tax.active = true;
@@ -916,7 +932,7 @@ namespace Biz1PosApi.Controllers
                         cgst_tax.title = "SGST";
                         cgst_tax.description = taxGroup.Tax1.ToString() + "% CGST on all items";
                         cgst_tax.structure = new JObject(
-                            new JProperty("value",taxGroup.Tax1)
+                            new JProperty("value", taxGroup.Tax1)
                             );
                         UPTax sgst_tax = new UPTax();
                         sgst_tax.active = true;
@@ -946,7 +962,7 @@ namespace Biz1PosApi.Controllers
                 //IRestResponse response = client.Execute(request);
                 return StatusCode(200, masterCatalogue);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var error = new
                 {
@@ -1186,7 +1202,7 @@ namespace Biz1PosApi.Controllers
         }
 
         [HttpPost("BulkCatalogue")]
-        public IActionResult BulkCatalogue([FromForm]string catalogue, int companyId)
+        public IActionResult BulkCatalogue([FromForm] string catalogue, int companyId)
         {
             try
             {
@@ -1382,12 +1398,12 @@ namespace Biz1PosApi.Controllers
                 ////200
                 else if (response.StatusCode == HttpStatusCode.OK)
                 {
-                        var error = new
-                        {
-                            status = 200,
-                            message = response.Content
-                        };
-                        return StatusCode(200, error);
+                    var error = new
+                    {
+                        status = 200,
+                        message = response.Content
+                    };
+                    return StatusCode(200, error);
                 }
                 else
                 {
@@ -1534,7 +1550,7 @@ namespace Biz1PosApi.Controllers
         [EnableCors("AllowOrigin")]
         public void Order1([FromBody] JObject data)
         {
-            SaveOnlineOrder(data,0);
+            SaveOnlineOrder(data, 0);
         }
         //[HttpPost("SaveOrder")]
         //public IActionResult SaveOrder([FromBody] JObject data)
@@ -1560,7 +1576,7 @@ namespace Biz1PosApi.Controllers
                 };
                 return Ok(response);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var response = new
                 {
@@ -1571,7 +1587,7 @@ namespace Biz1PosApi.Controllers
             }
         }
         [HttpGet("ChannelTest")]
-        public async Task<IActionResult> ChannelTest([FromServices]Channel<UPOrderPayload> channel, int uporderid)
+        public async Task<IActionResult> ChannelTest([FromServices] Channel<UPOrderPayload> channel, int uporderid)
         {
             try
             {
@@ -1589,7 +1605,7 @@ namespace Biz1PosApi.Controllers
                 };
                 return Ok(response);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var response = new
                 {
@@ -1601,7 +1617,7 @@ namespace Biz1PosApi.Controllers
         }
 
         [HttpPost("SaveOrderAsyncTest")]
-        public async Task<IActionResult> SaveOrderAsyncTest([FromBody]JObject data)
+        public async Task<IActionResult> SaveOrderAsyncTest([FromBody] JObject data)
         {
             try
             {
@@ -1656,7 +1672,7 @@ namespace Biz1PosApi.Controllers
                 db.SaveChanges();
                 return Json(uPOrder);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var error = new
                 {
@@ -1666,19 +1682,93 @@ namespace Biz1PosApi.Controllers
                 return Ok(error);
             }
         }
+        [HttpPost("StatusChangeAsync")]
+        public async Task<IActionResult> StatusChangeAsync([FromBody] JObject value, [FromServices] Channel<UPRawPayload> channel)
+        {
+            try
+            {
+                dynamic json = value;
+                string JsonString = JsonConvert.SerializeObject(json);
+                long uporderid = json.order_id;
+                if (await db.Orders.Where(x => x.UPOrderId == uporderid).AnyAsync() && await db.UPOrders.Where(x => x.UPOrderId == uporderid).AnyAsync())
+                {
+                    UPRawPayload rawPayload = new UPRawPayload()
+                    {
+                        Payload = JsonString,
+                        PayloadType = "order_status_update",
+                        retry_count = 0
+                    };
+                    await channel.Writer.WriteAsync(rawPayload);
+                }
+                var response = new
+                {
+                    status = 200,
+                    msg = "Order Status " + json.new_state + " updated!"
+                };
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                var error = new
+                {
+                    error = new Exception(ex.Message, ex.InnerException),
+                    status = 500,
+                    msg = "Something went wrong Contact our service provider"
+                };
+                return Ok(error);
+            }
+        }
+        [HttpPost("RiderStatusAsync")]
+        public async Task<IActionResult> RiderStatusAsync([FromBody] JObject value, [FromServices] Channel<UPRawPayload> channel)
+        {
+            try
+            {
+                dynamic json = value;
+                string JsonString = JsonConvert.SerializeObject(json);
+                long uporderid = json.order_id;
+                if (await db.Orders.Where(x => x.UPOrderId == uporderid).AnyAsync() && await db.UPOrders.Where(x => x.UPOrderId == uporderid).AnyAsync())
+                {
+                    UPRawPayload rawPayload = new UPRawPayload()
+                    {
+                        Payload = JsonString,
+                        PayloadType = "rider_status_update",
+                        retry_count = 0
+                    };
+                    await channel.Writer.WriteAsync(rawPayload);
+                }
+                var response = new
+                {
+                    status = 200,
+                    msg = "Order Status " + json.new_state + " updated!"
+                };
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                var error = new
+                {
+                    error = new Exception(ex.Message, ex.InnerException),
+                    status = 500,
+                    msg = "Something went wrong Contact our service provider"
+                };
+                return Ok(error);
+            }
+        }
         [HttpPost("SaveOrderAsync")]
-        public async Task<IActionResult> SaveOrderAsync([FromBody]JObject data, [FromServices]Channel<UPRawPayload> channel)
+        public async Task<IActionResult> SaveOrderAsync([FromBody] JObject data, [FromServices] Channel<UPRawPayload> channel)
         {
             try
             {
                 dynamic Json = data;
                 string JsonString = JsonConvert.SerializeObject(Json);
                 string UPOrderId = Json.order.details.id.ToString();
-                if(!await db.Orders.Where(x => x.UPOrderId == Int32.Parse(UPOrderId)).AnyAsync())
+                if (!await db.Orders.Where(x => x.UPOrderId == Int32.Parse(UPOrderId)).AnyAsync())
                 {
                     UPRawPayload rawPayload = new UPRawPayload()
                     {
-                        Payload = JsonString
+                        Payload = JsonString,
+                        PayloadType = "place_order",
+                        retry_count = 0
                     };
                     await channel.Writer.WriteAsync(rawPayload);
                 }
@@ -1750,7 +1840,7 @@ namespace Biz1PosApi.Controllers
                 };
                 return Ok(response);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var error = new
                 {
@@ -1777,7 +1867,7 @@ namespace Biz1PosApi.Controllers
                 sqlAdp.Fill(ds);
                 Console.WriteLine("Success Saved Order To DB");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine($"Message: {e.Message} InnerException: {e.InnerException.Message}");
             }
@@ -1785,7 +1875,7 @@ namespace Biz1PosApi.Controllers
 
         [HttpPost("Order")]
         [EnableCors("AllowOrigin")]
-        public IActionResult Order([FromBody]JObject data)
+        public IActionResult Order([FromBody] JObject data)
         {
             try
             {
@@ -1914,7 +2004,7 @@ namespace Biz1PosApi.Controllers
                         db.UPOrders.Add(order);
                         db.SaveChanges();
                         _log.LogInformation("Order Payload -- storeid - " + storeId + " --orderid - " + order.UPOrderId);
-                        SaveOnlineOrder(data,0);
+                        SaveOnlineOrder(data, 0);
                     }
                     dbContextTransaction.Commit();
                     //Program.emit_order(socketdata, room);
@@ -1971,7 +2061,7 @@ namespace Biz1PosApi.Controllers
                 };
                 return Json(response);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var error = new
                 {
@@ -2004,7 +2094,7 @@ namespace Biz1PosApi.Controllers
             request.AddHeader("Authorization", "apikey " + username + ":" + apikey);
             request.AddParameter("application / json", JsonConvert.DeserializeObject(statusdata), ParameterType.RequestBody);
             IRestResponse response = client.Execute(request);
-            _log.LogInformation("Order Status -- storeid - " + storeid + " --orderid - " + orderId +" --statusid - "+ orderstatusid);
+            _log.LogInformation("Order Status -- storeid - " + storeid + " --orderid - " + orderId + " --statusid - " + orderstatusid);
 
             var resp = new
             {
@@ -2055,7 +2145,7 @@ namespace Biz1PosApi.Controllers
                         //json.acknowledged = json.timestamp_unix;
                         //order.OrderStatusDetails = JsonConvert.SerializeObject(os_json);
                     }
-                    if(upOrder.AcceptedTimeStamp == null)
+                    if (upOrder.AcceptedTimeStamp == null)
                     {
                         dynamic statusdetails = new object();
                         statusdetails.accepted = json.timestamp_unix;
@@ -2153,7 +2243,7 @@ namespace Biz1PosApi.Controllers
                         //dynamic os_json = JsonConvert.DeserializeObject(order.OrderStatusDetails);
                         //json.completed = json.timestamp_unix;
                         //order.OrderStatusDetails = JsonConvert.SerializeObject(os_json);
-                        
+
                     }
                     if (upOrder.AcceptedTimeStamp == null)
                     {
@@ -2387,7 +2477,7 @@ namespace Biz1PosApi.Controllers
                         additionalCharges = db.AdditionalCharges.Where(x => x.Description == "Delivery Charge").FirstOrDefault();
                     }
                     TaxGroup taxGroup = db.TaxGroups.Where(x => x.Id == additionalCharges.TaxGroupId).FirstOrDefault();
-                    if(taxGroup != null)
+                    if (taxGroup != null)
                     {
                         OrderCharges orderCharge = new OrderCharges();
                         orderCharge.OrderId = neworder.Id;

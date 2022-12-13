@@ -29,7 +29,7 @@ namespace Biz1PosApi.Controllers
             return View();
         }
         [HttpGet("GetRpt")]
-        public IActionResult GetRpt(DateTime frmdate, DateTime todate, int Id, int compId, int categoryId, int sourceId, int tagId, int datatype)
+        public IActionResult GetRpt(DateTime frmdate, DateTime todate, int Id, int compId, int categoryId, int sourceId, int tagId, int datatype, string storekey, string sourcekey)
         {
             try
             {
@@ -46,6 +46,8 @@ namespace Biz1PosApi.Controllers
                 cmd.Parameters.Add(new SqlParameter("@sourceId", sourceId));
                 cmd.Parameters.Add(new SqlParameter("@tagId", tagId));
                 cmd.Parameters.Add(new SqlParameter("@datatype", datatype));
+                cmd.Parameters.Add(new SqlParameter("@storekey", storekey));
+                cmd.Parameters.Add(new SqlParameter("@sourceKey", sourcekey));
 
                 DataSet ds = new DataSet();
                 SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);

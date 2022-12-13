@@ -223,15 +223,16 @@ namespace Biz1BookPOS.Controllers
                     claims.Add(new Claim("user", user.Name));
                     claims.Add(new Claim("userid", user.Id.ToString()));
                     claims.Add(new Claim("roleid", roleid.ToString()));
+                    claims.Add(new Claim("companyid", account.CompanyId.ToString()));
                     //claims.Add(new Claim(ClaimTypes.Expiration, userInfo.EmailId));
 
                     //create token
                     var token = new JwtSecurityToken(
-                    issuer: _config["Jwt:Issuer"],
-                    audience: "readers",
-                    expires: DateTime.Now.AddHours(1),
-                    signingCredentials: signingCredentials,
-                    claims: claims
+                        issuer: _config["Jwt:Issuer"],
+                        audience: "readers",
+                        expires: roleid == 1 ? DateTime.Now.AddYears(1) : DateTime.Now.AddHours(1),
+                        signingCredentials: signingCredentials,
+                        claims: claims
                     );
                     jtoken = new JwtSecurityTokenHandler().WriteToken(token);
                     msg = "Pin matched";
@@ -361,31 +362,31 @@ namespace Biz1BookPOS.Controllers
                 int result = Int32.Parse(row["Success"].ToString());
                 Accounts accounts = new Accounts();
                 Company company = new Company();
+                ActionResult tokenString;
                 if (result == 0)
                 {
                     var_status = 200;
-                    var_detail = ds.Tables[1];
+                    //var_detail = ds.Tables[1];
                     var_msg = "LoggedIn Successfully";
-                    var tokenString = GenerateJSONWebToken(registration);
+                    tokenString = GenerateJSONWebToken(registration);
                     response = Ok(new { token = tokenString });
-                    orderNo = ds.Tables[2];
+                    //orderNo = ds.Tables[2];
                     accounts = db.Accounts.Where(x => x.Email == registration.EmailId).FirstOrDefault();
                     company = db.Companies.Find(accounts.CompanyId);
                 }
                 else
                 {
-                  
                     var_status = 0;
                     var_msg = "Invalid EmailId or Password/Email not confirmed";
                 }
                 var returnArray = new
                 {
                     status = var_status,
-                    data = var_detail,
-                    OrderNo = orderNo,
+                    //data = var_detail,
+                    //OrderNo = orderNo,
                     msg = var_msg,
                     token = response,
-                    result = result,
+                    //result = result,
                     emailId = registration.EmailId,
                     company = company
                 };
@@ -424,11 +425,11 @@ namespace Biz1BookPOS.Controllers
 
             //create token
             var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: "readers",
-            expires: DateTime.Now.AddYears(1),
-            signingCredentials: signingCredentials,
-            claims: claims
+                issuer: _config["Jwt:Issuer"],
+                audience: "readers",
+                expires: DateTime.Now.AddYears(1),
+                signingCredentials: signingCredentials,
+                claims: claims
             );
 
             //return token
@@ -543,6 +544,10 @@ namespace Biz1BookPOS.Controllers
             kosaksi.uname = accounts.Email;
             kosaksi.pass = DecryptString(accounts.Password);
             kosaksi.users = db.Users.Where(x => x.CompanyId == id).ToList();
+            kosaksi.users.ForEach(user =>
+            {
+                user.Store = String.Join(",",db.Stores.Where(x => db.UserStores.Where(y => y.UserId == user.Id && y.StoreId == x.Id).Any()).Select(x => x.Name).ToArray());
+            });
             return Ok(kosaksi);
         }
 

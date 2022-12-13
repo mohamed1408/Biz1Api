@@ -24,7 +24,7 @@ namespace Biz1PosApi.Controllers
         }
 
         [HttpGet("GetCategRpt")]
-        public IActionResult GetCategRpt(DateTime frmdate, DateTime todate, int Id, int companyId, int ParentCatId, int sourceId)
+        public IActionResult GetCategRpt(DateTime frmdate, DateTime todate, int Id, int companyId, int ParentCatId, int sourceId, string store_key, string sourcekey)
         {
             try
             {
@@ -37,9 +37,11 @@ namespace Biz1PosApi.Controllers
                 cmd.Parameters.Add(new SqlParameter("@fromDate", frmdate));
                 cmd.Parameters.Add(new SqlParameter("@toDate", todate));
                 cmd.Parameters.Add(new SqlParameter("@storeId", Id));
+                cmd.Parameters.Add(new SqlParameter("@storekey", store_key));
                 cmd.Parameters.Add(new SqlParameter("@companyId", companyId));
                 cmd.Parameters.Add(new SqlParameter("@parentcat", ParentCatId));
                 cmd.Parameters.Add(new SqlParameter("@sourceId", sourceId));
+                cmd.Parameters.Add(new SqlParameter("@sourceKey", sourcekey));
                 DataSet ds = new DataSet();
                 SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
                 sqlAdp.Fill(ds);
@@ -53,11 +55,7 @@ namespace Biz1PosApi.Controllers
             }
             catch (Exception ex)
             {
-                var error = new
-                {
-                    status = 0,
-                    msg = ex.InnerException.Message
-                };
+                var error = new Exception(ex.Message, ex.InnerException);
                 return Json(error);
             }
         }

@@ -333,7 +333,7 @@ namespace Biz1PosApi.Controllers
                 // Send a message to the devices subscribed to the provided topic.
                 //string response = await messaging.SendAsync(message);
                 // Response is a message ID string.
-                //Console.WriteLine("Successfully sent message: " + response);
+                //System.Diagnostics.Debug.WriteLine("Successfully sent message: " + response);
                 return "hh";
             }
             catch (Exception ex)
@@ -617,7 +617,7 @@ namespace Biz1PosApi.Controllers
             //using (var hubConnection = new HubConnection("https://biz1pos.azurewebsites.net/uphub/"))
             //{
             //    IHubProxy stockTickerHubProxy = hubConnection.CreateHubProxy("StockTickerHub");
-            //    //stockTickerHubProxy.On<Stock>("UpdateStockPrice", stock => Console.WriteLine("Stock update for {0} new price {1}", stock.Symbol, stock.Price));
+            //    //stockTickerHubProxy.On<Stock>("UpdateStockPrice", stock => System.Diagnostics.Debug.WriteLine("Stock update for {0} new price {1}", stock.Symbol, stock.Price));
             //    hubConnection.Start().Wait();
             //    stockTickerHubProxy.Invoke("joinroom", "22/3");
             //}
@@ -641,15 +641,65 @@ namespace Biz1PosApi.Controllers
             DataTable table = ds.Tables[0];
             return Json(ds.Tables[0]);
         }
-        [HttpPost("instamojotest")]
+        [HttpGet("storeupproducts")]
         [EnableCors("AllowOrigin")]
-        public IActionResult instamojotest([FromForm]double amount)
+        public IActionResult storeupproducts(int companyid)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+
+            SqlCommand cmd = new SqlCommand("dbo.storeupproducts", sqlCon);
+            cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+            cmd.CommandType = CommandType.StoredProcedure;
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+
+            DataTable table = ds.Tables[0];
+            return Json(ds.Tables[0]);
+        }
+        [HttpGet("spttest")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult spttest(int storeid, DateTime date)
         {
             try
             {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+
+                SqlCommand cmd = new SqlCommand("dbo.StorePaymentsByDay", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+                cmd.Parameters.Add(new SqlParameter("@date", date));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+
+                DataTable table = ds.Tables[0];
+                int phonePe = 0;
+                int others = 0;
+
+                for (int j = 0; j < ds.Tables[0].Rows.Count; j++)
+                {
+                    if(ds.Tables[0].Rows[j].ItemArray[0].ToString() == "PhonePe")
+                    {
+                        phonePe = Convert.ToInt32(ds.Tables[0].Rows[j].ItemArray[2]);
+                    }
+                    else
+                    {
+                        others = others + Convert.ToInt32(ds.Tables[0].Rows[j].ItemArray[2]);
+                    }
+                }
+
                 var response = new
                 {
-                    message = "Data recieved successfully!",
+                    message = new
+                    {
+                        phonePe,
+                        others
+                    },
                     status = 200
                 };
                 return Json(response);
@@ -698,6 +748,58 @@ namespace Biz1PosApi.Controllers
                 htmlString
             };
             return Json(response);
+        }
+        public class storeDataItemConfig
+        {
+            public string query { get; set; }
+            public List<SqlParam> sqlparams { get; set; }
+            public storeDataItemConfig(string _query)
+            {
+                query = _query;
+                sqlparams = new List<SqlParam>();
+            }
+        }
+
+
+        public class SqlParam
+        {
+            public SqlParam(string key, dynamic value)
+            {
+                this.key = key;
+                this.value = value;
+            }
+            public string key;
+            public dynamic value;
+        }
+
+        [HttpGet("asyncTest")]
+        [EnableCors("AllowOrigin")]
+        public void asyncTest(int storeid, int companyid)
+        {
+            var task1 = Task1();
+            var task2 = Task2();
+            var task3 = Task3();
+
+            Task.WaitAll(task1, task2, task3);
+        }
+
+        public async Task Task1()
+        {
+            Debug.WriteLine("TASK1 START: -- " + DateTime.Now.ToString());
+            await Task.Delay(5 * 1000);
+            Debug.WriteLine("TASK1 START: -- " + DateTime.Now.ToString());
+        }
+        public async Task Task2()
+        {
+            Debug.WriteLine("TASK2 START: -- " + DateTime.Now.ToString());
+            await Task.Delay(5 * 1000);
+            Debug.WriteLine("TASK2 START: -- " + DateTime.Now.ToString());
+        }
+        public async Task Task3()
+        {
+            Debug.WriteLine("TASK3 START: -- " + DateTime.Now.ToString());
+            await Task.Delay(5 * 1000);
+            Debug.WriteLine("TASK3 START: -- " + DateTime.Now.ToString());
         }
     }
 }

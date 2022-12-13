@@ -24,21 +24,17 @@ namespace Biz1PosApi.Controllers
             return View();
         }
         [HttpGet("Get")]
-        public IActionResult Get()
+        public IActionResult Get(int storeId)
         {
-            var printer = db.Printers.ToList();
+            var printer = db.Printers.Where(x => x.StoreId == storeId).ToList();
             return Ok(printer);
         }
 
         [HttpPost("Create")]
         [EnableCors("AllowOrigin")]
-        public IActionResult Create([FromForm]string data)
+        public IActionResult Create([FromBody]Printer data)
         {
-
-            dynamic add = JsonConvert.DeserializeObject(data);
-
-            Printer printer = add.ToObject<Printer>();
-            db.Printers.Add(printer);
+            db.Printers.Add(data);
             db.SaveChanges();
             var error = new
             {
@@ -52,6 +48,7 @@ namespace Biz1PosApi.Controllers
 
             return Json(error);
         }
+
         [HttpPost("getPrinters")]
         [EnableCors("AllowOrigin")]
         public void getPrinters([FromForm]string data)

@@ -89,6 +89,65 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpGet("Dashboards")]
+        public IActionResult Dashboards(DateTime fromdate, DateTime todate, int storeid, int userid, int companyid)
+        {
+            try
+            {
+                //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.DasboardData", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@fromdate", fromdate));
+                cmd.Parameters.Add(new SqlParameter("@todate", todate));
+                cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+                cmd.Parameters.Add(new SqlParameter("@userid", userid));
+                cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                DataTable table = ds.Tables[0];
+
+                var data = new
+                {
+                    Sales = ds.Tables[0]
+                };
+                sqlCon.Close();
+                return Json(data);
+            }
+            catch(Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("UserStores")]
+        public IActionResult UserStores(int userid)
+        {
+            try
+            {
+                var stores = db.UserStores.Where(x => x.UserId == userid).Select(s => new { s.StoreId, s.Store.Name });
+                return Json(stores);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
 
         // PUT api/<controller>/5
         [HttpGet("GetUserCompanies")]

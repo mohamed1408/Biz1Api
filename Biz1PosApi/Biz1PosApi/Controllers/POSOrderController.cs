@@ -502,7 +502,7 @@ namespace Biz1PosApi.Controllers
                     alert.Note = mailbody;
                     db.Alerts.Add(alert);
                     db.SaveChanges();
-                    send_alert_email(mailbody);
+                    // send_alert_email(mailbody);
                 }
                 if (db.Orders.Where(x => x.InvoiceNo == invoiceno && x.CreatedTimeStamp == createdtimestamp).Any())
                 {
@@ -544,12 +544,12 @@ namespace Biz1PosApi.Controllers
                             DataTable table = ds.Tables[0];
                             data = table;
                             //Your Code
-
+                            invoiceno = (string)table.Rows[0].ItemArray[1];
                             tran.Commit(); //both are successful
                             conn.Close();
                             if(orderjson.DeliveryStoreId != null)
                             {
-                                _uhubContext.Clients.All.DeliveryOrderUpdate((int)orderjson.StoreId, (int)orderjson.DeliveryStoreId, (string)orderjson.InvoiceNo);
+                                _uhubContext.Clients.All.DeliveryOrderUpdate((int)orderjson.StoreId, (int)orderjson.DeliveryStoreId, invoiceno, "NEW_ORDER");
                             }
                         }
                         catch (Exception e)
@@ -606,6 +606,8 @@ namespace Biz1PosApi.Controllers
                     raworder.Id = raworder.OrderId;
                     Order order = raworder.ToObject<Order>();
                     order.OrderStatusId = raworder.OrderStatusId;
+                    double factor = db.StoreFIlters.Where(x => x.StoreId == order.StoreId).Any() ? db.StoreFIlters.Where(x => x.StoreId == order.StoreId).FirstOrDefault().FIlterValue : 1.0;
+                    order.TotalAmount = (order.BillAmount - order.Tax1 - order.Tax2 - order.Tax3) * factor;
                     foreach (string citem in raworder.changeditems)
                     {
                         if (citem == "transaction")
@@ -626,11 +628,12 @@ namespace Biz1PosApi.Controllers
                     order.DeliveryDate = order.DeliveryDateTime == null ? order.OrderedDate : order.DeliveryDateTime;
                     order.DeliveryStoreId = order.DeliveryStoreId == null ? order.StoreId : order.DeliveryStoreId;
                     order.OrderedTime = db.Orders.Where(x => x.Id == order.Id).AsNoTracking().FirstOrDefault().OrderedTime;
+                    order.ItemJson = JsonConvert.SerializeObject(raworder.Items);
                     db.Entry(order).State = EntityState.Modified;
                     db.SaveChanges();
                     if(order.DeliveryStoreId != null)
                     {
-                        _uhubContext.Clients.All.DeliveryOrderUpdate((int)order.StoreId, (int)order.DeliveryStoreId, order.InvoiceNo);
+                        _uhubContext.Clients.All.DeliveryOrderUpdate((int)order.StoreId, (int)order.DeliveryStoreId, order.InvoiceNo, "EDIT_ORDER");
                     }
                     var response = new
                     {
@@ -993,7 +996,7 @@ namespace Biz1PosApi.Controllers
             SmtpClient client = new SmtpClient("smtp.gmail.com", 587); //Gmail smtp    
             client.UseDefaultCredentials = false;
             NetworkCredential basicCredential1 = new
-            NetworkCredential("fbcakes.biz1@gmail.com", "PassworD@1");
+            NetworkCredential("fbcakes.biz1@gmail.com", "gbtadloysiheibai");
 
             client.EnableSsl = true;
             client.UseDefaultCredentials = false;
@@ -2188,7 +2191,7 @@ namespace Biz1PosApi.Controllers
                 int[] advancedOrderTypeIds = { 2,3,4 };
 
                 DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
-                List<Order> order = db.Orders.Where(o => (o.OrderedDate == today || pendingStatusIds.Contains(o.OrderStatusId) || o.BillAmount != o.PaidAmount) && o.StoreId == storeid && advancedOrderTypeIds.Contains(o.OrderTypeId) && o.OrderJson != null).ToList();
+                List<Order> order = db.Orders.Where(o => (pendingStatusIds.Contains(o.OrderStatusId)) && o.StoreId == storeid && advancedOrderTypeIds.Contains(o.OrderTypeId) && o.OrderJson != null).ToList();
                 return Json(order);
             }
             catch (Exception e)
@@ -2234,23 +2237,36 @@ namespace Biz1PosApi.Controllers
         [HttpGet("Getpendingorder")]
         public IActionResult Getpendingorder(int CompanyId, int storeId)
         {
-            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
-            sqlCon.Open();
-            SqlCommand cmd = new SqlCommand("dbo.PendingOrder", sqlCon);
-            cmd.CommandType = CommandType.StoredProcedure;
-
-            cmd.Parameters.Add(new SqlParameter("@CompanyId", CompanyId));
-            cmd.Parameters.Add(new SqlParameter("@storeId ", storeId));
-
-            DataSet ds = new DataSet();
-            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
-            sqlAdp.Fill(ds);
-            DataTable table = ds.Tables[0];
-            var response = new
+            try
             {
-                Orders = ds.Tables[0]
-            };
-            return Ok(response);
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.PendingOrder", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@CompanyId", CompanyId));
+                cmd.Parameters.Add(new SqlParameter("@storeId ", storeId));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                DataTable table = ds.Tables[0];
+                var response = new
+                {
+                    Orders = ds.Tables[0]
+                };
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
         }
 
         [HttpGet("GetOrderId")]
@@ -2273,6 +2289,73 @@ namespace Biz1PosApi.Controllers
             return Ok(response);
         }
 
+        [HttpPost("completePayment")]
+        public IActionResult completePayment([FromBody]List<CompleteOrderPayload> payloads)
+        {
+            try
+            {
+                foreach (CompleteOrderPayload pl in payloads)
+                {
+                    Order ord = db.Orders.Find(pl.orderid);
+                    dynamic json = JsonConvert.DeserializeObject(ord.OrderJson);
+                    if(pl.billamount - pl.paidamount > 0)
+                    {
+                        Transaction tr = new Transaction();
+                        tr.OrderId = pl.orderid;
+                        tr.Amount = pl.billamount - pl.paidamount;
+                        tr.PaymentTypeId = 6;
+                        tr.TranstypeId = 1;
+                        tr.CustomerId = ord.CustomerId;
+                        tr.TransDate = pl.transdate;
+                        tr.TransDateTime = pl.transdatetime;
+                        tr.UserId = ord.UserId;
+                        tr.CompanyId = ord.CompanyId;
+                        tr.StoreId = ord.StoreId;
+                        tr.ModifiedDateTime = DateTime.Now;
+                        tr.StorePaymentTypeId = pl.paymenttypeid;
+                        tr.Notes = "closed by admin";
+                        db.Transactions.Add(tr);
+                    }
+                    ord.PaidAmount = ord.BillAmount;
+                    ord.OrderStatusId = 5;
+                    json.BillAmount = ord.BillAmount;
+                    json.OrderStatusId = 5;
+                    ord.OrderJson = JsonConvert.SerializeObject(json);
+                    db.Entry(ord).State = EntityState.Modified;
+                }
+                db.SaveChanges();
+                var response = new
+                {
+                    status = 200,
+                    message = "Orders Closed"
+                };
+                return Json(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        public class CompleteOrderPayload
+        {
+            public string invoiceno { get; set; }
+            public int orderid { get; set; }
+            public int storeid { get; set; }
+            public DateTime transdatetime { get; set; }
+            public DateTime transdate { get; set; }
+            public double paidamount { get; set; }
+            public double billamount { get; set; }
+            public int orderstatusid { get; set; }
+            public string orderstatus { get; set; }
+            public string store { get; set; }
+            public int paymenttypeid { get; set; }
+        }
         [HttpGet("GetTransactionId")]
         public IActionResult GetTransactionId(int orderid)
         {
@@ -2369,6 +2452,33 @@ namespace Biz1PosApi.Controllers
             object kOTs = JsonConvert.DeserializeObject(catStr[0]);
             return Ok(kOTs);
         }
+        [HttpGet("enquiryOrders")]
+        public IActionResult enquiryOrders(int? orderid)
+        {
+            try
+            {
+                List<int> stsList = new List<int>();
+                stsList.Add(-1);
+                stsList.Add(5);
+                List<Order> orders = db.Orders.Where(x => x.Id == orderid || (orderid == null && !stsList.Contains(x.OrderStatusId) && x.OrderNo == -1)).ToList();
+                var response = new
+                {
+                    orders
+                };
+                return Ok(response);
+            }
+            catch(Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
     }
 
     public class OrderPayload

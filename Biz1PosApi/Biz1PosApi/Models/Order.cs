@@ -41,10 +41,15 @@ namespace Biz1BookPOS.Models
         public int? CustomerAddressId { get; set; }
         public virtual CustomerAddress CustomerAddress { get; set; }
 
+        //[ForeignKey("DiscountRule")]
+        public int? DiscountRuleId { get; set; }
+        //public virtual DiscountRule DiscountRule{ get; set; }
+
         public int OrderStatusId { get; set; }//------------------
         public int? PreviousStatusId { get; set; }//------------------
 
         public double BillAmount { get; set; }//------------------
+        public double? TotalAmount { get; set; }//------------------
         public double PaidAmount { get; set; }//------------------
         public double RefundAmount { get; set; }
         public string Source { get; set; }//------------------

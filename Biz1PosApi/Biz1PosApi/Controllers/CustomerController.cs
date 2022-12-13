@@ -147,10 +147,32 @@ namespace Biz1BookPOS.Controllers
 
         [HttpGet("GetCustomerByPhone")]
         [EnableCors("AllowOrigin")]
-        public IActionResult GetCustomerByPhone(string Phone)
+        public IActionResult GetCustomerByPhone(string Phone, int companyid)
         {
-            var customer = db.Customers.Where(x => x.PhoneNo == Phone);
-            return Ok(customer);
+            //var customer = db.Customers.Where(x => x.PhoneNo == Phone && x.CompanyId == companyid).FirstOrDefault();
+            //customer.Addresses = db.CustomerAddresses.Where(x => x.CustomerId == customer.Id).Include(x => x.Customer).ToList();
+            //return Ok(customer);
+
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.getcustomerbyphonenum", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("@phonenum", Phone));
+            cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+            //db.Database.ExecuteSqlCommand(cmd.ToString());
+            DataTable table = ds.Tables[0];
+            var time2 = DateTime.Now;
+            string jsonString = "";
+            for (int j = 0; j < ds.Tables[0].Rows.Count; j++)
+            {
+                jsonString += ds.Tables[0].Rows[j].ItemArray[0].ToString();
+            }
+            return Json(JsonConvert.DeserializeObject(jsonString));
         }
 
         [HttpGet("Delete")]

@@ -138,7 +138,7 @@ namespace Biz1PosApi.Controllers
             SmtpClient client = new SmtpClient("smtp.gmail.com", 587); //Gmail smtp    
             client.UseDefaultCredentials = false;
             NetworkCredential basicCredential1 = new
-            NetworkCredential("fbcakes.biz1@gmail.com", "PassworD@1");
+            NetworkCredential("fbcakes.biz1@gmail.com", "gbtadloysiheibai");
 
             client.EnableSsl = true;
             client.UseDefaultCredentials = false;

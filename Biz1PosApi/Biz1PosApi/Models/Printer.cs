@@ -14,6 +14,6 @@ namespace Biz1PosApi.Models
         public string IPAddress { get; set; }
         public int PortNumber { get; set; }
         public int NoOfCharacters { get; set; }
-
+        public int StoreId { get; set; }
     }
 }

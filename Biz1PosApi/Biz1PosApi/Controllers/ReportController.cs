@@ -264,6 +264,42 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpGet("SusOrders")]
+        public IActionResult SusOrders(int companyid, int storeid, DateTime from, DateTime to)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.SusOrders", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+                cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+                cmd.Parameters.Add(new SqlParameter("@fromdate", from));
+                cmd.Parameters.Add(new SqlParameter("@todate", to));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    byCancelledItems = ds.Tables[0],
+                    byDiscount = ds.Tables[1]
+                };
+                sqlCon.Close();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
         
         [HttpPost("add_report_preset")]
         public IActionResult add_report_preset([FromBody]ReportPreset preset)

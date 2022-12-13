@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 
 namespace Biz1PosApi.Controllers
 {
@@ -25,10 +26,114 @@ namespace Biz1PosApi.Controllers
         
         // GET: PaymentTypeController
         [HttpGet("getpaymenttypes")]
-        public IActionResult getpaymenttypes(int companyid)
+        public IActionResult getpaymenttypes(int companyid, int storeid)
         {
-            List<StorePaymentType> storePaymentTypes = db.StorePaymentTypes.Where(x => x.CompanyId == companyid).Include(x => x.Store).ToList();
+            List<StorePaymentType> storePaymentTypes = db.StorePaymentTypes.Where(x => x.CompanyId == companyid && x.StoreId == storeid).Include(x => x.Store).ToList();
             return Ok(storePaymentTypes);
+        }
+        [HttpPost("addPaymentType")]
+        public IActionResult addPaymentType([FromBody] StorePaymentType paymentType)
+        {
+            try
+            {
+                db.StorePaymentTypes.Add(paymentType);
+                db.SaveChanges();
+                var resp = new
+                {
+                    status = 200
+                };
+                return Ok(resp);
+            }
+            catch (Exception e)
+            {
+                var resp = new
+                {
+                    status = 0,
+                    msg = new Exception(e.Message, e.InnerException)
+                };
+                return Ok(resp);
+            }
+        }
+        [HttpPost("addPaymentTypeMultiStores")]
+        public IActionResult addPaymentTypeMultiStores([FromBody] dynamic payload)
+        {
+            try
+            {
+                int[] stores = payload.stores.ToObject<int[]>();
+                int companyid = payload.CompanyId.ToObject<int>();
+                if (stores[0] == 0)
+                {
+                    stores = db.Stores.Where(x => x.CompanyId == companyid).Select(x => x.Id).ToArray();
+                }
+                foreach (int storeid in stores)
+                {
+                    StorePaymentType storePaymentType = payload.paymentType.ToObject<StorePaymentType>();
+                    storePaymentType.StoreId = storeid;
+                    db.StorePaymentTypes.Add(storePaymentType);
+                }
+                db.SaveChanges();
+                var resp = new
+                {
+                    status = 200
+                };
+                return Ok(resp);
+            }
+            catch (Exception e)
+            {
+                var resp = new
+                {
+                    status = 0,
+                    msg = new Exception(e.Message, e.InnerException)
+                };
+                return Ok(resp);
+            }
+        }
+
+        [HttpPost("updatePaymentType")]
+        public IActionResult updatePaymentType([FromBody] StorePaymentType paymentType)
+        {
+            try
+            {
+                db.Entry(paymentType).State = EntityState.Modified;
+                db.SaveChanges();
+                var resp = new
+                {
+                    status = 200
+                };
+                return Ok(resp);
+            }
+            catch (Exception e)
+            {
+                var resp = new
+                {
+                    status = 0,
+                    msg = new Exception(e.Message, e.InnerException)
+                };
+                return Ok(resp);
+            }
+        }
+        [HttpPost("deletePaymentType")]
+        public IActionResult deletePaymentType(int Id)
+        {
+            try
+            {
+                db.StorePaymentTypes.Remove(db.StorePaymentTypes.Find(Id));
+                db.SaveChanges();
+                var resp = new
+                {
+                    status = 200
+                };
+                return Ok(resp);
+            }
+            catch (Exception e)
+            {
+                var resp = new
+                {
+                    status = 0,
+                    msg = new Exception(e.Message, e.InnerException)
+                };
+                return Ok(resp);
+            }
         }
     }
 }

@@ -54,6 +54,5 @@ namespace Biz1BookPOS.Models
         public virtual Store Store { get; set; }
 
         public string Notes { get; set; }
-
     }
 }

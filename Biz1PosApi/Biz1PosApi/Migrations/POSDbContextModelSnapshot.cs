@@ -380,6 +380,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<double>("DiscPercent");
 
+                    b.Property<int?>("DiscountRuleId");
+
                     b.Property<bool>("FoodReady");
 
                     b.Property<string>("InvoiceNo");
@@ -436,6 +438,8 @@ namespace Biz1PosApi.Migrations
                     b.Property<double>("Tax2");
 
                     b.Property<double>("Tax3");
+
+                    b.Property<double?>("TotalAmount");
 
                     b.Property<long?>("UPOrderId");
 
@@ -587,6 +591,8 @@ namespace Biz1PosApi.Migrations
                     b.Property<DateTime>("ModifiedDate");
 
                     b.Property<string>("Name");
+
+                    b.Property<string>("PrepTime");
 
                     b.Property<double>("Price");
 
@@ -759,6 +765,29 @@ namespace Biz1PosApi.Migrations
                     b.HasIndex("ParentStoreId");
 
                     b.ToTable("Stores");
+                });
+
+            modelBuilder.Entity("Biz1BookPOS.Models.StoreDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Area");
+
+                    b.Property<string>("Latitude");
+
+                    b.Property<string>("Longitude");
+
+                    b.Property<string>("Note");
+
+                    b.Property<int?>("StoreId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoreId");
+
+                    b.ToTable("StoreDetails");
                 });
 
             modelBuilder.Entity("Biz1BookPOS.Models.StoreProduct", b =>
@@ -1175,6 +1204,37 @@ namespace Biz1PosApi.Migrations
                     b.ToTable("CakeQuantities");
                 });
 
+            modelBuilder.Entity("Biz1PosApi.Models.Career", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AdditionalDetails");
+
+                    b.Property<string>("Address");
+
+                    b.Property<string>("Age");
+
+                    b.Property<DateTime>("CreatedDate");
+
+                    b.Property<string>("EducationDetails");
+
+                    b.Property<string>("Email");
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("Note");
+
+                    b.Property<string>("PhoneNo");
+
+                    b.Property<string>("WorkDetails");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Careers");
+                });
+
             modelBuilder.Entity("Biz1PosApi.Models.CategoryAddon", b =>
                 {
                     b.Property<int>("Id")
@@ -1356,6 +1416,39 @@ namespace Biz1PosApi.Migrations
                     b.ToTable("Cnditions");
                 });
 
+            modelBuilder.Entity("Biz1PosApi.Models.ContactForm", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedDate");
+
+                    b.Property<int?>("CustomerId");
+
+                    b.Property<string>("Email");
+
+                    b.Property<string>("Message");
+
+                    b.Property<string>("Mobile");
+
+                    b.Property<string>("Name");
+
+                    b.Property<int>("OrderId");
+
+                    b.Property<float>("Rating");
+
+                    b.Property<string>("RepliedMessage");
+
+                    b.Property<bool>("isshow");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("ContactForms");
+                });
+
             modelBuilder.Entity("Biz1PosApi.Models.CustomerAddress", b =>
                 {
                     b.Property<int>("Id")
@@ -1404,6 +1497,57 @@ namespace Biz1PosApi.Migrations
                     b.HasIndex("OfferId");
 
                     b.ToTable("CustomerOffers");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.CustomerRequire", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedDate");
+
+                    b.Property<int?>("CustomerId");
+
+                    b.Property<string>("Reason");
+
+                    b.Property<string>("StaffName");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("CustomerRequires");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.DashBoard", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("BillCount");
+
+                    b.Property<int>("CompanyId");
+
+                    b.Property<DateTime?>("OrderedDate")
+                        .HasColumnType("Date");
+
+                    b.Property<DateTime?>("OrderedDateTime");
+
+                    b.Property<double>("Payments");
+
+                    b.Property<double>("Sales");
+
+                    b.Property<int>("StoreId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("StoreId");
+
+                    b.ToTable("DashBoards");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.Delivery", b =>
@@ -2068,6 +2212,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<string>("Size");
 
+                    b.Property<int>("StoreId");
+
                     b.Property<string>("Type");
 
                     b.HasKey("Id");
@@ -2279,6 +2425,31 @@ namespace Biz1PosApi.Migrations
                     b.ToTable("Results");
                 });
 
+            modelBuilder.Entity("Biz1PosApi.Models.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CustomerId");
+
+                    b.Property<string>("Message");
+
+                    b.Property<int?>("OrderId");
+
+                    b.Property<string>("Star");
+
+                    b.Property<bool>("isshow");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("Reviews");
+                });
+
             modelBuilder.Entity("Biz1PosApi.Models.SaleProductGroup", b =>
                 {
                     b.Property<int>("Id")
@@ -2373,6 +2544,75 @@ namespace Biz1PosApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ShiftSummaries");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.StoreConfig", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId");
+
+                    b.Property<string>("Latitude");
+
+                    b.Property<string>("Location_Url");
+
+                    b.Property<string>("Longitude");
+
+                    b.Property<string>("Note");
+
+                    b.Property<string>("Review_Url");
+
+                    b.Property<int>("StoreId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("StoreId");
+
+                    b.ToTable("StoreConfigs");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.StoreFIlter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId");
+
+                    b.Property<double>("FIlterValue");
+
+                    b.Property<int>("StoreId");
+
+                    b.Property<int>("valuetype");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("StoreId");
+
+                    b.ToTable("StoreFIlters");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.StoreLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Action");
+
+                    b.Property<DateTime>("LogedDateTime");
+
+                    b.Property<string>("Store");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StoreLogs");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.StoreOption", b =>
@@ -2913,6 +3153,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int?>("UserId");
 
+                    b.Property<string>("alias");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
@@ -3268,6 +3510,13 @@ namespace Biz1PosApi.Migrations
                         .HasForeignKey("ParentStoreId");
                 });
 
+            modelBuilder.Entity("Biz1BookPOS.Models.StoreDetail", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Store", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId");
+                });
+
             modelBuilder.Entity("Biz1BookPOS.Models.StoreProduct", b =>
                 {
                     b.HasOne("Biz1BookPOS.Models.Company", "Company")
@@ -3553,6 +3802,13 @@ namespace Biz1PosApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("Biz1PosApi.Models.ContactForm", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+                });
+
             modelBuilder.Entity("Biz1PosApi.Models.CustomerAddress", b =>
                 {
                     b.HasOne("Biz1BookPOS.Models.Company", "Company")
@@ -3581,6 +3837,26 @@ namespace Biz1PosApi.Migrations
                     b.HasOne("Biz1PosApi.Models.Offer", "Offer")
                         .WithMany()
                         .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.CustomerRequire", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.DashBoard", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Biz1BookPOS.Models.Store", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -3959,6 +4235,18 @@ namespace Biz1PosApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("Biz1PosApi.Models.Review", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Biz1BookPOS.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId");
+                });
+
             modelBuilder.Entity("Biz1PosApi.Models.SaleProductGroup", b =>
                 {
                     b.HasOne("Biz1BookPOS.Models.Company", "Company")
@@ -4011,6 +4299,32 @@ namespace Biz1PosApi.Migrations
                     b.HasOne("Biz1BookPOS.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.StoreConfig", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Biz1BookPOS.Models.Store", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.StoreFIlter", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Biz1BookPOS.Models.Store", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

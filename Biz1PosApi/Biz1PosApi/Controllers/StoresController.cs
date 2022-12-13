@@ -22,6 +22,8 @@ namespace Biz1PosApi.Controllers
     {
         private POSDbContext db;
         public IConfiguration Configuration { get; }
+        private static TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+
         public StoresController(POSDbContext contextOptions, IConfiguration configuration)
         {
             db = contextOptions;
@@ -33,7 +35,7 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
-                var stores = db.Stores.Where(s => s.CompanyId == CompanyId).ToList();
+                var stores = db.Stores.Where(s => s.CompanyId == CompanyId || CompanyId == 0).ToList();
                 return Ok(stores);
             }
             catch (Exception e)
@@ -147,12 +149,15 @@ namespace Biz1PosApi.Controllers
                 Store Store = outlet.ToObject<Store>();
                 db.Entry(Store).State = EntityState.Modified;
                 db.SaveChanges();
-                dynamic kotprinters = JsonConvert.DeserializeObject(kotprinterdata);
-                foreach(var kotprinter in kotprinters)
+                if(kotprinterdata != null)
                 {
-                    KOTGroupPrinter kOTGroupPrinter = kotprinter.ToObject<KOTGroupPrinter>();
-                    db.Entry(kOTGroupPrinter).State = EntityState.Modified;
-                    db.SaveChanges();
+                    dynamic kotprinters = JsonConvert.DeserializeObject(kotprinterdata);
+                    foreach (var kotprinter in kotprinters)
+                    {
+                        KOTGroupPrinter kOTGroupPrinter = kotprinter.ToObject<KOTGroupPrinter>();
+                        db.Entry(kOTGroupPrinter).State = EntityState.Modified;
+                        db.SaveChanges();
+                    }
                 }
                 var error = new
                 {
@@ -469,6 +474,41 @@ namespace Biz1PosApi.Controllers
             }
 
         }
+
+        [HttpGet("GetUserStores")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetUserStores(int userid)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.GetUserStores", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@userid", userid));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    stores = ds.Tables[0]
+                };
+                return Json(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    stores = Array.Empty<Store>()
+                };
+                return Json(error);
+            }
+        }
+
         [HttpGet("GetPreference")]
         [EnableCors("AllowOrigin")]
         public IActionResult GetPreference(int storeid)
@@ -493,6 +533,32 @@ namespace Biz1PosApi.Controllers
                     msg = "Something went wrong  Contact your service provider"
                 };
                 return Json(error);
+            }
+
+        }
+        [HttpGet("StoreLogging")]
+        [EnableCors("AllowOrigin")]
+        public string StoreLogging(string storename, string action_name)
+        {
+            try
+            {
+                StoreLog storeLog = new StoreLog();
+                storeLog.Store = storename;
+                storeLog.LogedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                storeLog.Action = action_name;
+                db.StoreLogs.Add(storeLog);
+                db.SaveChanges();
+                return "logged!!";
+            }
+            catch (Exception e)
+            {
+                //var error = new
+                //{
+                //    error = new Exception(e.Message, e.InnerException),
+                //    status = 0,
+                //    msg = "Something went wrong  Contact your service provider"
+                //};
+                return "Error";
             }
 
         }

@@ -18,7 +18,7 @@ namespace Biz1BookPOS.Controllers
     public class AddonController : Controller
     {
         private POSDbContext db;
-        private object addon;
+        private readonly object addon;
 
         public AddonController(POSDbContext contextOptions)
         {

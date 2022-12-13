@@ -113,5 +113,14 @@ namespace Biz1BookPOS.Models
         public DbSet<OptionQtyGroup> OptionQtyGroups{ get; set; }
         public DbSet<UPTag> UPTags{ get; set; }
         public DbSet<UrbanPiperOrder> UrbanPiperOrders{ get; set; }
+        public DbSet<ContactForm> ContactForms{ get; set; }
+        public DbSet<Review> Reviews{ get; set; }
+        public DbSet<StoreConfig> StoreConfigs { get; set; }
+        public DbSet<Career> Careers { get; set; }
+        public DbSet<DashBoard> DashBoards { get; set; }
+        public DbSet<StoreFIlter> StoreFIlters { get; set; }
+        public DbSet<StoreLog> StoreLogs { get; set; }
+        public DbSet<StoreDetail> StoreDetails { get; set; }
+        public DbSet<CustomerRequire> CustomerRequires { get; set; }
     }
 }

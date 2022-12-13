@@ -24,6 +24,8 @@ namespace Biz1BookPOS.Models
         [ForeignKey("Role")]
         public int RoleId { get; set; }
         public virtual Role Role { get; set; }
+        [NotMapped]
+        public string Store { get; set; }
 
     }
 }

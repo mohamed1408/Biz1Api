@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAdiNT2DAOTkuGB3BF6408xwAAAAACAAAAAAAQZgAAAAEAACAAAABNZu5y4pHKxNgtlkuAktbxURfMw+7Ii51aw/7wYO4FtwAAAAAOgAAAAAIAACAAAADRif3onwNfjXwgvdRQ/bRUI8XPnvaK3tTDXcR/U/75sYAAAAAYFvFYiskzAaZJLuLKFYlYpT6VUCzfF46NDAHemS98OtfpaloJvK3z1zlckGsxsKEKkn7DdXbu3te1gUL1G5j1jdrmkNr+gEp+fLsnBxzivUEbxgCM5WLNiL8YXWViwB/SS0AVUUUJ3RQ5jZ0moQb+pPViaVm+uIm1qrNiGb3kP0AAAABHEE9TF22uDxOX9FuFj+Abs2+Irj/lqsNLrwB4NUtp8e4IQW9S1/k9Q1WOcTJFYtDrSd+hQPmqD1H7lD43Ly6k</EncryptedPassword>
+    <_PublishTargetUrl>ftp://waws-prod-sg1-021.ftp.azurewebsites.windows.net/site/wwwroot</_PublishTargetUrl>
+    <History>True|2022-12-08T06:34:22.1749333Z;False|2022-12-08T12:03:01.4846659+05:30;True|2022-12-07T15:49:02.0370639+05:30;False|2022-12-07T15:47:47.0971108+05:30;True|2022-12-07T15:22:54.7301357+05:30;False|2022-12-07T15:20:42.7292171+05:30;False|2022-12-07T15:19:23.1915068+05:30;True|2022-12-07T11:34:24.2743096+05:30;False|2022-12-07T11:33:09.2858674+05:30;True|2022-12-05T05:00:25.9016423+05:30;True|2022-11-25T05:14:51.0936390+05:30;False|2022-11-25T05:13:44.2302107+05:30;True|2022-11-23T19:26:54.7663506+05:30;True|2022-11-21T14:18:57.3897009+05:30;True|2022-11-09T20:03:11.4041442+05:30;False|2022-11-09T20:02:02.6630152+05:30;True|2022-10-21T15:41:58.6928178+05:30;False|2022-10-21T15:40:55.1806349+05:30;True|2022-10-19T15:30:36.3689794+05:30;</History>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="appsettings.Development.json">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="appsettings.json">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="Biz1PosApi.deps.json">
+      <publishTime>12/08/2022 12:03:20</publishTime>
+    </File>
+    <File Include="Biz1PosApi.dll">
+      <publishTime>12/08/2022 12:03:18</publishTime>
+    </File>
+    <File Include="Biz1PosApi.pdb">
+      <publishTime>12/08/2022 12:03:18</publishTime>
+    </File>
+    <File Include="Biz1PosApi.runtimeconfig.json">
+      <publishTime>06/12/2022 12:27:56</publishTime>
+    </File>
+    <File Include="Biz1PosApi.Views.dll">
+      <publishTime>12/08/2022 12:03:19</publishTime>
+    </File>
+    <File Include="Biz1PosApi.Views.pdb">
+      <publishTime>12/08/2022 12:03:19</publishTime>
+    </File>
+    <File Include="Castle.Core.dll">
+      <publishTime>10/10/2017 13:43:52</publishTime>
+    </File>
+    <File Include="dotnet-aspnet-codegenerator-design.dll">
+      <publishTime>11/12/2018 23:12:52</publishTime>
+    </File>
+    <File Include="FirebaseAdmin.dll">
+      <publishTime>09/10/2020 00:05:34</publishTime>
+    </File>
+    <File Include="google-services.json">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="Google.Api.Gax.dll">
+      <publishTime>05/01/2019 20:27:40</publishTime>
+    </File>
+    <File Include="Google.Api.Gax.Rest.dll">
+      <publishTime>05/01/2019 20:27:48</publishTime>
+    </File>
+    <File Include="Google.Apis.Auth.dll">
+      <publishTime>05/09/2019 20:32:54</publishTime>
+    </File>
+    <File Include="Google.Apis.Auth.PlatformServices.dll">
+      <publishTime>05/09/2019 20:32:54</publishTime>
+    </File>
+    <File Include="Google.Apis.Core.dll">
+      <publishTime>05/09/2019 20:32:46</publishTime>
+    </File>
+    <File Include="Google.Apis.dll">
+      <publishTime>05/09/2019 20:32:46</publishTime>
+    </File>
+    <File Include="libman.json">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="Microsoft.CodeAnalysis.CSharp.Workspaces.dll">
+      <publishTime>04/30/2018 21:59:02</publishTime>
+    </File>
+    <File Include="Microsoft.CodeAnalysis.Workspaces.dll">
+      <publishTime>04/30/2018 21:59:04</publishTime>
+    </File>
+    <File Include="Microsoft.EntityFrameworkCore.Abstractions.dll">
+      <publishTime>03/22/2019 10:36:24</publishTime>
+    </File>
+    <File Include="Microsoft.EntityFrameworkCore.dll">
+      <publishTime>03/22/2019 10:36:32</publishTime>
+    </File>
+    <File Include="Microsoft.EntityFrameworkCore.Proxies.dll">
+      <publishTime>03/22/2019 10:36:32</publishTime>
+    </File>
+    <File Include="Microsoft.VisualStudio.Web.CodeGeneration.Contracts.dll">
+      <publishTime>11/12/2018 23:12:08</publishTime>
+    </File>
+    <File Include="Microsoft.VisualStudio.Web.CodeGeneration.Core.dll">
+      <publishTime>11/12/2018 23:12:32</publishTime>
+    </File>
+    <File Include="Microsoft.VisualStudio.Web.CodeGeneration.dll">
+      <publishTime>11/12/2018 23:12:44</publishTime>
+    </File>
+    <File Include="Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore.dll">
+      <publishTime>11/12/2018 23:12:40</publishTime>
+    </File>
+    <File Include="Microsoft.VisualStudio.Web.CodeGeneration.Templating.dll">
+      <publishTime>11/12/2018 23:12:26</publishTime>
+    </File>
+    <File Include="Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll">
+      <publishTime>11/12/2018 23:12:12</publishTime>
+    </File>
+    <File Include="Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll">
+      <publishTime>11/12/2018 23:12:48</publishTime>
+    </File>
+    <File Include="NuGet.Frameworks.dll">
+      <publishTime>04/25/2018 02:57:10</publishTime>
+    </File>
+    <File Include="Remotion.Linq.dll">
+      <publishTime>02/07/2018 03:55:00</publishTime>
+    </File>
+    <File Include="RestSharp.dll">
+      <publishTime>05/18/2020 17:25:38</publishTime>
+    </File>
+    <File Include="System.Composition.AttributedModel.dll">
+      <publishTime>11/05/2016 10:25:42</publishTime>
+    </File>
+    <File Include="System.Composition.Convention.dll">
+      <publishTime>11/05/2016 10:25:42</publishTime>
+    </File>
+    <File Include="System.Composition.Hosting.dll">
+      <publishTime>11/05/2016 10:25:42</publishTime>
+    </File>
+    <File Include="System.Composition.Runtime.dll">
+      <publishTime>11/05/2016 10:25:44</publishTime>
+    </File>
+    <File Include="System.Composition.TypedParts.dll">
+      <publishTime>11/05/2016 10:25:46</publishTime>
+    </File>
+    <File Include="System.Interactive.Async.dll">
+      <publishTime>07/11/2018 19:18:42</publishTime>
+    </File>
+    <File Include="web.config">
+      <publishTime>12/08/2022 12:03:22</publishTime>
+    </File>
+    <File Include="wwwroot/audio/plucky.mp3">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/email_template.html">
+      <publishTime>01/29/2022 15:02:03</publishTime>
+    </File>
+    <File Include="wwwroot/htmlpages/password_reset.html">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1471.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1473.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1475.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1483.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1484.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1488.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1490.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1492.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1502.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1508.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1510.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1511.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1514.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1518.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1519.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1522.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1531.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1534.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1535.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1549.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1551.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1555.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/1560.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/3/Koala.jpg">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/images/image-1.jpeg">
+      <publishTime>01/29/2022 07:24:20</publishTime>
+    </File>
+    <File Include="wwwroot/images/image-2.png">
+      <publishTime>01/29/2022 07:24:20</publishTime>
+    </File>
+    <File Include="wwwroot/images/image-3.png">
+      <publishTime>01/29/2022 07:24:20</publishTime>
+    </File>
+    <File Include="wwwroot/images/image-4.png">
+      <publishTime>01/29/2022 07:24:20</publishTime>
+    </File>
+    <File Include="wwwroot/js/signalr/dist/browser/signalr.js">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/js/signalr/dist/browser/signalr.min.js">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/logs/myapp-20200814.txt">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/logs/myapp-20200815.txt">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+    <File Include="wwwroot/web_orders/orders.json">
+      <publishTime>07/10/2021 15:27:05</publishTime>
+    </File>
+  </ItemGroup>
+</Project>

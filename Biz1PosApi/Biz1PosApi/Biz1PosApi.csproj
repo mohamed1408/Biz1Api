@@ -198,6 +198,36 @@
     <Compile Include="Migrations\20211228085107_uptag1.Designer.cs" />
     <Compile Include="Migrations\20220129065353_urbanpiperorder.cs" />
     <Compile Include="Migrations\20220129065353_urbanpiperorder.Designer.cs" />
+    <Compile Include="Migrations\20220314053537_gopi.cs" />
+    <Compile Include="Migrations\20220314053537_gopi.Designer.cs" />
+    <Compile Include="Migrations\20220316093617_456sdf456dfsfd456s.cs" />
+    <Compile Include="Migrations\20220316093617_456sdf456dfsfd456s.Designer.cs" />
+    <Compile Include="Migrations\20220325062110_aldlasjd.cs" />
+    <Compile Include="Migrations\20220325062110_aldlasjd.Designer.cs" />
+    <Compile Include="Migrations\20220407040955_aaaa.cs" />
+    <Compile Include="Migrations\20220407040955_aaaa.Designer.cs" />
+    <Compile Include="Migrations\20220407115640_dashboard1.cs" />
+    <Compile Include="Migrations\20220407115640_dashboard1.Designer.cs" />
+    <Compile Include="Migrations\20220429084441_storefilter.cs" />
+    <Compile Include="Migrations\20220429084441_storefilter.Designer.cs" />
+    <Compile Include="Migrations\20220429084623_storefilter1.cs" />
+    <Compile Include="Migrations\20220429084623_storefilter1.Designer.cs" />
+    <Compile Include="Migrations\20220527051446_storelog.cs" />
+    <Compile Include="Migrations\20220527051446_storelog.Designer.cs" />
+    <Compile Include="Migrations\20220706062100_storedetails.cs" />
+    <Compile Include="Migrations\20220706062100_storedetails.Designer.cs" />
+    <Compile Include="Migrations\20220722070749_rating.cs" />
+    <Compile Include="Migrations\20220722070749_rating.Designer.cs" />
+    <Compile Include="Migrations\20220902070821_order.cs" />
+    <Compile Include="Migrations\20220902070821_order.Designer.cs" />
+    <Compile Include="Migrations\20220904094445_ddd.cs" />
+    <Compile Include="Migrations\20220904094445_ddd.Designer.cs" />
+    <Compile Include="Migrations\20221019095702_customerrequire.cs" />
+    <Compile Include="Migrations\20221019095702_customerrequire.Designer.cs" />
+    <Compile Include="Migrations\20221204232513_printers.cs" />
+    <Compile Include="Migrations\20221204232513_printers.Designer.cs" />
+    <Compile Include="Migrations\20221207055921_products_preptime.cs" />
+    <Compile Include="Migrations\20221207055921_products_preptime.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 

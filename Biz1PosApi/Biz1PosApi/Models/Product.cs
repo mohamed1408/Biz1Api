@@ -28,6 +28,7 @@ namespace Biz1BookPOS.Models
         public double UPPrice { get; set; }
         public string ImgUrl { get; set; }
         public string ProductCode { get; set; }
+        public string PrepTime { get; set; }
         public string BarCode { get; set; }
         public bool isactive { get; set; }
         public bool isonline { get; set; }
