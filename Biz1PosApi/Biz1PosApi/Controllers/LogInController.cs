@@ -26,6 +26,7 @@ namespace Biz1BookPOS.Controllers
     [Route("api/[controller]")]
     public class LogInController : Controller
     {
+        private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         private int var_status;
         private string var_value;
         private object var_detail;
@@ -193,11 +194,88 @@ namespace Biz1BookPOS.Controllers
             }
         }
         [HttpGet("pinlogin")]
-        public IActionResult pinlogin(int companyid, int pin)
+        public IActionResult pinlogin(int companyid, int pin, int? storeid)
         {
             try
             {
                 var user = db.Users.Where(x => x.Pin == pin && x.CompanyId == companyid).FirstOrDefault();
+                var account = db.Accounts.Where(x => x.CompanyId == companyid).FirstOrDefault();
+                string jtoken = "";
+                string msg = "invalid pin";
+                int status = 0;
+                int orderno = 0;
+                int kotno = 0;
+                if(user != null)
+                {
+                    if(storeid != null)
+                    {
+                        Order order = db.Orders.Where(x => x.StoreId == storeid && x.UserId == user.Id && x.OrderTypeId < 6 && x.OrderedDate == TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time).Date).FirstOrDefault();
+                        orderno = db.Orders.Where(x => x.StoreId == storeid && x.UserId == user.Id && x.OrderTypeId < 6 && x.OrderedDate == TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time).Date).Select(x => x.OrderNo).DefaultIfEmpty(0).Max();
+                        if(order != null)
+                            kotno = db.KOTs.Where(x => x.OrderId == order.Id).Select(x => int.Parse(x.KOTNo)).DefaultIfEmpty(0).Max();
+                    }
+
+                    string role = db.Roles.Find(user.RoleId).Name;
+                    int roleid = db.Roles.Find(user.RoleId).Id;
+                    //security key
+                    string securityKey = _config["Jwt:Key"];
+                    //symmetric security key
+                    var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey));
+
+                    //signing credentials
+                    var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
+
+                    //add claims
+                    var claims = new List<Claim>();
+                    claims.Add(new Claim("role", role));
+                    //claims.Add(new Claim("Our_Custom_Claim", "Our custom value"));
+                    //claims.Add(new Claim("Id", "110"));
+                    claims.Add(new Claim("email", account.Email));
+                    claims.Add(new Claim("user", user.Name));
+                    claims.Add(new Claim("userid", user.Id.ToString()));
+                    claims.Add(new Claim("roleid", roleid.ToString()));
+                    claims.Add(new Claim("companyid", account.CompanyId.ToString()));
+                    //claims.Add(new Claim(ClaimTypes.Expiration, userInfo.EmailId));
+
+                    //create token
+                    var token = new JwtSecurityToken(
+                        issuer: _config["Jwt:Issuer"],
+                        audience: "readers",
+                        expires: roleid == 1 ? DateTime.Now.AddYears(1) : DateTime.Now.AddHours(1),
+                        signingCredentials: signingCredentials,
+                        claims: claims
+                    );
+                    jtoken = new JwtSecurityTokenHandler().WriteToken(token);
+                    msg = "Pin matched";
+                    status = 200;
+                }
+                var response = new
+                {
+                    status = status,
+                    msg = msg,
+                    token = jtoken,
+                    userid = user == null ? null : user.Id.ToString(),
+                    orderno,
+                    kotno,
+                };
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                var error = new
+                {
+                    status = -1,
+                    msg = ex.Message
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("pinlogin2")]
+        public IActionResult pinlogin2(int companyid, int pin, int storeid)
+        {
+            try
+            {
+                var user = db.Users.Where(x => x.Pin == pin && x.CompanyId == companyid && db.UserStores.Where(y => y.UserId == x.Id && y.StoreId == storeid).Any()).FirstOrDefault();
                 var account = db.Accounts.Where(x => x.CompanyId == companyid).FirstOrDefault();
                 string jtoken = "";
                 string msg = "invalid pin";
@@ -242,7 +320,8 @@ namespace Biz1BookPOS.Controllers
                 {
                     status = status,
                     msg = msg,
-                    token = jtoken
+                    token = jtoken,
+                    userid = user == null ? null : user.Id.ToString(),
                 };
                 return Json(response);
             }

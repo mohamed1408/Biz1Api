@@ -120,6 +120,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<string>("Email");
 
+                    b.Property<bool>("IsBlocked");
+
                     b.Property<DateTime>("LastRedeemDate")
                         .HasColumnType("Date");
 
@@ -255,6 +257,8 @@ namespace Biz1PosApi.Migrations
                     b.Property<int>("OrderId");
 
                     b.Property<int?>("StoreId");
+
+                    b.Property<string>("json");
 
                     b.Property<string>("orderrefid");
 
@@ -588,6 +592,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int?>("KOTGroupId");
 
+                    b.Property<double?>("MakingCost");
+
                     b.Property<DateTime>("ModifiedDate");
 
                     b.Property<string>("Name");
@@ -738,6 +744,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<string>("Email");
 
+                    b.Property<double?>("ExpenseCash");
+
                     b.Property<int>("FoodPrepTime");
 
                     b.Property<string>("GSTno");
@@ -751,6 +759,8 @@ namespace Biz1PosApi.Migrations
                     b.Property<int?>("ParentStoreId");
 
                     b.Property<string>("PostalCode");
+
+                    b.Property<double?>("SalesCash");
 
                     b.Property<bool>("isactive");
 
@@ -1463,7 +1473,13 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int>("CustomerId");
 
+                    b.Property<string>("Latitude");
+
+                    b.Property<string>("Longitude");
+
                     b.Property<string>("Name");
+
+                    b.Property<int?>("NearByStoreId");
 
                     b.Property<bool>("iscurrentaddress");
 
@@ -1793,6 +1809,27 @@ namespace Biz1PosApi.Migrations
                     b.ToTable("KOTGroupUsers");
                 });
 
+            modelBuilder.Entity("Biz1PosApi.Models.KOTInstruction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("InstructionDateTime");
+
+                    b.Property<int>("InstructionType");
+
+                    b.Property<int>("OrderId");
+
+                    b.Property<string>("url");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("KOTInstructions");
+                });
+
             modelBuilder.Entity("Biz1PosApi.Models.Offer", b =>
                 {
                     b.Property<int>("Id")
@@ -1801,11 +1838,15 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int>("CompanyId");
 
+                    b.Property<string>("Description");
+
                     b.Property<DateTime>("EffectiveDate")
                         .HasColumnType("Date");
 
                     b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("Date");
+
+                    b.Property<int>("ProductId");
 
                     b.Property<DateTime>("UpdateDateTime");
 
@@ -3965,6 +4006,14 @@ namespace Biz1PosApi.Migrations
                     b.HasOne("Biz1BookPOS.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.KOTInstruction", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

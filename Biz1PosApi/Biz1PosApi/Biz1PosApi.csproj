@@ -228,6 +228,22 @@
     <Compile Include="Migrations\20221204232513_printers.Designer.cs" />
     <Compile Include="Migrations\20221207055921_products_preptime.cs" />
     <Compile Include="Migrations\20221207055921_products_preptime.Designer.cs" />
+    <Compile Include="Migrations\20221216091255_banCustomer.cs" />
+    <Compile Include="Migrations\20221216091255_banCustomer.Designer.cs" />
+    <Compile Include="Migrations\20221220095142_offers.cs" />
+    <Compile Include="Migrations\20221220095142_offers.Designer.cs" />
+    <Compile Include="Migrations\20230116055545_kotjson.cs" />
+    <Compile Include="Migrations\20230116055545_kotjson.Designer.cs" />
+    <Compile Include="Migrations\20230323035418_kotinstructions.cs" />
+    <Compile Include="Migrations\20230323035418_kotinstructions.Designer.cs" />
+    <Compile Include="Migrations\20230323094340_qwertyuiop.cs" />
+    <Compile Include="Migrations\20230323094340_qwertyuiop.Designer.cs" />
+    <Compile Include="Migrations\20230328094057_customeraddress.cs" />
+    <Compile Include="Migrations\20230328094057_customeraddress.Designer.cs" />
+    <Compile Include="Migrations\20230404055152_stores_saexcash.cs" />
+    <Compile Include="Migrations\20230404055152_stores_saexcash.Designer.cs" />
+    <Compile Include="Migrations\20230404100933_product_makingcost.cs" />
+    <Compile Include="Migrations\20230404100933_product_makingcost.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 

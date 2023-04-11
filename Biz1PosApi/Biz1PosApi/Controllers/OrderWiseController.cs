@@ -25,7 +25,7 @@ namespace Biz1PosApi.Controllers
             return View();
         }
         [HttpGet("GetRpt")]
-        public IActionResult GetRpt(DateTime frmdate, DateTime todate, int Id,int compId,int sourceId)
+        public IActionResult GetRpt(DateTime frmdate, DateTime todate, int Id,int compId,int sourceId, int cancelOrder)
         {
             try
             {
@@ -40,6 +40,7 @@ namespace Biz1PosApi.Controllers
                 cmd.Parameters.Add(new SqlParameter("@storeId",Id));
                 cmd.Parameters.Add(new SqlParameter("@companyId", compId));
                 cmd.Parameters.Add(new SqlParameter("@sourceId", sourceId));
+                cmd.Parameters.Add(new SqlParameter("@cancelorder", cancelOrder));
                 DataSet ds = new DataSet();
                 SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
                 sqlAdp.Fill(ds);

@@ -610,7 +610,7 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
-        [HttpPost("test")]
+        [HttpGet("test")]
         [EnableCors("AllowOrigin")]
         public void test(string message)
         {

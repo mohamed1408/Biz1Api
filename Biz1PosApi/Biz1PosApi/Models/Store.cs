@@ -29,6 +29,8 @@ namespace Biz1BookPOS.Models
         public bool isactive { get; set; }
         public int FoodPrepTime { get; set; }
         public int AutoAcceptTime { get; set; }
+        public double? SalesCash { get; set; }
+        public double? ExpenseCash { get; set; }
 
         [DataType(DataType.Time)]
         public TimeSpan OpeningTime { get; set; }

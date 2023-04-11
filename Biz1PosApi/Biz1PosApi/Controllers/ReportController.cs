@@ -264,6 +264,42 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpGet("SalesByProducts")]
+        public IActionResult SusOrders(int companyid, int storeid, DateTime from, DateTime to, int catgeoryid, int ordertypeid)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.SalesByProducts", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+                cmd.Parameters.Add(new SqlParameter("@fromdate", from));
+                cmd.Parameters.Add(new SqlParameter("@todate", to));
+                cmd.Parameters.Add(new SqlParameter("@categoryid", catgeoryid));
+                cmd.Parameters.Add(new SqlParameter("@ordertypeid", ordertypeid));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    report = ds.Tables[0]
+                };
+                sqlCon.Close();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
         [HttpGet("SusOrders")]
         public IActionResult SusOrders(int companyid, int storeid, DateTime from, DateTime to)
         {

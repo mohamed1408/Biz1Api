@@ -174,7 +174,48 @@ namespace Biz1BookPOS.Controllers
             }
             return Json(JsonConvert.DeserializeObject(jsonString));
         }
+        [HttpGet("GetCustomerList")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult GetCustomerList(int companyid, DateTime frmdate, DateTime todate, int ordertype, float billamt)
+        {
+            try
+            {
+                //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.customerdata", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
 
+                cmd.Parameters.Add(new SqlParameter("@fromdate", frmdate));
+                cmd.Parameters.Add(new SqlParameter("@todate", todate));
+                cmd.Parameters.Add(new SqlParameter("@companyId", companyid));
+                cmd.Parameters.Add(new SqlParameter("@orderTypeid", ordertype));
+                cmd.Parameters.Add(new SqlParameter("@billamt", billamt));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                DataTable table = ds.Tables[0];
+
+                var data = new
+                {
+                    Order = ds.Tables[0]
+
+
+                };
+                sqlCon.Close();
+                return Ok(data);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
         [HttpGet("Delete")]
         [EnableCors("AllowOrigin")]
         public IActionResult Delete(int Id)

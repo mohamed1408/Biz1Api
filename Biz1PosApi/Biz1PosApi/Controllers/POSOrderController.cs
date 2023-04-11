@@ -84,7 +84,7 @@ namespace Biz1PosApi.Controllers
             }
         }
         [HttpGet("getorderbyinvoiceno")]
-        public IActionResult getorderbyinvoiceno(int companyId, string invoiceno)
+        public IActionResult getorderbyinvoiceno(int companyId, int storeid, DateTime date, string invoiceno)
         {
             try
             {
@@ -545,11 +545,12 @@ namespace Biz1PosApi.Controllers
                             data = table;
                             //Your Code
                             invoiceno = (string)table.Rows[0].ItemArray[1];
+                            orderid = (int)table.Rows[0].ItemArray[0];
                             tran.Commit(); //both are successful
                             conn.Close();
                             if(orderjson.DeliveryStoreId != null)
                             {
-                                _uhubContext.Clients.All.DeliveryOrderUpdate((int)orderjson.StoreId, (int)orderjson.DeliveryStoreId, invoiceno, "NEW_ORDER");
+                                _uhubContext.Clients.All.DeliveryOrderUpdate((int)orderjson.StoreId, (int)orderjson.DeliveryStoreId, invoiceno, "NEW_ORDER", orderid);
                             }
                         }
                         catch (Exception e)
@@ -633,7 +634,7 @@ namespace Biz1PosApi.Controllers
                     db.SaveChanges();
                     if(order.DeliveryStoreId != null)
                     {
-                        _uhubContext.Clients.All.DeliveryOrderUpdate((int)order.StoreId, (int)order.DeliveryStoreId, order.InvoiceNo, "EDIT_ORDER");
+                        _uhubContext.Clients.All.DeliveryOrderUpdate((int)order.StoreId, (int)order.DeliveryStoreId, order.InvoiceNo, "EDIT_ORDER", order.Id);
                     }
                     var response = new
                     {
@@ -751,6 +752,7 @@ namespace Biz1PosApi.Controllers
             {
                 kotobj.OrderId = orderid;
                 KOT kOT = kotobj.ToObject<KOT>();
+                kOT.json = JsonConvert.SerializeObject(kotobj);
                 if (!db.KOTs.Where(x => x.refid == kOT.refid && x.OrderId == orderid).Any())
                 {
                     db.KOTs.Add(kOT);

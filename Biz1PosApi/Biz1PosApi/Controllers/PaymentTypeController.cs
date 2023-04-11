@@ -28,7 +28,7 @@ namespace Biz1PosApi.Controllers
         [HttpGet("getpaymenttypes")]
         public IActionResult getpaymenttypes(int companyid, int storeid)
         {
-            List<StorePaymentType> storePaymentTypes = db.StorePaymentTypes.Where(x => x.CompanyId == companyid && x.StoreId == storeid).Include(x => x.Store).ToList();
+            List<StorePaymentType> storePaymentTypes = db.StorePaymentTypes.Where(x => (x.CompanyId == companyid || companyid == 0) && (x.StoreId == storeid || storeid == 0 || companyid == 0) && x.IsActive == true && x.Hidden == false).Include(x => x.Store).ToList();
             return Ok(storePaymentTypes);
         }
         [HttpPost("addPaymentType")]

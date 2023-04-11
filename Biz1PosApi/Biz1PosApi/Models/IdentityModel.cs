@@ -122,5 +122,6 @@ namespace Biz1BookPOS.Models
         public DbSet<StoreLog> StoreLogs { get; set; }
         public DbSet<StoreDetail> StoreDetails { get; set; }
         public DbSet<CustomerRequire> CustomerRequires { get; set; }
+        public DbSet<KOTInstruction> KOTInstructions { get; set; }
     }
 }

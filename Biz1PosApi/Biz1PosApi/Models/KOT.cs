@@ -16,6 +16,7 @@ namespace Biz1BookPOS.Models
         public string KOTNo { get; set; }
         public string refid { get; set; }
         public string orderrefid { get; set; }
+        public string json { get; set; }
 
         [ForeignKey("Order")]
         public int OrderId { get; set; }

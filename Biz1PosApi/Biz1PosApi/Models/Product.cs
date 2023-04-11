@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Biz1BookPOS.Models
 {
-    public class Product
+    public class Product : ICloneable
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -26,6 +26,7 @@ namespace Biz1BookPOS.Models
         public double TakeawayPrice { get; set; }
         public double DeliveryPrice { get; set; }
         public double UPPrice { get; set; }
+        public double? MakingCost { get; set; }
         public string ImgUrl { get; set; }
         public string ProductCode { get; set; }
         public string PrepTime { get; set; }
@@ -62,5 +63,12 @@ namespace Biz1BookPOS.Models
         public virtual Company Company { get; set; }
         public bool? IsSaleProdGroup { get; set; }
         public bool? IsQtyPredefined { get; set; }
+
+        public object Clone()
+        {
+            var clone = (Category)MemberwiseClone();
+            clone.Id = Id;
+            return clone;
+        }
     }
 }

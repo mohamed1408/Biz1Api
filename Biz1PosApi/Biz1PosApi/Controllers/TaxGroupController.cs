@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Biz1BookPOS.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -16,9 +19,12 @@ namespace Biz1BookPOS.Controllers
     public class TaxGroupController : Controller
     {
         private POSDbContext db;
-        public TaxGroupController(POSDbContext contextOptions)
+        public IConfiguration Configuration { get; }
+
+        public TaxGroupController(POSDbContext contextOptions, IConfiguration configuration)
         {
             db = contextOptions;
+            Configuration = configuration;
         }
 
         // GET: api/<controller>
@@ -156,6 +162,57 @@ namespace Biz1BookPOS.Controllers
                 {
                     status = 0,
                     msg = "This tax group can't be deleted as it is combined with product"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("getMapedProducts")]
+        public IActionResult getMapedProducts(int CompanyId, int TaxGroupId)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.Product_TaxGroups", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("@CompanyId", CompanyId));
+            cmd.Parameters.Add(new SqlParameter("@taxgroupid", TaxGroupId));
+
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+            DataTable table = ds.Tables[0];
+            var response = new
+            {
+                Products = ds.Tables[0]
+            };
+            return Ok(response);
+        }
+        [HttpPost("BulkSave")]
+        public IActionResult BulkSave(int TaxGroupId, int CompanyId, [FromBody] int[] ProductIds)
+        {
+            try
+            {
+                List<Product> products = db.Products.Where(x => ProductIds.Contains(x.Id) && x.TaxGroupId != TaxGroupId).ToList();
+                foreach (Product product in products)
+                {
+                    product.TaxGroupId = TaxGroupId;
+                    db.Entry(product).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                var response = new
+                {
+                    message = "success",
+                    status = 200
+                };
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                var error = new
+                {
+                    error = new Exception(ex.Message, ex.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
                 };
                 return Json(error);
             }

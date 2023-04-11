@@ -1,6 +1,8 @@
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\audios\3\KOT\files2023-3-23-15-39.wav
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\audio\plucky.mp3
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\email_template.html
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\htmlpages\password_reset.html
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\0\KOT\6446f1c1-c69f-48a8-9f46-da40e8ee8008.jpg
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\1471.jpg
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\1473.jpg
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\1475.jpg
@@ -25,6 +27,10 @@ D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\w
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\1555.jpg
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\1560.jpg
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\Koala.jpg
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\KOT\26bff626-4c53-46e4-aa08-d07d23b4293e.jpg
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\KOT\6446f1c1-c69f-48a8-9f46-da40e8ee8008.jpg
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\KOT\c922e31f-b32a-4e46-8930-384968561533.jpg
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\3\KOT\fd2b8543-e9f0-4c03-8c0b-e6714fb3585b.jpg
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\image-1.jpeg
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\image-2.png
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\image-3.png

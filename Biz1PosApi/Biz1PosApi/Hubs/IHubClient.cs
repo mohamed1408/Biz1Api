@@ -15,7 +15,7 @@ namespace Biz1PosApi.Hubs
         Task RiderStatus(int UPOrderId, int storeid);
         Task JoinMessage(string message);
         Task ConnectedUsers(List<string> users);
-        Task DeliveryOrderUpdate(int fromstore, int tostore, string invoiceno, string action);
+        Task DeliveryOrderUpdate(int fromstore, int tostore, string invoiceno, string action, int orderid);
         Task NewFBOrder(int storeid, int orderid, string action);
     }
 }

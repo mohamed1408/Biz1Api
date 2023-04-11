@@ -77,6 +77,43 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+
+        [HttpPost("pettyCashTransfer")]
+        public ActionResult pettyCashTransfer(int storeid, int companyid, double amount, string to)
+        {
+            try
+            {
+                Transaction transaction = new Transaction();
+                transaction.Amount = amount;
+                transaction.CompanyId = companyid;
+                transaction.ModifiedDateTime = DateTime.Now;
+                transaction.StoreId = storeid;
+                transaction.PaymentTypeId = 7;
+                transaction.TranstypeId = (to == "EXPENSE") ? 1 : (to == "SALES") ? 2 : 0;
+                transaction.TransDate = DateTime.Now;
+                transaction.TransDateTime = DateTime.Now;
+                db.Transactions.Add(transaction);
+                db.SaveChanges();
+
+                var response = new
+                {
+                    status = 200,
+                    msg = "Success",
+                };
+                return Json(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = "error",
+                    msg = "Something went wrong  Contact our service provider",
+                    orders = new JArray()
+                };
+                return Json(error);
+            }
+        }
         [HttpGet("getDenomEntry")]
         public ActionResult getDenomEntry(int storeid, DateTime date, int companyid, int? entrytypeid)
         {

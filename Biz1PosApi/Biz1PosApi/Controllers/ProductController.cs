@@ -115,6 +115,57 @@ namespace Biz1BookPOS.Controllers
                 sqlCon.Close();
             }
         }
+        [HttpPost("CopyProductByPcatId")]
+        public IActionResult CopyProductByPcatId(int pcatid, int fromcompanyid, int tocompanyid)
+        {
+            int _pcatid = 0;
+            Category pcategory = db.Categories.AsNoTracking().Where(x => x.Id == pcatid).FirstOrDefault();
+            List<Category> childcats = db.Categories.AsNoTracking().Where(x => x.ParentCategoryId == pcatid).ToList();
+
+            pcategory.Id = 0;
+            Category _pcategory = ((dynamic)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(pcategory))).ToObject<Category>();
+            _pcategory = (Category)pcategory.Clone();
+            _pcategory.CompanyId = tocompanyid;
+            db.Categories.Add(_pcategory);
+            db.SaveChanges();
+            _pcatid = _pcategory.Id;
+            foreach(Category childcat in childcats)
+            {
+                List<Product> products = db.Products.AsNoTracking().Where(x => x.CategoryId == childcat.Id).ToList();
+                Category _childcat = childcat;
+                _childcat.Id = 0;
+                _childcat.CompanyId = tocompanyid;
+                _childcat.ParentCategoryId = _pcatid;
+                db.Categories.Add(_childcat);
+                db.SaveChanges();
+
+                foreach(Product product in products)
+                {
+                    Product _product = product;
+                    _product.Id = 0;
+                    _product.CategoryId = _childcat.Id;
+                    _product.CompanyId = tocompanyid;
+                    db.Products.Add(_product);
+                    db.SaveChanges();
+
+                    SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                    sqlCon.Open();
+                    SqlCommand cmd = new SqlCommand("dbo.StoreProduct", sqlCon);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add(new SqlParameter("@compId", _product.CompanyId));
+                    cmd.Parameters.Add(new SqlParameter("@productId", _product.Id));
+                    int success = cmd.ExecuteNonQuery();
+                    sqlCon.Close();
+                }
+            }
+            var response = new
+            {
+                pcat = _pcatid,
+                childcats = db.Categories.Where(x => x.ParentCategoryId == _pcategory.Id).ToList(),
+                prods = db.Products.Where(x => x.Category.ParentCategoryId == _pcategory.Id).ToList()
+            };
+            return Json(response);
+        }
         [HttpPost("ImportProduct")]
         public IActionResult ImportProduct(int companyId, [FromForm]string productData)
         {
@@ -728,7 +779,7 @@ namespace Biz1BookPOS.Controllers
                     products = db.Products.Where(x => x.CompanyId == compId).ToList(),
                     product = from p in db.Products
                               where p.Id == id && p.CompanyId == compId
-                              select new { p.Id, Product = p.Name,p.Description, p.Price, p.TakeawayPrice, p.DeliveryPrice, p.CategoryId, p.TaxGroupId, p.CompanyId, p.UnitId, p.ProductTypeId, p.KOTGroupId, p.ImgUrl, p.ProductCode, p.UPPrice, p.Recomended, p.SortOrder, p.isactive, p.minquantity, p.minblock, p.IsSaleProdGroup },
+                              select new { p.Id, Product = p.Name,p.Description, p.Price, p.BarCode, p.TakeawayPrice, p.DeliveryPrice, p.CategoryId, p.TaxGroupId, p.CompanyId, p.UnitId, p.ProductTypeId, p.KOTGroupId, p.ImgUrl, p.ProductCode, p.UPPrice, p.Recomended, p.SortOrder, p.isactive, p.minquantity, p.minblock, p.IsSaleProdGroup },
                     productOptionGroups = from pog in db.ProductOptionGroups
                                           join og in db.OptionGroups on pog.OptionGroupId equals og.Id
                                           where pog.ProductId == id && pog.CompanyId == compId

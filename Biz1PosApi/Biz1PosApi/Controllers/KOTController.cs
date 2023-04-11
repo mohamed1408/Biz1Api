@@ -3,11 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Biz1BookPOS.Models;
 using Biz1PosApi.Models;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -26,12 +29,15 @@ namespace Biz1PosApi.Controllers
         private string var_msg;
         private POSDbContext db;
         public IConfiguration Configuration { get; }
+        public static IHostingEnvironment _environment;
+
         private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
 
-        public KOTController(POSDbContext contextOptions, IConfiguration configuration)
+        public KOTController(POSDbContext contextOptions, IConfiguration configuration, IHostingEnvironment environment)
         {
             db = contextOptions;
             Configuration = configuration;
+            _environment = environment;
         }
         // GET: api/<controller>
         [HttpGet("Get")]
@@ -64,39 +70,216 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        public List<KOTInstruction> getInstructions(int orderid)
+        {
+            return db.KOTInstructions.Where(o => o.OrderId == orderid).ToList();
+        }
         [HttpGet("GetStoreKots")]
         public IActionResult GetStoreKots(int storeId, int orderid,int kotGroupId)
         {
-            //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
-            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
-            sqlCon.Open();
-            SqlCommand cmd = new SqlCommand("dbo.StoreKots", sqlCon);
-            cmd.CommandType = CommandType.StoredProcedure;
-
-            cmd.Parameters.Add(new SqlParameter("@storeid", storeId));
-            cmd.Parameters.Add(new SqlParameter("@orderid", orderid));
-            cmd.Parameters.Add(new SqlParameter("@kotGroupId", kotGroupId));
-
-            DataSet ds = new DataSet();
-            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
-            sqlAdp.Fill(ds);
-
-            DataTable table = ds.Tables[0];
-
-            string[] catStr = new String[20];
-            for (int k = 0; k < ds.Tables.Count; k++)
+            try
             {
-                for (int j = 0; j < ds.Tables[k].Rows.Count; j++)
+                int[] pendingStatusIds = { 0, 1, 2, 3, 4 };
+                int[] advancedOrderTypeIds = { 2, 3, 4 };
+
+                List<KOTInstruction> instructions = new List<KOTInstruction>();
+
+                List<int> orderids = db.Orders.Where(x => x.StoreId == storeId && (x.Id == orderid || orderid == 0) && pendingStatusIds.Contains(x.OrderStatusId) && advancedOrderTypeIds.Contains(x.OrderTypeId)).Select(s => s.Id).ToList();
+                List<KOTInstruction> ins = db.KOTInstructions.Where(x => orderids.Contains(x.OrderId)).ToList();
+                var kots = db.KOTs.Where(x => orderids.Contains(x.OrderId) && x.StoreId == storeId && x.KOTGroupId == kotGroupId).Select(s => new { s.json, s.Order.DeliveryDateTime, instructions = ins.Where(x => x.OrderId == s.OrderId).ToList(), s.Order.Note, s.Id, JsonConvert.DeserializeObject<OrderJson>(s.Order.OrderJson).Message, JsonConvert.DeserializeObject<OrderJson>(s.Order.OrderJson).CustomerDetails }).ToList();
+                return Json(kots);
+            }
+            catch(Exception e)
+            {
+                var error = new
                 {
-                    catStr[k] += ds.Tables[k].Rows[j].ItemArray[0].ToString();
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("AudioUpload")]
+        public string AudioUpload(int companyid, IFormFile file)
+        {
+            try
+            {
+                //long size = file.Sum(f => f.Length);
+
+                // full path to file in temp location
+                // var filePath = "https://biz1app.azurewebsites.net/Images/3";
+                string subdir = "\\images\\" + companyid + "\\";
+                if (!Directory.Exists(_environment.WebRootPath + subdir))
+                {
+                    Directory.CreateDirectory(_environment.WebRootPath + subdir);
                 }
-                if (catStr[k] == null)
+                using (FileStream filestream = System.IO.File.Create(_environment.WebRootPath + subdir + file.FileName))
                 {
-                    catStr[k] = "";
+                    file.CopyTo(filestream);
+                    filestream.Flush();
+                    var response = new
+                    {
+                        url = "https://biz1pos.azurewebsites.net/images/" + companyid + "/" + file.FileName
+                    };
+                    return response.url;
                 }
             }
-            object kOTs = JsonConvert.DeserializeObject(catStr[0]);
-            return Ok(kOTs);
+            catch (Exception ex)
+            {
+                var error = new
+                {
+                    status = 0,
+                    msg = new Exception(ex.Message, ex.InnerException)
+                };
+                return "";
+            }
+        }
+        [HttpPost("fileUpload")]
+        public IActionResult ImageUpload(int companyid, int orderid, IFormFile image = null, IFormFile audio = null)
+        {
+            try
+            {
+                string imageurl = "";
+                string audiourl = "";
+
+                //long size = file.Sum(f => f.Length);
+
+                // full path to file in temp location
+                // var filePath = "https://biz1app.azurewebsites.net/Images/3";
+                string subdir = "\\images\\" + companyid + "\\KOT\\";
+                if (!Directory.Exists(_environment.WebRootPath + subdir))
+                {
+                    Directory.CreateDirectory(_environment.WebRootPath + subdir);
+                }
+
+                if(image != null)
+                {
+                    using (FileStream filestream = System.IO.File.Create(_environment.WebRootPath + subdir + image.FileName))
+                    {
+                        image.CopyTo(filestream);
+                        filestream.Flush();
+                        var response = new
+                        {
+                            url = "https://biz1pos.azurewebsites.net/images/" + companyid + "/KOT/" + image.FileName
+                        };
+
+                        imageurl = response.url;
+                        //return response.url;
+                    }
+                    if(!db.KOTInstructions.Where(x => x.InstructionType == 1 && x.OrderId == orderid).Any())
+                    {
+                        KOTInstruction instruction = new KOTInstruction();
+                        instruction.InstructionDateTime = DateTime.Now;
+                        instruction.url = imageurl;
+                        instruction.OrderId = orderid;
+                        instruction.InstructionType = 1;
+                        db.KOTInstructions.Add(instruction);
+                        db.SaveChanges();
+                    } 
+                    else
+                    {
+                        KOTInstruction instruction = db.KOTInstructions.Where(x => x.InstructionType == 1 && x.OrderId == orderid).FirstOrDefault();
+                        instruction.InstructionDateTime = DateTime.Now;
+                        instruction.url = imageurl;
+                        db.Entry(instruction).State = EntityState.Modified;
+                        db.SaveChanges();
+                    }
+                }
+
+
+                subdir = "\\audios\\" + companyid + "\\KOT\\";
+                if (!Directory.Exists(_environment.WebRootPath + subdir))
+                {
+                    Directory.CreateDirectory(_environment.WebRootPath + subdir);
+                }
+                if (audio != null)
+                {
+                    using (FileStream filestream = System.IO.File.Create(_environment.WebRootPath + subdir + audio.FileName))
+                    {
+                        audio.CopyTo(filestream);
+                        filestream.Flush();
+                        var response = new
+                        {
+                            url = "https://biz1pos.azurewebsites.net/audios/" + companyid + "/KOT/" + audio.FileName
+                        };
+                        audiourl = response.url;
+                        //return response.url;
+                    }
+                    if (!db.KOTInstructions.Where(x => x.InstructionType == 2 && x.OrderId == orderid).Any())
+                    {
+                        KOTInstruction instruction = new KOTInstruction();
+                        instruction.InstructionDateTime = DateTime.Now;
+                        instruction.url = audiourl;
+                        instruction.OrderId = orderid;
+                        instruction.InstructionType = 2;
+                        db.KOTInstructions.Add(instruction);
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        KOTInstruction instruction = db.KOTInstructions.Where(x => x.InstructionType == 1 && x.OrderId == orderid).FirstOrDefault();
+                        instruction.InstructionDateTime = DateTime.Now;
+                        instruction.url = audiourl;
+                        db.Entry(instruction).State = EntityState.Modified;
+                        db.SaveChanges();
+                    }
+
+                }
+                var resp = new
+                {
+                    audiourl,
+                    imageurl
+                };
+                return Ok(resp);
+            }
+            catch (Exception ex)
+            {
+                var error = new
+                {
+                    status = 0,
+                    msg = new Exception(ex.Message, ex.InnerException)
+                };
+                return Ok(error);
+            }
+        }
+
+        [HttpGet("KOTStatusChange")]
+        public IActionResult KOTStatusChange(int kotid, int statusid)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                //string jsonOutputParam = "@jsonOutput";
+                SqlCommand cmd = new SqlCommand("dbo.KOTStatusChange", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@kotid", kotid));
+                cmd.Parameters.Add(new SqlParameter("@statusid", statusid));
+                //cmd.Parameters.Add(new SqlParameter("@modDate", null));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                sqlCon.Close();
+                var obj = new
+                {
+                    status = 200,
+                    msg = "Status Changed"
+                };
+                return Ok(obj);
+
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
         }
         // GET api/<controller>/5
         [HttpGet("KOT")]
@@ -297,5 +480,19 @@ namespace Biz1PosApi.Controllers
         public void Delete(int id)
         {
         }
+    }
+    public class KDSKot
+    {
+        public string json { get; set; }
+        public DateTime DeliveryDateTime { get; set; }
+    }
+    public class JsonCustomer: Customer
+    {
+        public int? Id { get; set; }
+    }
+    public class OrderJson
+    {
+        public JsonCustomer CustomerDetails { get; set; }
+        public string Message { get; set; }
     }
 }

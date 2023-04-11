@@ -20,6 +20,7 @@ namespace Biz1BookPOS.Models
         public string Password { get; set; }
         public string OTP { get; set; }
         public int? RemainingPoints { get; set; }
+        public bool IsBlocked { get; set; }
 
         [Column(TypeName = "Date")]
         public DateTime LastRedeemDate { get; set; }

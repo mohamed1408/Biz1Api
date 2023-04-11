@@ -435,7 +435,7 @@ namespace Biz1PosApi.Controllers
             SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
             sqlCon.Open();
 
-            SqlCommand cmd = new SqlCommand(@"SELECT sp.ProductId AS Id, p.Name as Product, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
+            SqlCommand cmd = new SqlCommand(@"SELECT sp.ProductId AS Id, p.Name as Product, p.BarCode, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
                                               sp.DeliveryPrice, sp.IsActive,
                                               sp.IsDineInService, sp.IsDeliveryService, sp.IsTakeAwayService, tg.Id AS TaxGroupId,ca.Id as CategoryId,ca.ParentCategoryId,p.KOTGroupId,
                                             ca.MinimumQty, ca.FreeQtyPercentage, tg.Tax1, tg.Tax2, tg.Tax3,p.ProductTypeId,tg.IsInclusive as IsTaxInclusive, 
@@ -712,7 +712,7 @@ namespace Biz1PosApi.Controllers
                                             JOIN Products p ON spg.StockProductId = p.Id
                                             WHERE spg.SaleProductId IN (SELECT p1.Id FROM Products p1 WHERE p1.isonline = 1 AND p1.CompanyId = @companyid) AND p.IsSaleProdGroup != 1
 
-                                            SELECT sp.ProductId AS Id, p.Name as Product, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
+                                            SELECT sp.ProductId AS Id, p.Name as Product, p.BarCode, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
 		                                    sp.DeliveryPrice, sp.IsActive,
 		                                    sp.IsDineInService, sp.IsDeliveryService, sp.IsTakeAwayService, tg.Id AS TaxGroupId,ca.Id as CategoryId,ca.ParentCategoryId,p.KOTGroupId,
                                             ca.MinimumQty, ca.FreeQtyPercentage, tg.Tax1, tg.Tax2, tg.Tax3,p.ProductTypeId,tg.IsInclusive as IsTaxInclusive, 

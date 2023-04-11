@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Biz1BookPOS.Models
 {
-    public class Category
+    public class Category : ICloneable
     {
         public int Id { get; set; }
         public string Description { get; set; }
@@ -33,5 +33,11 @@ namespace Biz1BookPOS.Models
         [DataType(DataType.Date)]
         public DateTime ModifiedDate { get; set; }
 
+        public object Clone()
+        {
+            var clone = (Category)MemberwiseClone();
+            clone.Id = Id;
+            return clone;
+        }
     }
 }
