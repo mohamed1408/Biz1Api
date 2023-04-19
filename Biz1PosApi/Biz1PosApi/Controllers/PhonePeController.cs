@@ -3,10 +3,13 @@ using Biz1PosApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -23,10 +26,12 @@ namespace Biz1PosApi.Controllers
         private static readonly HttpClient httpClient = new HttpClient();
         private static TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+        public IConfiguration Configuration { get; }
 
-        public PhonePeController(POSDbContext contextOptions)
+        public PhonePeController(POSDbContext contextOptions, IConfiguration configuration)
         {
             db = contextOptions;
+            Configuration = configuration;
         }
         private static Random random = new Random();
         public static string RandomString(int length)
@@ -60,11 +65,11 @@ namespace Biz1PosApi.Controllers
                 transaction.Notes = "T" + transaction.Id.ToString() + "S" + transaction.StoreId.ToString();
                 db.Entry(transaction).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                 db.SaveChanges();
-                string key = "03ea1f3e-1fcf-498f-a0f8-655aa69ff7e7";
+                string key = "bff43f70-7033-4740-ba04-53dd4958a6de";
                 string salt = "1";
 
                 PhonePePayload payload = new PhonePePayload();
-                payload.merchantId = "FBCAKESUAT";
+                payload.merchantId = "FBCAKESONLINE";
                 payload.merchantTransactionId = transaction.Notes;
                 payload.merchantUserId = "MUID2209";
                 payload.amount = (int)pyload.amount * 100;
@@ -81,7 +86,7 @@ namespace Biz1PosApi.Controllers
                 {
                     request = base64Payload
                 };
-                var client = new RestClient("https://api-preprod.phonepe.com/apis/merchant-simulator/pg/v1/pay");
+                var client = new RestClient("https://api.phonepe.com/apis/hermes/pg/v1/pay");
                 var request = new RestRequest(Method.POST);
                 request.AddHeader("accept", "application/json");
                 request.AddHeader("Content-Type", "application/json");
@@ -102,6 +107,45 @@ namespace Biz1PosApi.Controllers
 
                 return StatusCode(500, error);
             }
+        }
+
+        [HttpGet("PhonePeDashboard")]
+        public IActionResult PhonePeDashboard(int CompanyId, int StoreId)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.PhonePeDashboard", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@companyId", CompanyId));
+                cmd.Parameters.Add(new SqlParameter("@storeId", StoreId));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                DataTable table = ds.Tables[0];
+
+
+                var data = new
+                {
+                    Report = ds.Tables[0],
+
+                };
+
+                return Ok(data);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+
         }
         [HttpPost("PaymentStatusCallback")]
         public IActionResult PaymentStatusCallback([FromBody] CBPayload payload)
@@ -147,13 +191,13 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
-                string key = "03ea1f3e-1fcf-498f-a0f8-655aa69ff7e7";
+                string key = "bff43f70-7033-4740-ba04-53dd4958a6de";
                 string salt = "1";
 
 
                 // string base64Payload = Base64Encode(JsonConvert.SerializeObject(payload, Formatting.Indented));
                 string sha256hash = ComputeSha256Hash("/pg/v1/status/" + merchantId + "/" + merchantTransactionId + key) + "###" + salt;
-                var client = new RestClient("https://api-preprod.phonepe.com/apis/merchant-simulator/pg/v1/status/" + merchantId + "/" + merchantTransactionId);
+                var client = new RestClient("https://api.phonepe.com/apis/hermes/pg/v1/status/" + merchantId + "/" + merchantTransactionId);
                 var request = new RestRequest(Method.GET);
                 request.AddHeader("accept", "application/json");
                 request.AddHeader("Content-Type", "application/json");

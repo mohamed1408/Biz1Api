@@ -78,20 +78,21 @@ namespace Biz1PosApi.Controllers
             }
         }
 
-        [HttpPost("pettyCashTransfer")]
-        public ActionResult pettyCashTransfer(int storeid, int companyid, double amount, string to)
+        [HttpGet("pettyCashTransfer")]
+        public ActionResult pettyCashTransfer(int storeid, int companyid, double amount, string to, string reason)
         {
             try
             {
                 Transaction transaction = new Transaction();
                 transaction.Amount = amount;
                 transaction.CompanyId = companyid;
-                transaction.ModifiedDateTime = DateTime.Now;
+                transaction.ModifiedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
                 transaction.StoreId = storeid;
                 transaction.PaymentTypeId = 7;
                 transaction.TranstypeId = (to == "EXPENSE") ? 1 : (to == "SALES") ? 2 : 0;
-                transaction.TransDate = DateTime.Now;
-                transaction.TransDateTime = DateTime.Now;
+                transaction.TransDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                transaction.TransDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                transaction.Notes = reason;
                 db.Transactions.Add(transaction);
                 db.SaveChanges();
 

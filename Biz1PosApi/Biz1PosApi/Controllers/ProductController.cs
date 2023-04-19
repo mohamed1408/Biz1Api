@@ -779,7 +779,7 @@ namespace Biz1BookPOS.Controllers
                     products = db.Products.Where(x => x.CompanyId == compId).ToList(),
                     product = from p in db.Products
                               where p.Id == id && p.CompanyId == compId
-                              select new { p.Id, Product = p.Name,p.Description, p.Price, p.BarCode, p.TakeawayPrice, p.DeliveryPrice, p.CategoryId, p.TaxGroupId, p.CompanyId, p.UnitId, p.ProductTypeId, p.KOTGroupId, p.ImgUrl, p.ProductCode, p.UPPrice, p.Recomended, p.SortOrder, p.isactive, p.minquantity, p.minblock, p.IsSaleProdGroup },
+                              select new { p.Id, Product = p.Name,p.Description, p.Price, p.BarCode, p.TakeawayPrice, p.DeliveryPrice, p.CategoryId, p.TaxGroupId, p.CompanyId, p.UnitId, p.ProductTypeId, p.KOTGroupId, p.ImgUrl, p.ProductCode, p.UPPrice, p.Recomended, p.SortOrder, p.isactive, p.minquantity, p.minblock, p.IsSaleProdGroup, p.MakingCost },
                     productOptionGroups = from pog in db.ProductOptionGroups
                                           join og in db.OptionGroups on pog.OptionGroupId equals og.Id
                                           where pog.ProductId == id && pog.CompanyId == compId
