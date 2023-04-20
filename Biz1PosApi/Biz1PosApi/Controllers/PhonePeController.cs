@@ -152,6 +152,15 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
+                OrderLog log = new OrderLog();
+                log.StoreId = 22;
+                log.CompanyId = 3;
+                log.Error = payload.response;
+                log.LoggedDateTime = DateTime.UtcNow;
+                log.Payload = Base64Decode(payload.response);
+                db.OrderLogs.Add(log);
+                db.SaveChanges();
+
                 string payload_str = Base64Decode(payload.response);
                 dynamic payload_parse = JsonConvert.DeserializeObject<dynamic>(payload_str);
                 string merchantTransactionId = (string)payload_parse.data.merchantTransactionId;
@@ -163,14 +172,6 @@ namespace Biz1PosApi.Controllers
                 db.Entry(transaction).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                 db.SaveChanges();
 
-                OrderLog log = new OrderLog();
-                log.StoreId = 22;
-                log.CompanyId = 3;
-                log.Error = payload.response;
-                log.LoggedDateTime = DateTime.UtcNow;
-                log.Payload = Base64Decode(payload.response);
-                db.OrderLogs.Add(log);
-                db.SaveChanges();
                 return Ok(log);
             }
             catch (Exception e)
@@ -186,13 +187,40 @@ namespace Biz1PosApi.Controllers
                 return StatusCode(500, error);
             }
         }
+
+        [HttpPost("RefundCallback")]
+        public IActionResult RefundCallback(int transactionid)
+        {
+            try
+            {
+                Biz1BookPOS.Models.Transaction transaction = db.Transactions.Find(transactionid);
+                transaction.PaymentStatusId = 2;
+                db.Entry(transaction).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                db.SaveChanges();
+
+                return Ok(transaction);
+            }
+            catch (Exception e)
+            {
+
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 500,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+
+                return StatusCode(500, error);
+            }
+        }
         [HttpPost("TransactionStatusCheck")]
-        public IActionResult TransactionStatusCheck(string merchantId, string merchantTransactionId)
+        public IActionResult TransactionStatusCheck(string merchantTransactionId)
         {
             try
             {
                 string key = "bff43f70-7033-4740-ba04-53dd4958a6de";
                 string salt = "1";
+                string merchantId = "FBCAKESONLINE";
 
 
                 // string base64Payload = Base64Encode(JsonConvert.SerializeObject(payload, Formatting.Indented));
@@ -205,7 +233,7 @@ namespace Biz1PosApi.Controllers
                 request.AddHeader("X-MERCHANT-ID", merchantId);
                 // request.AddParameter("application/json", JsonConvert.SerializeObject(body), ParameterType.RequestBody);
                 IRestResponse response = client.Execute(request);
-                return Ok(response.Content);
+                return Ok(JsonConvert.DeserializeObject(response.Content));
             }
             catch (Exception e)
             {
@@ -221,6 +249,82 @@ namespace Biz1PosApi.Controllers
             }
         }
 
+        [HttpPost("PaymentRefund")]
+        public IActionResult PaymentRefund(int TransId)
+        {
+            try
+            {
+                var trans = db.Transactions.Where(x => x.Id == TransId).FirstOrDefault();
+
+                string key = "bff43f70-7033-4740-ba04-53dd4958a6de";
+                string salt = "1";
+
+                Biz1BookPOS.Models.Transaction originalTransaction = db.Transactions.Find(TransId);
+                Biz1BookPOS.Models.Transaction transaction = new Biz1BookPOS.Models.Transaction();
+                transaction.Amount = originalTransaction.Amount;
+                transaction.CompanyId = originalTransaction.CompanyId;
+                transaction.CustomerId = originalTransaction.CustomerId;
+                transaction.ModifiedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                transaction.OrderId = originalTransaction.OrderId;
+                transaction.PaymentStatusId = 0;
+                transaction.StoreId = originalTransaction.StoreId;
+                transaction.PaymentTypeId = 8;
+                transaction.TransDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                transaction.TransDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                transaction.TranstypeId = 2;
+                transaction.Notes = "";
+                db.Transactions.Add(transaction);
+                db.SaveChanges();
+
+                transaction.Notes = "T" + transaction.Id.ToString() + "S" + transaction.StoreId.ToString();
+                db.Entry(transaction).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                db.SaveChanges();
+
+                PhonePeRefund pyload = new PhonePeRefund();
+                pyload.merchantId = "FBCAKESONLINE";
+                pyload.merchantUserId = "MUID2209";
+                pyload.originalTransactionId = trans.Notes;
+                pyload.merchantTransactionId = transaction.Notes;
+                pyload.amount = (int)trans.Amount * 100;
+                pyload.callbackUrl = "https://biz1pos.azurewebsites.net/api/PhonePe/PaymentStatusCallback";
+
+                string base64Payload = Base64Encode(JsonConvert.SerializeObject(pyload, Formatting.Indented));
+                string sha256hash = ComputeSha256Hash(base64Payload + "/pg/v1/refund" + key) + "###" + salt;
+                dynamic body = new
+                {
+                    request = base64Payload
+                };
+                var client = new RestClient("https://api.phonepe.com/apis/hermes/pg/v1/refund");
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("accept", "application/json");
+                request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("X-VERIFY", sha256hash);
+                request.AddParameter("application/json", JsonConvert.SerializeObject(body), ParameterType.RequestBody);
+                IRestResponse response = client.Execute(request);
+                var res = new
+                {
+                    //trans,
+                    //base64Payload,
+                    //sha256hash,
+                    response = JsonConvert.DeserializeObject(response.Content)
+                };
+                return Ok(res);
+
+            }
+            catch (Exception e)
+            {
+
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 500,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+
+                return StatusCode(500, error);
+            }
+        }
+        
         public static string Base64Encode(string plainText)
         {
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
@@ -354,5 +458,14 @@ namespace Biz1PosApi.Controllers
         public string callbackUrl { get; set; }
         public string mobileNumber { get; set; }
         public PaymentInstrument paymentInstrument { get; set; }
+    }
+    internal class PhonePeRefund
+    {
+        public string merchantId { get; set; }
+        public string merchantUserId { get; set; }
+        public string originalTransactionId { get; set; }
+        public string merchantTransactionId { get; set; }
+        public int amount { get; set; }
+        public string callbackUrl { get; set; }
     }
 }

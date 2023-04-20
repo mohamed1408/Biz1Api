@@ -83,6 +83,30 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpGet("getorderbyid")]
+        public IActionResult getorderbyid(int companyId, int storeid, int orderid)
+        {
+            try
+            {
+                string orderjson = db.Orders.Where(x => x.CompanyId == companyId && x.StoreId == storeid && x.Id == orderid).FirstOrDefault().OrderJson;
+                var response = new
+                {
+                    status = 200,
+                    OrderJson = orderjson
+                };
+                return Json(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
         [HttpGet("getorderbyinvoiceno")]
         public IActionResult getorderbyinvoiceno(int companyId, int storeid, DateTime date, string invoiceno)
         {
@@ -2139,7 +2163,7 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
-        [HttpGet("getOrderById")]
+        [HttpGet("_getOrderById")]
         [EnableCors("AllowOrigin")]
         public IActionResult getOrderById(int orderid)
         {
