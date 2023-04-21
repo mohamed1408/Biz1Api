@@ -249,8 +249,8 @@ namespace Biz1PosApi.Controllers
             }
         }
 
-        [HttpPost("PaymentRefund")]
-        public IActionResult PaymentRefund(int TransId)
+        [HttpGet("PaymentRefund")]
+        public IActionResult PaymentRefund(int TransId, int UserId)
         {
             try
             {
@@ -273,6 +273,7 @@ namespace Biz1PosApi.Controllers
                 transaction.TransDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
                 transaction.TranstypeId = 2;
                 transaction.Notes = "";
+                transaction.UserId = UserId;
                 db.Transactions.Add(transaction);
                 db.SaveChanges();
 
