@@ -35,6 +35,35 @@ namespace Biz1PosApi.Controllers
             return Json(denominationTypes);
         }
 
+        [HttpGet("delDenomEntry")]
+        public ActionResult addDenomEntry(int denomeEntryId)
+        {
+            try
+            {
+                List<Denomination> denomEntries = db.Denominations.Where(x => x.DenomEntryId == denomeEntryId).ToList();
+                DenomEntry denomEntry = db.DenomEntries.Find(denomeEntryId);
+                db.Denominations.RemoveRange(denomEntries);
+                db.DenomEntries.Remove(denomEntry);
+                db.SaveChanges();
+                var response = new
+                {
+                    status = 200,
+                    msg = "Success",
+                };
+                return Json(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = "error",
+                    msg = "Something went wrong  Contact our service provider",
+                    orders = new JArray()
+                };
+                return Json(error);
+            }
+        }
         [HttpPost("addDenomEntry")]
         public ActionResult addDenomEntry([FromBody]JObject data)
         {

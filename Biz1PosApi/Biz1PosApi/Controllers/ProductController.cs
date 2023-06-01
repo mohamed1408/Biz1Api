@@ -36,6 +36,8 @@ namespace Biz1BookPOS.Controllers
         private POSDbContext db;
         public IConfiguration Configuration { get; }
         public static IHostingEnvironment _environment;
+        private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+
         public ProductController(POSDbContext contextOptions, IConfiguration configuration, IHostingEnvironment environment)
         {
             db = contextOptions;
@@ -821,7 +823,7 @@ namespace Biz1BookPOS.Controllers
                 }
                 Product product = orderJson.ToObject<Product>();
                 product.CreatedDate = db.Products.Where(x => x.Id == product.Id).AsNoTracking().FirstOrDefault().CreatedDate;
-                product.ModifiedDate = DateTime.Now;
+                product.ModifiedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time); ;
                 product.Name = product.Name;
                 product.Description = product.Description;
                 product.IsQtyPredefined = db.PredefinedQuantities.Where(x => x.ProductId == product.Id).Any();

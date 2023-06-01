@@ -110,7 +110,7 @@ namespace Biz1PosApi.Controllers
         }
 
         [HttpGet("PhonePeDashboard")]
-        public IActionResult PhonePeDashboard(int CompanyId, int StoreId)
+        public IActionResult PhonePeDashboard(int CompanyId, int StoreId, DateTime? from, DateTime? to)
         {
             try
             {
@@ -120,6 +120,8 @@ namespace Biz1PosApi.Controllers
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add(new SqlParameter("@companyId", CompanyId));
                 cmd.Parameters.Add(new SqlParameter("@storeId", StoreId));
+                cmd.Parameters.Add(new SqlParameter("@from", from));
+                cmd.Parameters.Add(new SqlParameter("@to", to));
 
                 DataSet ds = new DataSet();
                 SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);

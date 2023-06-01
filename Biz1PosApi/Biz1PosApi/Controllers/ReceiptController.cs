@@ -82,6 +82,92 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpGet("Invoices2")]
+        public IActionResult Invoices2(int companyid, int storeid, DateTime fromdate, DateTime todate, int startid, int endid, string invoice)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+
+                SqlCommand cmd = new SqlCommand("dbo.Invoices2", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@comapnyid", companyid));
+                cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+                cmd.Parameters.Add(new SqlParameter("@fromdate", fromdate));
+                cmd.Parameters.Add(new SqlParameter("@todate", todate));
+                cmd.Parameters.Add(new SqlParameter("@startid", startid));
+                cmd.Parameters.Add(new SqlParameter("@endid", endid));
+                cmd.Parameters.Add(new SqlParameter("@invoice", invoice));
+                cmd.Parameters.Add(new SqlParameter("@top", 25));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+
+                DataTable table = ds.Tables[0];
+                var data = new
+                {
+                    invoices = ds.Tables[0],
+                    tot_sales = ds.Tables[1],
+                    message = "success",
+                    status = 200
+                };
+                sqlCon.Close();
+                return Ok(data);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    invoices = Array.Empty<JObject>(),
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("GetOrderJson")]
+        public IActionResult GetOrderJson(int orderid)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+
+                SqlCommand cmd = new SqlCommand("dbo.GetOrderJson", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@orderid", orderid));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+
+                DataTable table = ds.Tables[0];
+                var data = new
+                {
+                    invoices = ds.Tables[0],
+                    message = "success",
+                    status = 200
+                };
+                sqlCon.Close();
+                return Ok(data);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    invoices = Array.Empty<JObject>(),
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
 
         [HttpGet("Get")]
         public IActionResult Get(int StoreId, int CompanyId, int StartId, string type, string dataType, DateTime? fromdate, DateTime? todate, string invoice)

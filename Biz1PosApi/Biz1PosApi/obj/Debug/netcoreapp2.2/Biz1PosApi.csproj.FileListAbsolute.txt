@@ -56,6 +56,13 @@ E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.pdb
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.genruntimeconfig.cache
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.csproj.CopyComplete
 E:\Work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.csproj.AssemblyReference.cache
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.csproj.AssemblyReference.cache
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.GeneratedMSBuildEditorConfig.editorconfig
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.AssemblyInfoInputs.cache
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.AssemblyInfo.cs
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.csproj.CoreCompileInputs.cache
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.RazorAssemblyInfo.cache
+D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.RazorAssemblyInfo.cs
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\appsettings.Development.json
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\appsettings.json
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\google-services.json
@@ -67,13 +74,6 @@ D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\Biz1PosApi.dll
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\Biz1PosApi.pdb
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\Biz1PosApi.Views.dll
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\Biz1PosApi.Views.pdb
-D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.csproj.AssemblyReference.cache
-D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.GeneratedMSBuildEditorConfig.editorconfig
-D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.AssemblyInfoInputs.cache
-D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.AssemblyInfo.cs
-D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.csproj.CoreCompileInputs.cache
-D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.RazorAssemblyInfo.cache
-D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.RazorAssemblyInfo.cs
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.TagHelpers.input.cache
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.TagHelpers.output.cache
 D:\work\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.RazorCoreGenerate.cache

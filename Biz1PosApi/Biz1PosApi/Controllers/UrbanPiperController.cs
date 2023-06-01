@@ -134,11 +134,11 @@ namespace Biz1PosApi.Controllers
 
         [HttpGet("getstoreuporders")]
         [EnableCors("AllowOrigin")]
-        public IActionResult getstoreuporders(int storeid)
+        public IActionResult getstoreuporders(int storeid, int uporderid = 0, int lastorderid = 0)
         {
             try
             {
-                List<UPOrder> orders = db.UPOrders.Where(x => x.StoreId == storeid).ToList();
+                List<UPOrder> orders = db.UPOrders.Where(x => x.StoreId == storeid && (x.UPOrderId == uporderid || uporderid == 0) && (x.UPOrderId > lastorderid || lastorderid == 0)).ToList();
                 var response = new
                 {
                     status = 200,
@@ -2532,6 +2532,8 @@ namespace Biz1PosApi.Controllers
                 db.KOTs.Add(kot);
                 db.SaveChanges();
 
+
+
                 foreach (var item in order.order.items)
                 {
                     OrderItem orderItem = new OrderItem();
@@ -2549,6 +2551,8 @@ namespace Biz1PosApi.Controllers
                     orderItem.DiscAmount = (item.total / order.order.details.order_subtotal) * neworder.DiscAmount;
                     orderItem.ComplementryQty = 0;
                     orderItem.Tax1 = 0;
+
+
                     orderItem.Tax2 = 0;
                     orderItem.Tax3 = 0;
                     dynamic optionjson = new JObject();
@@ -2598,6 +2602,11 @@ namespace Biz1PosApi.Controllers
                 }
             }
 
+        }
+        [HttpPost("checkOrder")]
+        public bool checkOrder(int uporderid)
+        {
+            return db.UPOrders.Where(x => x.UPOrderId == uporderid).Any();
         }
         [HttpPost("savefailedorders")]
         public IActionResult savefailedorders([FromBody] JObject data)
