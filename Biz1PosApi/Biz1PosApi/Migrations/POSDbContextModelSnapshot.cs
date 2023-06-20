@@ -451,7 +451,27 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int?>("WaiterId");
 
+                    b.Property<int?>("del_Day");
+
+                    b.Property<int?>("del_Month");
+
+                    b.Property<int?>("del_Quarter");
+
+                    b.Property<int?>("del_Week");
+
+                    b.Property<int?>("del_Year");
+
                     b.Property<bool>("isPaid");
+
+                    b.Property<int?>("ord_Day");
+
+                    b.Property<int?>("ord_Month");
+
+                    b.Property<int?>("ord_Quarter");
+
+                    b.Property<int?>("ord_Week");
+
+                    b.Property<int?>("ord_Year");
 
                     b.HasKey("Id");
 

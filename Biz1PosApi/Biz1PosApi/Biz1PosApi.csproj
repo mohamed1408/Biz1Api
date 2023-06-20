@@ -244,6 +244,8 @@
     <Compile Include="Migrations\20230404055152_stores_saexcash.Designer.cs" />
     <Compile Include="Migrations\20230404100933_product_makingcost.cs" />
     <Compile Include="Migrations\20230404100933_product_makingcost.Designer.cs" />
+    <Compile Include="Migrations\20230609104116_order_date_indexing.cs" />
+    <Compile Include="Migrations\20230609104116_order_date_indexing.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 

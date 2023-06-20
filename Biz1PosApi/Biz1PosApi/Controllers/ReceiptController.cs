@@ -503,8 +503,6 @@ namespace Biz1PosApi.Controllers
                 List<Transaction> oldtransactions = db.Transactions.Where(x => x.OrderId == order.Id).ToList();
                 List<Transaction> alltranasctions = new List<Transaction>();
                 alltranasctions.AddRange(oldtransactions);
-
-                dynamic json = JsonConvert.DeserializeObject(order.OrderJson);
                 foreach (Transaction transaction in transactions)
                 {
                     if(!alltranasctions.Where(x => x.TransDateTime == transaction.TransDateTime && x.Amount == transaction.Amount && x.StorePaymentTypeId == transaction.StorePaymentTypeId).Any())
@@ -519,9 +517,13 @@ namespace Biz1PosApi.Controllers
                 if(totalpaid <= order.BillAmount)
                 {
                     order.PaidAmount = totalpaid;
-                    json.alltransactions = JToken.FromObject(alltranasctions.Select(x => new { x.Amount, x.CompanyId, x.CustomerId, x.Id, x.ModifiedDateTime, x.Notes,x.TransDate,x.TransDateTime,x.TranstypeId,x.UserId }));
-                    json.PaidAmount = totalpaid;
-                    order.OrderJson = JsonConvert.SerializeObject(json);
+                    if (order.OrderJson != null)
+                    {
+                        dynamic json = JsonConvert.DeserializeObject(order.OrderJson);
+                        json.alltransactions = JToken.FromObject(alltranasctions.Select(x => new { x.Amount, x.CompanyId, x.CustomerId, x.Id, x.ModifiedDateTime, x.Notes, x.TransDate, x.TransDateTime, x.TranstypeId, x.UserId }));
+                        json.PaidAmount = totalpaid;
+                        order.OrderJson = JsonConvert.SerializeObject(json);
+                    }
                     db.Entry(order).State = EntityState.Modified;
                     db.SaveChanges();
                 }

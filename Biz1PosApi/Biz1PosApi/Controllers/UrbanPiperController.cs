@@ -131,14 +131,30 @@ namespace Biz1PosApi.Controllers
             sqlCon.Close();
             return Json(prod);
         }
+        public void deleteolduporders(int storeid)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
 
+            SqlCommand cmd = new SqlCommand("dbo.DeleteOldUPOrders", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("@storeId", storeid));
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+
+            sqlCon.Close();
+        }
         [HttpGet("getstoreuporders")]
         [EnableCors("AllowOrigin")]
         public IActionResult getstoreuporders(int storeid, int uporderid = 0, int lastorderid = 0)
         {
             try
             {
-                List<UPOrder> orders = db.UPOrders.Where(x => x.StoreId == storeid && (x.UPOrderId == uporderid || uporderid == 0) && (x.UPOrderId > lastorderid || lastorderid == 0)).ToList();
+                deleteolduporders(storeid);
+                DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time).Date;
+                List<UPOrder> orders = db.UPOrders.Where(x => x.StoreId == storeid && (x.UPOrderId == uporderid || uporderid == 0) && (x.UPOrderId > lastorderid || lastorderid == 0) && x.OrderedDateTime.Date >= today).ToList();
                 var response = new
                 {
                     status = 200,

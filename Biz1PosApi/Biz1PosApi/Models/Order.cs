@@ -121,6 +121,16 @@ namespace Biz1BookPOS.Models
         public double? AllItemTaxDisc { get; set; }
         public double? AllItemTotalDisc { get; set; }
         public long? CreatedTimeStamp { get; set; }
+        public int? ord_Day { get; set; }
+        public int? ord_Month { get; set; }
+        public int? ord_Year { get; set; }
+        public int? ord_Week { get; set; }
+        public int? ord_Quarter { get; set; }
+        public int? del_Day { get; set; }
+        public int? del_Month { get; set; }
+        public int? del_Year { get; set; }
+        public int? del_Week { get; set; }
+        public int? del_Quarter { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime ModifiedDate { get; set; }

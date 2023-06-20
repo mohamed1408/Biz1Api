@@ -787,12 +787,12 @@ namespace Biz1PosApi.Controllers
             SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
             sqlCon.Open();
 
-            SqlCommand cmd = new SqlCommand(@"SELECT o.Id, o.OrderNo, o.OrderJson FROM Orders o
+            SqlCommand cmd = new SqlCommand(@"SELECT o.Id, o.OrderNo, isnull(o.OrderJson, dbo.ordjsn(o.Id)) OrderJson FROM Orders o
                                             where o.CompanyId = @companyid 
                                             AND (o.StoreId = @storeid OR o.DeliveryStoreId = @storeid) 
                                             AND (
                                                 (o.OrderedDate = CONVERT(VARCHAR(10), getdate(), 111) 
-                                                 AND o.OrderTypeId IN (3,4)) OR (o.OrderTypeId IN (2,3,4) AND o.OrderStatusId NOT IN (-1,5)) OR (o.OrderTypeId IN (3,4) AND o.BillAmount != o.PaidAmount)) -- OR (o.OrderTypeId IN (3,4) AND o.BillAmount != o.PaidAmount)
+                                                 AND o.OrderTypeId IN (3,4)) OR (o.OrderTypeId IN (2,3,4) AND o.OrderStatusId NOT IN (-1,5)) OR (o.OrderTypeId IN (3,4) AND o.BillAmount != o.PaidAmount and o.OrderStatusId != -1)) -- OR (o.OrderTypeId IN (3,4) AND o.BillAmount != o.PaidAmount)
                                             UNION
                                             SELECT 0, 0, NULL as OrderJson", sqlCon);
             cmd.CommandType = CommandType.Text;

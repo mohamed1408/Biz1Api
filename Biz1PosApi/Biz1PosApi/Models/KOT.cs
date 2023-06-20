@@ -40,6 +40,10 @@ namespace Biz1BookPOS.Models
         public int? KOTGroupId { get; set; }
         public virtual KOTGroup KOTGroup { get; set; }
 
+        //[ForeignKey("User")]
+        //public int? UserId { get; set; }
+        //public virtual User User { get; set; }
+
         [NotMapped]
         public string OrderItems { get; set; }
     }
