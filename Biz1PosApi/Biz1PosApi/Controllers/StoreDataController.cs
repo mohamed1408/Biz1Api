@@ -270,7 +270,7 @@ namespace Biz1PosApi.Controllers
             }
             else if(data == "MENU")
             {
-                tasks = new List<Task>() { productstask, categorytask, taxgrouptask, discountrulestask, additionalchargestask, storepaymenttypestask };
+                tasks = new List<Task>() { productstask, categorytask, taxgrouptask, discountrulestask, additionalchargestask, storepaymenttypestask, kotgroupprinterstask };
             }
             else if(data == "ORDERS")
             {
@@ -942,7 +942,7 @@ namespace Biz1PosApi.Controllers
                                             JOIN StorePreferences sr ON sp.StoreId = sr.StoreId
 	                                       WHERE p.isactive = 1 AND ca.isactive = 1 AND (sp.StoreId = @storeid OR @storeid = 0) 
                                              AND (sp.CompanyId = @companyid) 
-                                             AND (p.ModifiedDate >= @lastsynceddatetime OR @lastsynceddatetime IS NULL)
+                                             --AND (p.ModifiedDate >= @lastsynceddatetime OR @lastsynceddatetime IS NULL)
 	                                         FOR JSON PATH", sqlCon);
             cmd.CommandType = CommandType.Text;
 

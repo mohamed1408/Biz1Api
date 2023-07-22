@@ -116,11 +116,15 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int>("CompanyId");
 
+                    b.Property<long?>("ContactNo");
+
                     b.Property<DateTime>("CreatedDate");
 
                     b.Property<string>("Email");
 
                     b.Property<bool>("IsBlocked");
+
+                    b.Property<bool?>("IsEcom");
 
                     b.Property<DateTime>("LastRedeemDate")
                         .HasColumnType("Date");
@@ -624,6 +628,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<string>("ProductCode");
 
+                    b.Property<string>("ProductName");
+
                     b.Property<int>("ProductTypeId");
 
                     b.Property<bool>("Recomended");
@@ -632,7 +638,7 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<double>("TakeawayPrice");
 
-                    b.Property<int>("TaxGroupId");
+                    b.Property<int?>("TaxGroupId");
 
                     b.Property<double>("UPPrice");
 
@@ -1501,6 +1507,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int?>("NearByStoreId");
 
+                    b.Property<bool>("hidden");
+
                     b.Property<bool>("iscurrentaddress");
 
                     b.HasKey("Id");
@@ -1637,6 +1645,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<double>("SalesCash");
 
+                    b.Property<int?>("ShiftId");
+
                     b.Property<int>("StoreId");
 
                     b.Property<double>("TotalAmount");
@@ -1750,6 +1760,58 @@ namespace Biz1PosApi.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("DiscountRules");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.DiscountVerification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Comments");
+
+                    b.Property<int?>("OrderId");
+
+                    b.Property<string>("Reference");
+
+                    b.Property<int?>("VerifiedBy");
+
+                    b.Property<DateTime?>("VerifiedDatetime");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("VerifiedBy");
+
+                    b.ToTable("DiscountVerifications");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.EComProduct", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId");
+
+                    b.Property<DateTime>("CreatedDate");
+
+                    b.Property<bool>("IsSplProduct");
+
+                    b.Property<bool>("IsTopProduct");
+
+                    b.Property<DateTime?>("ModifiedDate");
+
+                    b.Property<int>("ProductId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("EComProducts");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.KOTGroup", b =>
@@ -2066,7 +2128,7 @@ namespace Biz1PosApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("AdditionalChargeId");
+                    b.Property<int?>("AdditionalChargeId");
 
                     b.Property<double>("ChargeAmount");
 
@@ -2453,6 +2515,49 @@ namespace Biz1PosApi.Migrations
                     b.HasIndex("StoreId");
 
                     b.ToTable("ReportPresets");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.RestaurantOrder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<float>("BillAmount");
+
+                    b.Property<int?>("CompanyId");
+
+                    b.Property<DateTime>("DeliveryDate")
+                        .HasColumnType("Date");
+
+                    b.Property<string>("InvoiceNo");
+
+                    b.Property<string>("ItemJson");
+
+                    b.Property<string>("Note");
+
+                    b.Property<string>("OrderJson");
+
+                    b.Property<int?>("OrderStatus");
+
+                    b.Property<int?>("OrderType");
+
+                    b.Property<DateTime>("OrderedDate")
+                        .HasColumnType("Date");
+
+                    b.Property<float>("PaidAmount");
+
+                    b.Property<int?>("StoreId");
+
+                    b.Property<double?>("Tax1");
+
+                    b.Property<double?>("Tax2");
+
+                    b.Property<double?>("Tax3");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RestaurantOrders");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.Result", b =>
@@ -2977,6 +3082,25 @@ namespace Biz1PosApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TransTypes");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.UPCoupon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Coupon");
+
+                    b.Property<int>("OrderId");
+
+                    b.Property<double>("Value");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("UPCoupons");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.UPLog", b =>
@@ -3514,8 +3638,7 @@ namespace Biz1PosApi.Migrations
 
                     b.HasOne("Biz1BookPOS.Models.TaxGroup", "TaxGroup")
                         .WithMany()
-                        .HasForeignKey("TaxGroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("TaxGroupId");
 
                     b.HasOne("Biz1BookPOS.Models.Unit", "Unit")
                         .WithMany()
@@ -3985,6 +4108,30 @@ namespace Biz1PosApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("Biz1PosApi.Models.DiscountVerification", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId");
+
+                    b.HasOne("Biz1BookPOS.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("VerifiedBy");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.EComProduct", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Biz1BookPOS.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("Biz1PosApi.Models.KOTGroup", b =>
                 {
                     b.HasOne("Biz1BookPOS.Models.Company", "Company")
@@ -4113,8 +4260,7 @@ namespace Biz1PosApi.Migrations
                 {
                     b.HasOne("Biz1PosApi.Models.AdditionalCharges", "AdditionalCharges")
                         .WithMany()
-                        .HasForeignKey("AdditionalChargeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("AdditionalChargeId");
 
                     b.HasOne("Biz1BookPOS.Models.Company", "Company")
                         .WithMany()
@@ -4542,6 +4688,14 @@ namespace Biz1PosApi.Migrations
                     b.HasOne("Biz1PosApi.Models.Tag", "Tag")
                         .WithMany()
                         .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.UPCoupon", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

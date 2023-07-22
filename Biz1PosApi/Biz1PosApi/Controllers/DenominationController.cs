@@ -8,6 +8,7 @@ using Biz1BookPOS.Models;
 using Biz1PosApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -34,6 +35,35 @@ namespace Biz1PosApi.Controllers
             List<string> denominationTypes = db.DenominationTypes.Where(x => x.Currency == "INR").Select(x => x.Name).ToList();
             return Json(denominationTypes);
         }
+        [HttpGet("GetShifts")]
+        public ActionResult GetShifts()
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                //string jsonOutputParam = "@jsonOutput";
+                SqlCommand cmd = new SqlCommand("SELECT * FROM Shifts", sqlCon);
+                cmd.CommandType = CommandType.Text;
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+
+                return Json(ds.Tables[0]);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = "error",
+                    msg = "Something went wrong  Contact our service provider",
+                    orders = new JArray()
+                };
+                return Json(error);
+            }
+        }
 
         [HttpGet("delDenomEntry")]
         public ActionResult addDenomEntry(int denomeEntryId)
@@ -44,6 +74,34 @@ namespace Biz1PosApi.Controllers
                 DenomEntry denomEntry = db.DenomEntries.Find(denomeEntryId);
                 db.Denominations.RemoveRange(denomEntries);
                 db.DenomEntries.Remove(denomEntry);
+                db.SaveChanges();
+                var response = new
+                {
+                    status = 200,
+                    msg = "Success",
+                };
+                return Json(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = "error",
+                    msg = "Something went wrong  Contact our service provider",
+                    orders = new JArray()
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("changeshift")]
+        public ActionResult changeshift(int denomeEntryId, int shiftid)
+        {
+            try
+            {
+                DenomEntry denomEntry = db.DenomEntries.Find(denomeEntryId);
+                denomEntry.ShiftId = shiftid;
+                db.Entry(denomEntry).State = EntityState.Modified;
                 db.SaveChanges();
                 var response = new
                 {
@@ -145,7 +203,7 @@ namespace Biz1PosApi.Controllers
             }
         }
         [HttpGet("getDenomEntry")]
-        public ActionResult getDenomEntry(int storeid, DateTime date, int companyid, int? entrytypeid)
+        public ActionResult getDenomEntry(int storeid, DateTime date, int companyid, int? entrytypeid, int entryid = 0)
         {
             try
             {
@@ -160,6 +218,7 @@ namespace Biz1PosApi.Controllers
                 cmd.Parameters.Add(new SqlParameter("@date", date));
                 cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
                 cmd.Parameters.Add(new SqlParameter("@entrytypeid", entrytypeid));
+                cmd.Parameters.Add(new SqlParameter("@entryid", entryid));
                 //cmd.Parameters.Add(new SqlParameter("@modDate", null));
                 DataSet ds = new DataSet();
                 SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
@@ -204,6 +263,44 @@ namespace Biz1PosApi.Controllers
                 cmd.Parameters.Add(new SqlParameter("@storeId", storeid));
                 cmd.Parameters.Add(new SqlParameter("@fromdate", from));
                 cmd.Parameters.Add(new SqlParameter("@todate", to));
+                cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var obj = new
+                {
+                    status = 200,
+                    report = ds.Tables[0]
+                };
+                sqlCon.Close();
+                return Json(obj);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = "error",
+                    msg = "Something went wrong  Contact our service provider",
+                    orders = new JArray()
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("denomcheckreport")]
+        public ActionResult denomcheckreport(int companyid, DateTime from, DateTime to)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+
+                SqlCommand cmd = new SqlCommand("dbo.DenomCheckReport", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@from", from));
+                cmd.Parameters.Add(new SqlParameter("@to", to));
                 cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
 
                 DataSet ds = new DataSet();

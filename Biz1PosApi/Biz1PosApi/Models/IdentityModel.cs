@@ -123,5 +123,9 @@ namespace Biz1BookPOS.Models
         public DbSet<StoreDetail> StoreDetails { get; set; }
         public DbSet<CustomerRequire> CustomerRequires { get; set; }
         public DbSet<KOTInstruction> KOTInstructions { get; set; }
+        public DbSet<EComProduct> EComProducts { get; set; }
+        public DbSet<UPCoupon> UPCoupons { get; set; }
+        public DbSet<DiscountVerification> DiscountVerifications { get; set; }
+        public DbSet<RestaurantOrder> RestaurantOrders { get; set; }
     }
 }

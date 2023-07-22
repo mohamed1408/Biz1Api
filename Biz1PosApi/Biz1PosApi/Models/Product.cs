@@ -40,7 +40,7 @@ namespace Biz1BookPOS.Models
         public int? minblock { get; set; }
 
         [ForeignKey("TaxGroup")]
-        public int TaxGroupId { get; set; }
+        public int? TaxGroupId { get; set; }
         public virtual TaxGroup TaxGroup { get; set; }
 
         [ForeignKey("KOTGroup")]
@@ -57,6 +57,9 @@ namespace Biz1BookPOS.Models
 
         [DataType(DataType.Date)]
         public DateTime ModifiedDate { get; set; }
+
+
+        public string ProductName { get; set; }
 
         [ForeignKey("Company")]
         public int CompanyId { get; set; }

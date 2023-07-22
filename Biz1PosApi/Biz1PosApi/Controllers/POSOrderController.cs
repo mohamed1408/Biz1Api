@@ -108,11 +108,23 @@ namespace Biz1PosApi.Controllers
             }
         }
         [HttpGet("getorderbyinvoiceno")]
-        public IActionResult getorderbyinvoiceno(int companyId, int storeid, DateTime date, string invoiceno)
+        public IActionResult getorderbyinvoiceno(int companyId, int storeid, DateTime date, string invoiceno, int? orderid)
         {
             try
             {
-                List<Order> orders = db.Orders.Where(x => x.InvoiceNo == invoiceno && x.CompanyId == companyId).Include(x => x.Store).ToList();
+                if(invoiceno.Contains("ENQ"))
+                {
+                    orderid = Int32.Parse(invoiceno.Split(" | ")[1]);
+                }
+                List<Order> orders = new List<Order>();
+                if (orderid != null)
+                {
+                    orders = db.Orders.Where(x => x.Id == orderid).Include(x => x.Store).ToList();
+                }
+                else 
+                { 
+                orders = db.Orders.Where(x => x.OrderedDate == date && x.StoreId == storeid && x.CompanyId == companyId && x.InvoiceNo == invoiceno).Include(x => x.Store).ToList();
+                }
                 var response = new
                 {
                     status = 200,
@@ -140,7 +152,10 @@ namespace Biz1PosApi.Controllers
                 Order order = db.Orders.Find(orderid);
                 order.OrderStatusId = -1;
                 order.CancelReason = json.CancelReason;
-                order.OrderJson = JsonConvert.SerializeObject(orderjson);
+                if(order.OrderJson != null)
+                {
+                    order.OrderJson = JsonConvert.SerializeObject(orderjson);
+                }
                 db.Entry(order).State = EntityState.Modified;
                 db.SaveChanges();
                 Transaction transaction = new Transaction();
@@ -772,7 +787,11 @@ namespace Biz1PosApi.Controllers
                     }
                     string orderjson = payload.OrderJson;
                     raworder.Id = raworder.OrderId;
+                    int orderid = (int)raworder.OrderId;
+                    Order reforder = db.Orders.AsNoTracking().Where(x => x.Id == orderid).FirstOrDefault();
                     Order order = raworder.ToObject<Order>();
+                    order.CustomerId = reforder.CustomerId;
+                    order.Charges = reforder.Charges;
                     order.OrderStatusId = raworder.OrderStatusId;
                     double factor = db.StoreFIlters.Where(x => x.StoreId == order.StoreId).Any() ? db.StoreFIlters.Where(x => x.StoreId == order.StoreId).FirstOrDefault().FIlterValue : 1.0;
                     order.TotalAmount = (order.BillAmount - order.Tax1 - order.Tax2 - order.Tax3) * factor;
@@ -2545,7 +2564,6 @@ namespace Biz1PosApi.Controllers
                 foreach (CompleteOrderPayload pl in payloads)
                 {
                     Order ord = db.Orders.Find(pl.orderid);
-                    dynamic json = JsonConvert.DeserializeObject(ord.OrderJson);
                     if(pl.billamount - pl.paidamount > 0)
                     {
                         Transaction tr = new Transaction();
@@ -2566,9 +2584,13 @@ namespace Biz1PosApi.Controllers
                     }
                     ord.PaidAmount = ord.BillAmount;
                     ord.OrderStatusId = 5;
-                    json.BillAmount = ord.BillAmount;
-                    json.OrderStatusId = 5;
-                    ord.OrderJson = JsonConvert.SerializeObject(json);
+                    if(ord.OrderJson != null)
+                    {
+                        dynamic json = JsonConvert.DeserializeObject(ord.OrderJson);
+                        json.BillAmount = ord.BillAmount;
+                        json.OrderStatusId = 5;
+                        ord.OrderJson = JsonConvert.SerializeObject(json);
+                    }
                     db.Entry(ord).State = EntityState.Modified;
                 }
                 db.SaveChanges();

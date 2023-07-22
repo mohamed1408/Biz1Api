@@ -246,6 +246,34 @@
     <Compile Include="Migrations\20230404100933_product_makingcost.Designer.cs" />
     <Compile Include="Migrations\20230609104116_order_date_indexing.cs" />
     <Compile Include="Migrations\20230609104116_order_date_indexing.Designer.cs" />
+    <Compile Include="Migrations\20230623100409_fbecomprodtbl.cs" />
+    <Compile Include="Migrations\20230623100409_fbecomprodtbl.Designer.cs" />
+    <Compile Include="Migrations\20230623100513_fbecomprodtblidm.cs" />
+    <Compile Include="Migrations\20230623100513_fbecomprodtblidm.Designer.cs" />
+    <Compile Include="Migrations\20230623100635_fbecomprodtblidms.cs" />
+    <Compile Include="Migrations\20230623100635_fbecomprodtblidms.Designer.cs" />
+    <Compile Include="Migrations\20230627100415_fbecomaddclmncustomer.cs" />
+    <Compile Include="Migrations\20230627100415_fbecomaddclmncustomer.Designer.cs" />
+    <Compile Include="Migrations\20230704042359_customeraddress_hidden.cs" />
+    <Compile Include="Migrations\20230704042359_customeraddress_hidden.Designer.cs" />
+    <Compile Include="Migrations\20230706230710_upcoupon.cs" />
+    <Compile Include="Migrations\20230706230710_upcoupon.Designer.cs" />
+    <Compile Include="Migrations\20230706230800_upcoupon1.cs" />
+    <Compile Include="Migrations\20230706230800_upcoupon1.Designer.cs" />
+    <Compile Include="Migrations\20230712054932_denomentry.cs" />
+    <Compile Include="Migrations\20230712054932_denomentry.Designer.cs" />
+    <Compile Include="Migrations\20230712091822_ordercharges.cs" />
+    <Compile Include="Migrations\20230712091822_ordercharges.Designer.cs" />
+    <Compile Include="Migrations\20230718030442_NT_DiscountVerfications.cs" />
+    <Compile Include="Migrations\20230718030442_NT_DiscountVerfications.Designer.cs" />
+    <Compile Include="Migrations\20230720040821_customers_cn.cs" />
+    <Compile Include="Migrations\20230720040821_customers_cn.Designer.cs" />
+    <Compile Include="Migrations\20230720080611_ProductNameaddnew.cs" />
+    <Compile Include="Migrations\20230720080611_ProductNameaddnew.Designer.cs" />
+    <Compile Include="Migrations\20230720135722_prodtaxgroup.cs" />
+    <Compile Include="Migrations\20230720135722_prodtaxgroup.Designer.cs" />
+    <Compile Include="Migrations\20230721121736_AddDummyOrderResturant.cs" />
+    <Compile Include="Migrations\20230721121736_AddDummyOrderResturant.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 

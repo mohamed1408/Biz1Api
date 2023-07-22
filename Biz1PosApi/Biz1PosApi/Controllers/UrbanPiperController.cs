@@ -174,6 +174,46 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpGet("getstoreuporders2")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult getstoreuporders2(int storeid, int uporderid = 0, int lastorderid = 0)
+        {
+            try
+            {
+                deleteolduporders(storeid);
+                DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time).Date;
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+
+                SqlCommand cmd = new SqlCommand("dbo.StoreUpOrders", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+                cmd.Parameters.Add(new SqlParameter("@uporderid", uporderid));
+                cmd.Parameters.Add(new SqlParameter("@lastorderid", lastorderid));
+                cmd.Parameters.Add(new SqlParameter("@today", today));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    orders = ds.Tables[0]
+                };
+                return Json(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = "error",
+                    msg = "Something went wrong  Contact our service provider",
+                    orders = new JArray()
+                };
+                return Json(error);
+            }
+        }
 
         ////ADDUPDATESTORE
         [HttpGet("AddStore")]

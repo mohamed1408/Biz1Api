@@ -78,7 +78,7 @@ namespace Biz1PosApi.Services
                                 orderitem.refid = orderitem.merchant_id;
                                 foreach (var option in orderitem.options_to_add)
                                 {
-                                    orderitem.refid += i.ToString() + "_" + option.merchant_id;
+                                    orderitem.refid += "_" + option.merchant_id;
                                 }
                                 foreach (var option in orderitem.options_to_add)
                                 {

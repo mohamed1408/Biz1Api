@@ -280,10 +280,13 @@ namespace Biz1PosApi.Controllers
                 {
                     Order order = db.Orders.Find(orderid);
                     order.PaidAmount = order.PaidAmount - difference;
-                    dynamic payload = JsonConvert.DeserializeObject(order.OrderJson);
-                    payload.PaidAmount = order.PaidAmount;
-                    order.OrderJson = JsonConvert.SerializeObject(payload);
-                    db.Entry(transaction).State = EntityState.Modified;
+                    if(order.OrderJson != null)
+                    {
+                        dynamic payload = JsonConvert.DeserializeObject(order.OrderJson);
+                        payload.PaidAmount = order.PaidAmount;
+                        order.OrderJson = JsonConvert.SerializeObject(payload);
+                    }
+                    db.Entry(order).State = EntityState.Modified;
                     db.SaveChanges();
                 }
                 db.SaveChanges();

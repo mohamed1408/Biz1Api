@@ -14,6 +14,7 @@ namespace Biz1BookPOS.Models
         public string Name { get; set; }
         public string Email { get; set; }
         public string PhoneNo { get; set; }
+        public long? ContactNo { get; set; }
         public string Address { get; set; }
         public string City { get; set; }
         public int? PostalCode { get; set; }
@@ -40,6 +41,8 @@ namespace Biz1BookPOS.Models
 
         [DataType(DataType.Date)]
         public DateTime ModifiedDate { get; set; }
+
+        public bool? IsEcom { get; set; }
 
         [NotMapped]
         public List<CustomerAddress> Addresses { get; set; }

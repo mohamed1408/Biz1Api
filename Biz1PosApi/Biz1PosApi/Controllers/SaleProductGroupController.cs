@@ -133,6 +133,33 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpGet("delete")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult delete(int stockproductid, int saleproductid)
+        {
+            try
+            {
+                SaleProductGroup spg = db.SaleProductGroups.Where(x => x.SaleProductId == saleproductid && x.StockProductId == stockproductid).FirstOrDefault();
+                db.SaleProductGroups.Remove(spg);
+                db.SaveChanges();
+                var response = new
+                {
+                    status = 200,
+                    msg = "Deleted Successfully"
+                };
+                return Json(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
         [HttpPost("Save")]
         [EnableCors("AllowOrigin")]
         public IActionResult Save([FromForm] string objData)

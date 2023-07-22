@@ -17,7 +17,7 @@ namespace Biz1PosApi.Models
         public virtual Order Order { get; set; }
 
         [ForeignKey("AdditionalCharges")]
-        public int AdditionalChargeId { get; set; }
+        public int? AdditionalChargeId { get; set; }
         public virtual AdditionalCharges AdditionalCharges { get; set; }
 
         public double ChargePercentage { get; set; }

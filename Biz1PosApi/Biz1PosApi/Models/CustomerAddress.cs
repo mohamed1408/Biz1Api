@@ -19,6 +19,7 @@ namespace Biz1PosApi.Models
         public string Latitude { get; set; }
         public string Longitude { get; set; }
         public int? NearByStoreId { get; set; }
+        public bool hidden { get; set; }
 
         [ForeignKey("Customer")]
         public int CustomerId { get; set; }
