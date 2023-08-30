@@ -84,11 +84,11 @@ namespace Biz1PosApi.Controllers
                 DataSet ds = new DataSet();
                 SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
                 sqlAdp.Fill(ds);
-                DataTable table = ds.Tables[0];
+                DataTable table = ds.Tables[2];
 
                 var data = new
                 {
-                    Order = ds.Tables[0]
+                    Order = ds.Tables[2]
                 };
                 return Ok(data);
             }

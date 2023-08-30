@@ -10,7 +10,8 @@ namespace Biz1PosApi.Models
 {
     public class OrderLog
     {
-        public int Id { get; set; }
+        public int OrderLogId  { get; set; }
+        public int? Id { get; set; }
         public string Payload { get; set; }
         public string Error { get; set; }
 

@@ -14,6 +14,7 @@ namespace Biz1BookPOS.Models
         public double Tax2 { get; set; }
         public double Tax3 { get; set; }
         public bool IsInclusive { get; set; }
+        public int groupid { get; set; }
 
         [ForeignKey("Company")]
         public int CompanyId { get; set; }

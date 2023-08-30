@@ -69,6 +69,7 @@ namespace Biz1BookPOS.Models
         public DbSet<OrdItemOptions> OrdItemOptions { get; set; }
         public DbSet<ShiftSummary> ShiftSummaries { get; set; }
         public DbSet<Accounts> Accounts { get; set; }
+        public DbSet<UserAccounts> UserAccounts { get; set; }
         public DbSet<UrbanPiperKey> UrbanPiperKeys { get; set; }            
         public DbSet<UrbanPiperStore> UrbanPiperStores { get; set; }
         public DbSet<CategoryOptionGroup> CategoryOptionGroups { get; set; }
@@ -127,5 +128,19 @@ namespace Biz1BookPOS.Models
         public DbSet<UPCoupon> UPCoupons { get; set; }
         public DbSet<DiscountVerification> DiscountVerifications { get; set; }
         public DbSet<RestaurantOrder> RestaurantOrders { get; set; }
+        public DbSet <ProdGrp> ProdGrps { get; set; }
+        public DbSet <ProdGrpAmt> ProdGrpAmts{ get; set; }
+        public DbSet<ProdGrpUpload> ProdGrpUploads { get; set; }
+        public DbSet<chumon> Chumons { get; set; }
+        public DbSet<chumonBranch> ChumonBranches { get; set; }
+        public DbSet<Odrs> Odrs { get; set; }
+        public DbSet<MenuMappings> MenuMappings { get; set; }
+        public DbSet<OldProducts> OldProducts { get; set; }
+        public DbSet<Q> Q { get; set; }
+        public DbSet<W> W { get; set; }
+        public DbSet<E> E { get; set; }
+        public DbSet<R> R { get; set; }
+        public DbSet<T> T { get; set; }
+        public DbSet<Y> Y { get; set; }
     }
 }

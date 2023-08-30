@@ -199,7 +199,7 @@ namespace Biz1BookPOS.Controllers
             try
             {
                 var user = db.Users.Where(x => x.Pin == pin && x.CompanyId == companyid).FirstOrDefault();
-                var account = db.Accounts.Where(x => x.CompanyId == companyid).FirstOrDefault();
+                var account = db.UserAccounts.Where(x => x.CompanyId == companyid).FirstOrDefault();
                 string jtoken = "";
                 string msg = "invalid pin";
                 int status = 0;
@@ -439,7 +439,7 @@ namespace Biz1BookPOS.Controllers
                 DataRow row = table.Select().FirstOrDefault();
                 IActionResult response = Unauthorized();
                 int result = Int32.Parse(row["Success"].ToString());
-                Accounts accounts = new Accounts();
+                UserAccounts accounts = new UserAccounts();
                 Company company = new Company();
                 ActionResult tokenString;
                 if (result == 0)
@@ -450,7 +450,7 @@ namespace Biz1BookPOS.Controllers
                     tokenString = GenerateJSONWebToken(registration);
                     response = Ok(new { token = tokenString });
                     //orderNo = ds.Tables[2];
-                    accounts = db.Accounts.Where(x => x.Email == registration.EmailId).FirstOrDefault();
+                    accounts = db.UserAccounts.Where(x => x.Email == registration.EmailId).FirstOrDefault();
                     company = db.Companies.Find(accounts.CompanyId);
                 }
                 else

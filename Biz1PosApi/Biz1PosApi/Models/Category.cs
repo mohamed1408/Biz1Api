@@ -18,6 +18,7 @@ namespace Biz1BookPOS.Models
         public bool isactive { get; set; }
         public bool isecommercecat { get; set; }
         public int? SortOrder { get; set; }
+        public int? groupid { get; set; }
 
         [ForeignKey("ParentCategory")]
         public int? ParentCategoryId { get; set; }

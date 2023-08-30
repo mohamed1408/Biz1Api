@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Tx4HwYxJ0PbWUkCf3uVSk/2fk+FwYVw+cenRnCacYlqEnNN3nUt1mZMfjhV9WHi2uM9yZy4gh5tfu2TDiHLfhQ==",
+  "dgSpecHash": "YUKKtUzLUxoTQVRyTYSuJ3nnCcgZSPetHJQ5ecmpAzZIQK6KxrFn+n/Q5VBzjGbP/suLp0AxbQFhAnl8WCf27g==",
   "success": true,
-  "projectFilePath": "D:\\work\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
+  "projectFilePath": "C:\\qwerty\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\USER\\.nuget\\packages\\castle.core\\4.2.1\\castle.core.4.2.1.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\entityframework\\6.4.4\\entityframework.6.4.4.nupkg.sha512",

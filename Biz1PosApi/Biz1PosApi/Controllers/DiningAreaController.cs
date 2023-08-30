@@ -85,7 +85,10 @@ namespace Biz1PosApi.Controllers
             {
                 dynamic orderJson = JsonConvert.DeserializeObject(data);
                 {
+                    int maxareaid = db.DiningAreas.Select(da => da.Id).Max();
+                    int maxtbleid = db.DiningTables.Select(da => da.Id).Max();
                     DiningArea diningArea = orderJson.ToObject<DiningArea>();
+                    diningArea.Id = maxareaid + 1;
                     diningArea.ModifiedDate = DateTime.Now;
                     db.DiningAreas.Add(diningArea);
                     db.SaveChanges();
@@ -97,6 +100,7 @@ namespace Biz1PosApi.Controllers
                         diningTable.ModifiedDate = DateTime.Now;
                         diningTable.DiningAreaId = diningArea.Id;
                         diningTable.StoreId = diningArea.StoreId;
+                        diningTable.Id = maxtbleid + 1;
                         db.DiningTables.Add(diningTable);
                         db.SaveChanges();
                     }
@@ -176,14 +180,17 @@ namespace Biz1PosApi.Controllers
                 JArray itemDel = orderJson.Del;
                 dynamic itemJson = itemObj.ToList();
                 dynamic itemJsonDel = itemDel.ToList();
+                int maxid = db.DiningTables.Select(d => d.Id).Max();
                 foreach (var item in itemJson)
                 {
                     if (item.Id == 0)
                     {
                         DiningTable diningTable = item.ToObject<DiningTable>();
                         diningTable.ModifiedDate = DateTime.Now;
+                        diningTable.Id = maxid + 1;
                         db.DiningTables.Add(diningTable);
                         db.SaveChanges();
+                        maxid = maxid + 1;
                     }
                     else
                     {

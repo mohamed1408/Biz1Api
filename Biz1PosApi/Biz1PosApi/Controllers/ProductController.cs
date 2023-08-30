@@ -370,23 +370,23 @@ namespace Biz1BookPOS.Controllers
                         var optiongrp = db.OptionGroups.Where(x => x.CompanyId == companyId).ToList();
                         if (prod.OptionGroup != null)
                         {
-                            foreach (var vrtgp in optiongrp)
-                            {
-                                string svargp1 = Regex.Replace(prod.OptionGroup.ToString(), @"\s", "");
-                                string svargp2 = Regex.Replace(vrtgp.Name.ToString(), @"\s", "");
+                            //foreach (var vrtgp in optiongrp)
+                            //{
+                            //    string svargp1 = Regex.Replace(prod.OptionGroup.ToString(), @"\s", "");
+                            //    string svargp2 = Regex.Replace(vrtgp.Name.ToString(), @"\s", "");
 
-                                if (string.Equals((string)svargp1, svargp2, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    vgpAvail = true;
-                                    OptionGroupId = vrtgp.Id;
-                                    ProductOptionGroup productoptiongroup = new ProductOptionGroup();
-                                    productoptiongroup.OptionGroupId = OptionGroupId;
-                                    productoptiongroup.ProductId = ProductId;
-                                    productoptiongroup.CompanyId = companyId;
-                                    productoptiongroup.CreatedDate = DateTime.Now;
-                                    db.ProductOptionGroups.Add(productoptiongroup);
-                                }
-                            }
+                            //    if (string.Equals((string)svargp1, svargp2, StringComparison.OrdinalIgnoreCase))
+                            //    {
+                            //        vgpAvail = true;
+                            //        OptionGroupId = vrtgp.Id;
+                            //        ProductOptionGroup productoptiongroup = new ProductOptionGroup();
+                            //        productoptiongroup.OptionGroupId = OptionGroupId;
+                            //        productoptiongroup.ProductId = ProductId;
+                            //        productoptiongroup.CompanyId = companyId;
+                            //        productoptiongroup.CreatedDate = DateTime.Now;
+                            //        db.ProductOptionGroups.Add(productoptiongroup);
+                            //    }
+                            //}
 
 
                             ///Tax Group

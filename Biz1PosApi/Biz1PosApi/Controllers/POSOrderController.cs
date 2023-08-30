@@ -531,6 +531,115 @@ namespace Biz1PosApi.Controllers
             si.orderno = orderno;
             return si;
         }
+
+        //Master Save Order 5 Test Start -->
+        [HttpPost("saveorder_5")]
+        public IActionResult saveorder_5([FromBody] OrderPayload payload)
+        {
+            int orderid = 0;
+            dynamic data = new { };
+            int companyid = 0;
+            int storeid = 0;
+            string message = "Success";
+            int status = 200;
+            try
+            {
+                dynamic orderjson = JsonConvert.DeserializeObject(payload.OrderJson);
+                string invoiceno = orderjson["in"].ToString();
+                SplitInvocie si = splitinvoice(invoiceno);
+                DateTime ordereddate = si.orderdate;
+                companyid = (int)orderjson.ci;
+                storeid = si.storeid;
+                int orderno = si.orderno;
+                long createdtimestamp = 0;
+                if (orderjson.cts != null)
+                {
+                    createdtimestamp = (long)orderjson.cts;
+                }
+                if (db.Odrs.Where(x => x.od == ordereddate && x.si == storeid && x.on == orderno && x.cts == createdtimestamp).Any())
+                {
+                    message = "It is a duplicate Order!";
+                    status = 409;
+                    //OrderLog orderLog = new OrderLog();
+                    //orderLog.CompanyId = companyid;
+                    //orderLog.StoreId = storeid;
+                    //orderLog.Payload = payload.OrderJson;
+                    //orderLog.Error = "It is a Duplicate Order";
+                    //orderLog.LoggedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                    //db.OrderLogs.Add(orderLog);
+                    //db.SaveChanges();
+                }
+                else
+                {
+                    using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("myconn")))
+                    {
+                        conn.Open();
+                        SqlTransaction tran = conn.BeginTransaction("Transaction1");
+                        try
+                        {
+                            SqlCommand cmd = new SqlCommand("dbo.saveorder", conn);
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Transaction = tran;
+
+                            cmd.Parameters.Add(new SqlParameter("@orderjson", payload.OrderJson));
+                            cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+                            cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+
+                            DataSet ds = new DataSet();
+                            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                            sqlAdp.Fill(ds);
+
+                            DataTable table = ds.Tables[0];
+                            data = table;
+                            //Your Code
+                            invoiceno = (string)table.Rows[0].ItemArray[1];
+                            orderid = (int)table.Rows[0].ItemArray[0];
+                            tran.Commit(); //both are successful
+                            conn.Close();
+                            //if (orderjson.DeliveryStoreId != null)
+                            //{
+                            //    _uhubContext.Clients.All.DeliveryOrderUpdate((int)orderjson.StoreId, (int)orderjson.DeliveryStoreId, invoiceno, "NEW_ORDER", orderid);
+                            //}
+                        }
+                        catch (Exception e)
+                        {
+                            //if error occurred, reverse all actions. By this, your data consistent and correct
+                            tran.Rollback();
+                            conn.Close();
+                            throw e;
+                        }
+                    }
+                }
+                var response = new
+                {
+                    data = data,
+                    message = message,
+                    status = status
+                };
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                //OrderLog orderLog = new OrderLog();
+                //orderLog.CompanyId = companyid;
+                //orderLog.StoreId = storeid;
+                //orderLog.Payload = payload.OrderJson;
+                //orderLog.Error = e.ToString();
+                //orderLog.LoggedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                //db.OrderLogs.Add(orderLog);
+                //db.SaveChanges();
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 500,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
+
+        //Master Save Order 5 Test END -->
         [HttpPost("saveorder_4")]
         public IActionResult saveorder_4([FromBody]OrderPayload payload)
         {

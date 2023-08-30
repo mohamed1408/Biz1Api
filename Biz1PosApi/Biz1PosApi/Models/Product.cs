@@ -38,6 +38,7 @@ namespace Biz1BookPOS.Models
         public bool Recomended { get; set; }
         public int? minquantity { get; set; }
         public int? minblock { get; set; }
+        public int? groupid { get; set; }
 
         [ForeignKey("TaxGroup")]
         public int? TaxGroupId { get; set; }
