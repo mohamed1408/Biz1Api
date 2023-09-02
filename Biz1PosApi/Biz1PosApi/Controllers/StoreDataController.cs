@@ -810,24 +810,25 @@ FOR JSON PATH
             sqlCon.Open();
 
             SqlCommand cmd = new SqlCommand(@"
-SELECT DISTINCT o.Id, o.OrderNo, isnull(o.OrderJson, dbo.ordjsn(o.Id)) OrderJson, string_agg(isnull(cast(p.Id as NVARCHAR(MAX)),'*'), '_')
-FROM POSOrder o
-join MenuMappings mm on mm.companyid = o.CompanyId
-join Otms oi on oi.ob = o.Id AND dbo.customstringsplit(oi.kri,':',1) = o.InvoiceNo
-left JOIN Products p on p.Id = oi.pi and mm.groupid = p.groupid
-left JOIN OldProducts op on op.OldId = p.Id and op.groupid = mm.groupid
-where o.CompanyId = @companyid 
-AND (o.StoreId = @storeid) 
+SELECT DISTINCT o.Id, o.[on] OrderNo, dbo.ordjsn(o.OdrsId) OrderJson
+FROM Odrs o
+join MenuMappings mm on mm.companyid = o.ci
+join KOTs k on k.OrderId = o.OdrsId
+join Otms oi on oi.ki = k.KOTId --AND dbo.customstringsplit(oi.kri,':',1) = o.InvoiceNo
+left JOIN OldProducts p on p.OldId = oi.pi and mm.groupid = p.groupid
+left JOIN StoreProducts sp on sp.StoreId = o.si and sp.ProductId = p.OldId
+where o.ci = @companyid 
+AND (o.si = @storeid) 
 AND (
-(o.OrderedDate = CONVERT(VARCHAR(10), getdate(), 23) AND o.OrderTypeId IN (3,4)) 
+(o.od = CONVERT(VARCHAR(10), getdate(), 23) AND o.oti IN (3,4)) 
 --OR (o.OrderTypeId IN (2,3,4) AND o.OrderStatusId NOT IN (-1,5)) 
-OR (o.OrderTypeId IN (3,4) AND o.BillAmount != o.PaidAmount and o.OrderStatusId != -1)
+OR (o.oti IN (3,4) AND o.ba != o.pa and o.osi != -1)
 ) -- OR (o.OrderTypeId IN (3,4) AND o.BillAmount != o.PaidAmount)
-AND JSON_QUERY(dbo.ordjsn(o.Id), '$.k') is not null -- and exists (select * from Otms oi join Products p on p.Id = oi.pi and p.groupid is null where ob = o.Id)
-group by o.Id, o.OrderNo, o.OrderJson
-having CHARINDEX('*',string_agg(isnull(cast(p.Id as NVARCHAR(MAX)),'*'), '_')) = 0
+AND JSON_QUERY(dbo.ordjsn(o.OdrsId), '$.k') is not null -- and exists (select * from Otms oi join Products p on p.Id = oi.pi and p.groupid is null where ob = o.Id)
+group by o.Id, o.[on], o.OdrsId
+having count(oi.Id) = sum(isnull(sp.ProductId,0)/isnull(sp.ProductId,1))
 UNION
-SELECT 0, 0, NULL as OrderJson, null", sqlCon);
+SELECT 0, 0, NULL as OrderJson", sqlCon);
             cmd.CommandType = CommandType.Text;
 
             cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
