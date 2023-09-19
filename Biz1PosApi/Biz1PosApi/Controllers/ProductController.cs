@@ -776,11 +776,13 @@ namespace Biz1BookPOS.Controllers
         {
             try
             {
+                List<int> groupids = db.MenuMappings.Where(x => x.companyid == compId).Select(s => s.groupid).ToList();
                 var prod = new
                 {
-                    products = db.Products.Where(x => x.CompanyId == compId).ToList(),
+                    products = db.OldProducts.Where(x => groupids.Contains(x.groupid)).ToList(),
                     product = from p in db.Products
-                              where p.Id == id && p.CompanyId == compId
+                              join mm in db.MenuMappings on p.groupid equals mm.groupid
+                              where p.Id == id && mm.companyid == compId
                               select new { p.Id, Product = p.Name,p.Description, p.Price, p.BarCode, p.TakeawayPrice, p.DeliveryPrice, p.CategoryId, p.TaxGroupId, p.CompanyId, p.UnitId, p.ProductTypeId, p.KOTGroupId, p.ImgUrl, p.ProductCode, p.UPPrice, p.Recomended, p.SortOrder, p.isactive, p.minquantity, p.minblock, p.IsSaleProdGroup, p.MakingCost },
                     productOptionGroups = from pog in db.ProductOptionGroups
                                           join og in db.OptionGroups on pog.OptionGroupId equals og.Id

@@ -47,6 +47,7 @@ namespace Biz1PosApi.Controllers
             try
             {
                 Biz1BookPOS.Models.Transaction transaction = new Biz1BookPOS.Models.Transaction();
+                transaction.Id = random.Next();
                 transaction.Amount = pyload.amount;
                 transaction.CompanyId = pyload.companyid;
                 transaction.CustomerId = pyload.customerid;
@@ -263,6 +264,7 @@ namespace Biz1PosApi.Controllers
 
                 Biz1BookPOS.Models.Transaction originalTransaction = db.Transactions.Find(TransId);
                 Biz1BookPOS.Models.Transaction transaction = new Biz1BookPOS.Models.Transaction();
+                transaction.Id = random.Next();
                 transaction.Amount = originalTransaction.Amount;
                 transaction.CompanyId = originalTransaction.CompanyId;
                 transaction.CustomerId = originalTransaction.CustomerId;

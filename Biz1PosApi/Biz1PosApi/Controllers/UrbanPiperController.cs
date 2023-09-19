@@ -1818,7 +1818,7 @@ namespace Biz1PosApi.Controllers
                 dynamic Json = data;
                 string JsonString = JsonConvert.SerializeObject(Json);
                 string UPOrderId = Json.order.details.id.ToString();
-                if (!await db.Orders.Where(x => x.UPOrderId == Int32.Parse(UPOrderId)).AnyAsync())
+                if (!await db.UPOrders.Where(x => x.UPOrderId == Int32.Parse(UPOrderId)).AnyAsync())
                 {
                     UPRawPayload rawPayload = new UPRawPayload()
                     {

@@ -45,6 +45,7 @@ namespace Biz1PosApi.Services
                 var _payload = await channel.Reader.ReadAsync();
                 _payload.retry_count = _payload.retry_count + 1;
                 Store store = null;
+                Random random = new Random();
                 try
                 {
                     if(_payload.PayloadType == "place_order")
@@ -93,6 +94,7 @@ namespace Biz1PosApi.Services
                                 delivered = 0
                             };
                             UPOrder uPOrder = new UPOrder();
+                            // uPOrder.Id = random.Next();
                             uPOrder.StoreId = storeId;
                             uPOrder.Json = JsonConvert.SerializeObject(Json);
                             uPOrder.UPOrderId = Json.order.details.id;

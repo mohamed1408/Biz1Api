@@ -36,7 +36,7 @@ namespace Biz1PosApi.Controllers
             try
             {
                 //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
-                SqlConnection sqlCon = new SqlConnection("Data Source=tcp:biz1server.database.windows.net,1433;Initial Catalog=biz1pos;User Id=dbadmin@biz1server;Password=B1zd0m##");
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
                 sqlCon.Open();
                 SqlCommand cmd = new SqlCommand("dbo.StoreWiseRpt", sqlCon);
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -73,7 +73,7 @@ namespace Biz1PosApi.Controllers
             try
             {
                 //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
-                SqlConnection sqlCon = new SqlConnection("Data Source=tcp:biz1server.database.windows.net,1433;Initial Catalog=biz1pos;User Id=dbadmin@biz1server;Password=B1zd0m##");
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
                 sqlCon.Open();
                 SqlCommand cmd = new SqlCommand("dbo.MultiCompaniesStoreReport", sqlCon);
                 cmd.CommandType = CommandType.StoredProcedure;
