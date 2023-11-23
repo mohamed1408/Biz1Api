@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Biz1BookPOS.Models;
 using Biz1PosApi.Models;
+using Biz1PosApi.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,13 +23,15 @@ namespace Biz1PosApi.Controllers
     public class StoresController : Controller
     {
         private POSDbContext db;
+        private ConnectionStringService connserve;
         public IConfiguration Configuration { get; }
         private static TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
 
-        public StoresController(POSDbContext contextOptions, IConfiguration configuration)
+        public StoresController(POSDbContext contextOptions, IConfiguration configuration, ConnectionStringService _connserve)
         {
             db = contextOptions;
             Configuration = configuration;
+            connserve = _connserve;
         }
         // GET: api/<controller>
         [HttpGet("Get")]
@@ -364,6 +368,7 @@ namespace Biz1PosApi.Controllers
                         if(oldupproduct == null)
                         {
                             UPProduct upproduct = new UPProduct();
+                            upproduct.Id = 0;
                             upproduct.Available = true;
                             upproduct.BrandId = BrandId;
                             upproduct.CompanyId = storeProduct.CompanyId;
@@ -536,6 +541,63 @@ namespace Biz1PosApi.Controllers
             }
 
         }
+        [HttpGet("OpeningBalance")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult OpeningBalance(int storeid, double? openingbalance, double? expense)
+        {
+            try
+            {
+                string conn_name = "myconn";
+                List<int> wcompids = new List<int> { 3, 4, 5 };
+                if (wcompids.Contains(db.Stores.Where(x => x.Id == storeid).FirstOrDefault().CompanyId))
+                {
+                    conn_name = connserve.getConnString(db.Stores.Where(x => x.Id == storeid).FirstOrDefault().CompanyId);
+                }
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(conn_name));
+                sqlCon.Open();
+
+                SqlCommand cmd = new SqlCommand("dbo.storeobupdate", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+                cmd.Parameters.Add(new SqlParameter("@balance", openingbalance));
+                cmd.Parameters.Add(new SqlParameter("@expense", expense));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+
+                //DataTable table = ds.Tables[0];
+                sqlCon.Close();
+                //else
+                //{
+                //    if (db.StoreOB.Where(x => x.StoreId == storeid).Any())
+                //    {
+                //        StoreOB storeOB = db.StoreOB.Where(x => x.StoreId == storeid).FirstOrDefault();
+                //        storeOB.OrderedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                //        storeOB.OpeningBalance = openingbalance == null ? 0 : (double)openingbalance;
+                //        storeOB.Expense = expense == null ? 0 : (double)expense;
+                //        db.Entry(storeOB).State = EntityState.Modified;
+                //        db.SaveChanges();
+                //    }
+                //    else
+                //    {
+                //        StoreOB storeOB = new StoreOB();
+                //        storeOB.StoreId = storeid;
+                //        storeOB.OrderedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                //        storeOB.OpeningBalance = openingbalance == null ? 0 : (double)openingbalance;
+                //        storeOB.Expense = expense == null ? 0 : (double)expense;
+                //        db.StoreOB.Add(storeOB);
+                //        db.SaveChanges();
+                //    }
+                //}
+                return Json(new {status = 200});
+            }
+            catch (Exception e)
+            {
+                return Json(new { status = 500, error = new Exception(e.Message, e.InnerException) });
+            }
+        }
         [HttpGet("StoreLogging")]
         [EnableCors("AllowOrigin")]
         public string StoreLogging(string storename, string action_name)
@@ -560,7 +622,6 @@ namespace Biz1PosApi.Controllers
                 //};
                 return "Error";
             }
-
         }
     }
 }

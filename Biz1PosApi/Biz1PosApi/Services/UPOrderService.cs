@@ -66,7 +66,7 @@ namespace Biz1PosApi.Services
                                 //upstore.BrandId = Int16.Parse(strlist[0]);
                                 storeId = short.Parse(strlist[1]);
                             }
-                            store = await db.Stores.FindAsync(storeId);
+                            store = await db.Stores.Where(x => x.Id == storeId).FirstOrDefaultAsync();
                             int companyId = store.CompanyId;
                             string UPOrderId = Json.order.details.id.ToString();
                             string platform = Json.order.details.channel.ToString();

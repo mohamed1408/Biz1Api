@@ -10,6 +10,8 @@ namespace Biz1PosApi.Models
 {
     public class UPProduct
     {
+        [Key]
+        public int UPProductId { get; set; }
         public int Id { get; set; }
         public double Price { get; set; }
         public bool Available { get; set; }

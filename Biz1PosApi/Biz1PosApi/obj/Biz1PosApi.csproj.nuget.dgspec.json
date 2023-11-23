@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\qwerty\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {}
+    "C:\\New folder\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {}
   },
   "projects": {
-    "C:\\qwerty\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {
+    "C:\\New folder\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\qwerty\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
+        "projectUniqueName": "C:\\New folder\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
         "projectName": "Biz1PosApi",
-        "projectPath": "C:\\qwerty\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
+        "projectPath": "C:\\New folder\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
         "packagesPath": "C:\\Users\\USER\\.nuget\\packages\\",
-        "outputPath": "C:\\qwerty\\API\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\obj\\",
+        "outputPath": "C:\\New folder\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -79,6 +79,10 @@
               "target": "Package",
               "version": "[2.2.0, )"
             },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
             "RestSharp": {
               "target": "Package",
               "version": "[106.11.4, )"
@@ -90,11 +94,12 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
         }
       }
     }

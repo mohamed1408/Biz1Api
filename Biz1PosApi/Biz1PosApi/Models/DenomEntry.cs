@@ -10,6 +10,8 @@ namespace Biz1PosApi.Models
 {
     public class DenomEntry
     {
+        [Key]
+        public int DenomEntryId { get; set; }
         public int Id { get; set; }
         public double TotalAmount { get; set; }
         public double OpeningBalance { get; set; }

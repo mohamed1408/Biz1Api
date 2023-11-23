@@ -1070,6 +1070,42 @@ namespace Biz1BookPOS.Controllers
                 return "";
             }
         }
+        [HttpPost("koppupathivetram")]
+        [EnableCors("AllowOrigin")]
+        public string FileUpload([FromForm]IFormFile file)
+        {
+            try
+            {
+                //long size = file.Sum(f => f.Length);
+
+                // full path to file in temp location
+                // var filePath = "https://biz1app.azurewebsites.net/Images/3";
+                string subdir = "\\temp\\audio\\";
+                if (!Directory.Exists(_environment.WebRootPath + subdir))
+                {
+                    Directory.CreateDirectory(_environment.WebRootPath + subdir);
+                }
+                using (FileStream filestream = System.IO.File.Create(_environment.WebRootPath + subdir + file.FileName))
+                {
+                    file.CopyTo(filestream);
+                    filestream.Flush();
+                    var response = new
+                    {
+                        url = "https://biz1ps.azurewebsites.net/temp/audio/" + file.FileName
+                    };
+                    return response.url;
+                }
+            }
+            catch (Exception ex)
+            {
+                var error = new
+                {
+                    status = 0,
+                    msg = new Exception(ex.Message, ex.InnerException)
+                };
+                return "";
+            }
+        }
         [HttpGet("UpdateAct")]
         [EnableCors("AllowOrigin")]
         public IActionResult UpdateAct(int Id, bool active)

@@ -40,6 +40,18 @@
     <Compile Include="Migrations\20230826061214_mig1345.Designer.cs" />
     <Compile Include="Migrations\20230826062731_mig1346.cs" />
     <Compile Include="Migrations\20230826062731_mig1346.Designer.cs" />
+    <Compile Include="Migrations\20231015135041_storeOB.cs" />
+    <Compile Include="Migrations\20231015135041_storeOB.Designer.cs" />
+    <Compile Include="Migrations\20231015141242_storeOB1.cs" />
+    <Compile Include="Migrations\20231015141242_storeOB1.Designer.cs" />
+    <Compile Include="Migrations\20231015152054_storeOB2.cs" />
+    <Compile Include="Migrations\20231015152054_storeOB2.Designer.cs" />
+    <Compile Include="Migrations\20231030063920_mmstoreid.cs" />
+    <Compile Include="Migrations\20231030063920_mmstoreid.Designer.cs" />
+    <Compile Include="Migrations\20231114053042_storeob_expense.cs" />
+    <Compile Include="Migrations\20231114053042_storeob_expense.Designer.cs" />
+    <Compile Include="Migrations\20231115061949_expense.cs" />
+    <Compile Include="Migrations\20231115061949_expense.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 
@@ -51,6 +63,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.2.4" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="106.11.4" />
   </ItemGroup>
 

@@ -6,10 +6,10 @@ namespace Biz1PosApi.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Tax",
-                table: "OldProducts",
-                newName: "TaxGroupId");
+            //migrationBuilder.RenameColumn(
+            //    name: "Tax",
+            //    table: "OldProducts",
+            //    newName: "TaxGroupId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

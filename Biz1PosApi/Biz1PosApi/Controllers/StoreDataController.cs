@@ -11,6 +11,7 @@ using Biz1PosApi.Models;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Biz1PosApi.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -22,11 +23,13 @@ namespace Biz1PosApi.Controllers
         private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         private object table;
         private POSDbContext db;
+        private ConnectionStringService connserve;
         public IConfiguration Configuration { get; }
-        public StoreDataController(POSDbContext contextOptions, IConfiguration configuration)
+        public StoreDataController(POSDbContext contextOptions, IConfiguration configuration, ConnectionStringService _connserve)
         {
             db = contextOptions;
             Configuration = configuration;
+            connserve = _connserve;
         }
         // GET: api/<controller>
         [HttpGet("Get")]
@@ -245,6 +248,14 @@ namespace Biz1PosApi.Controllers
         [HttpGet("getstoredatav2")]
         public async Task<IActionResult> getstoredatav2(int storeid, int companyid, DateTime? lastsynceddatetime, string data = "ALL")
         {
+            StoreLog storeLog = new StoreLog();
+            storeLog.Id = 0;
+            storeLog.Action = "INVOKE_STOREDATA_V2";
+            storeLog.Store = storeid.ToString();
+            storeLog.LogedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+            db.StoreLogs.Add(storeLog);
+            db.SaveChanges();
+
             System.Diagnostics.Debug.WriteLine("STarting at ", DateTime.Now);
             List<Task> tasks = new List<Task>();
             var pendingorderstask = pendingordersTask(storeid, companyid);
@@ -361,6 +372,14 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
+                StoreLog storeLog = new StoreLog();
+                storeLog.Id = 0;
+                storeLog.Action = "INVOKE_STOREDATA";
+                storeLog.Store = storeid.ToString();
+                storeLog.LogedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                db.StoreLogs.Add(storeLog);
+                db.SaveChanges();
+
                 System.Diagnostics.Debug.WriteLine("STarting at ", DateTime.Now);
                 var pendingorderstask = pendingordersTask(storeid, companyid);
                 var productstask = newProductsTask(storeid, companyid);
@@ -520,10 +539,15 @@ namespace Biz1PosApi.Controllers
         }
         public async Task<DataTable> ordernoKotnoTask(int storeid, int companyid)
         {
+            string conn_name = connserve.getConnString(companyid);
+            //if (companyid == 3)
+            //{
+            //    conn_name = "logout";
+            //}
             System.Diagnostics.Debug.WriteLine("categoryTask START: -- " + DateTime.Now.ToString());
-            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(conn_name));
             sqlCon.Open();
-
+            
             SqlCommand cmd = new SqlCommand(@"SELECT isnull(MAX(o.OrderNo),0) orderno, isnull(MAX(k.KOTNo),0) kotno FROM POSOrder o
                                             JOIN KOTs k ON k.OrderId = o.Id
                                             WHERE o.OrderTypeId <= 5 AND o.OrderedDate =  CONVERT(VARCHAR(10), getdate(), 111) AND o.StoreId = @storeid
@@ -805,30 +829,49 @@ FOR JSON PATH
         }
         public async Task<DataTable> pendingordersTask(int storeid, int companyid)
         {
+            string oldproc = @" SELECT DISTINCT o.Id, o.[on] OrderNo, dbo.ordjsn(o.OdrsId) OrderJson
+                                FROM Odrs o
+                                join MenuMappings mm on mm.companyid = o.ci
+                                join KOTs k on k.OrderId = o.OdrsId
+                                join Otms oi on oi.ki = k.KOTId --AND dbo.customstringsplit(oi.kri,':',1) = o.InvoiceNo
+                                left JOIN OldProducts p on p.OldId = oi.pi and mm.groupid = p.groupid
+                                left JOIN StoreProducts sp on sp.StoreId = o.si and sp.ProductId = p.OldId
+                                where o.ci = @companyid 
+                                AND (o.si = @storeid) 
+                                AND (
+                                (o.od = CONVERT(VARCHAR(10), getdate(), 23) AND o.oti IN (3,4)) 
+                                --OR (o.OrderTypeId IN (2,3,4) AND o.OrderStatusId NOT IN (-1,5)) 
+                                OR (o.oti IN (3,4) AND o.ba != o.pa and o.osi NOT IN (-1,5))
+                                ) -- OR (o.OrderTypeId IN (3,4) AND o.BillAmount != o.PaidAmount)
+                                AND JSON_QUERY(dbo.ordjsn(o.OdrsId), '$.k') is not null -- and exists (select * from Otms oi join Products p on p.Id = oi.pi and p.groupid is null where ob = o.Id)
+                                group by o.Id, o.[on], o.OdrsId
+                                having count(oi.Id) = sum(isnull(sp.ProductId,0)/isnull(sp.ProductId,1))
+                                UNION
+                                SELECT 0, 0, NULL as OrderJson";
+            string conn_name = connserve.getConnString(companyid);
             System.Diagnostics.Debug.WriteLine("pendingordersTask START: -- " + DateTime.Now.ToString());
-            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(conn_name));
             sqlCon.Open();
 
-            SqlCommand cmd = new SqlCommand(@"
-SELECT DISTINCT o.Id, o.[on] OrderNo, dbo.ordjsn(o.OdrsId) OrderJson
-FROM Odrs o
-join MenuMappings mm on mm.companyid = o.ci
-join KOTs k on k.OrderId = o.OdrsId
-join Otms oi on oi.ki = k.KOTId --AND dbo.customstringsplit(oi.kri,':',1) = o.InvoiceNo
-left JOIN OldProducts p on p.OldId = oi.pi and mm.groupid = p.groupid
-left JOIN StoreProducts sp on sp.StoreId = o.si and sp.ProductId = p.OldId
-where o.ci = @companyid 
-AND (o.si = @storeid) 
-AND (
-(o.od = CONVERT(VARCHAR(10), getdate(), 23) AND o.oti IN (3,4)) 
---OR (o.OrderTypeId IN (2,3,4) AND o.OrderStatusId NOT IN (-1,5)) 
-OR (o.oti IN (3,4) AND o.ba != o.pa and o.osi != -1)
-) -- OR (o.OrderTypeId IN (3,4) AND o.BillAmount != o.PaidAmount)
-AND JSON_QUERY(dbo.ordjsn(o.OdrsId), '$.k') is not null -- and exists (select * from Otms oi join Products p on p.Id = oi.pi and p.groupid is null where ob = o.Id)
-group by o.Id, o.[on], o.OdrsId
-having count(oi.Id) = sum(isnull(sp.ProductId,0)/isnull(sp.ProductId,1))
-UNION
-SELECT 0, 0, NULL as OrderJson", sqlCon);
+            SqlCommand cmd = new SqlCommand(@"SELECT DISTINCT o.Id, o.[on] OrderNo, dbo.ordjsn(o.OdrsId) OrderJson
+                                            FROM Odrs o
+                                            --join MenuMappings mm on mm.companyid = o.ci
+                                            join KOTs k on k.OrderId = o.OdrsId
+                                            join Otms oi on oi.ki = k.KOTId --AND dbo.customstringsplit(oi.kri,':',1) = o.InvoiceNo
+                                            --left JOIN OldProducts p on p.OldId = oi.pi and mm.groupid = p.groupid
+                                            --left JOIN StoreProducts sp on sp.StoreId = o.si and sp.ProductId = p.OldId
+                                            where o.ci = @companyid 
+                                            AND (o.si = @storeid) 
+                                            AND (
+                                            (o.od = CONVERT(VARCHAR(10), getdate(), 23) AND o.oti IN (3,4)) 
+                                            --OR (o.OrderTypeId IN (2,3,4) AND o.OrderStatusId NOT IN (-1,5)) 
+                                            OR (o.oti IN (2,3,4) AND (o.ba != o.pa OR o.osi NOT IN (-1,5)))
+                                            ) -- OR (o.OrderTypeId IN (3,4) AND o.BillAmount != o.PaidAmount)
+                                            --AND JSON_QUERY(dbo.ordjsn(o.OdrsId), '$.k') is not null -- and exists (select * from Otms oi join Products p on p.Id = oi.pi and p.groupid is null where ob = o.Id)
+                                            --group by o.Id, o.[on], o.OdrsId
+                                            --having count(oi.Id) = sum(isnull(sp.ProductId,0)/isnull(sp.ProductId,1))
+                                            UNION
+                                            SELECT 0, 0, NULL as OrderJson", sqlCon);
             cmd.CommandType = CommandType.Text;
 
             cmd.Parameters.Add(new SqlParameter("@companyid", companyid));

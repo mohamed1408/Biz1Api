@@ -114,3 +114,32 @@ C:\qwerty\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi
 C:\qwerty\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.pdb
 C:\qwerty\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.genruntimeconfig.cache
 C:\qwerty\API\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.csproj.CopyComplete
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Release\netcoreapp2.2\appsettings.Development.json
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Release\netcoreapp2.2\appsettings.json
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Release\netcoreapp2.2\libman.json
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Release\netcoreapp2.2\google-services.json
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Release\netcoreapp2.2\Biz1PosApi.deps.json
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Release\netcoreapp2.2\Biz1PosApi.runtimeconfig.json
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Release\netcoreapp2.2\Biz1PosApi.runtimeconfig.dev.json
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Release\netcoreapp2.2\Biz1PosApi.dll
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Release\netcoreapp2.2\Biz1PosApi.pdb
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Release\netcoreapp2.2\Biz1PosApi.Views.dll
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Release\netcoreapp2.2\Biz1PosApi.Views.pdb
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.csproj.AssemblyReference.cache
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.GeneratedMSBuildEditorConfig.editorconfig
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.AssemblyInfoInputs.cache
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.AssemblyInfo.cs
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.csproj.CoreCompileInputs.cache
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.RazorAssemblyInfo.cache
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.RazorAssemblyInfo.cs
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.TagHelpers.input.cache
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.TagHelpers.output.cache
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.RazorCoreGenerate.cache
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Razor\Views\Login\password_reset.cshtml.g.cs
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.RazorTargetAssemblyInfo.cache
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.RazorTargetAssemblyInfo.cs
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.Views.pdb
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.dll
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.pdb
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.genruntimeconfig.cache
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\Biz1PosApi.csproj.CopyComplete

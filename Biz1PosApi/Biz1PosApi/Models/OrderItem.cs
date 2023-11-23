@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Biz1Retail_API.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -60,5 +61,37 @@ namespace Biz1BookPOS.Models
 
         [NotMapped]
         public List<OrdItemVariant> OrdItemVariants { get; set; }
+
+        public Otms ToOtms()
+        {
+            Otms oi = new Otms();
+            oi.qy = Quantity;
+            oi.pr = Price;
+            oi.ob = OrderId;
+            oi.pi = ProductId;
+            oi.to = Tax1;
+            oi.tt = Tax2;
+            oi.tth = Tax3;
+            oi.dp = DiscPercent;
+            oi.da = DiscAmount;
+            oi.sti = StatusId;
+            oi.kui = KitchenUserId;
+            oi.n = Note;
+            oi.cqy = ComplementryQty;
+            oi.ki = KOTId;
+            oi.cati = CategoryId;
+            oi.oj = OptionJson;
+            oi.ta = TotalAmount;
+            oi.imd = ItemDiscount;
+            oi.od = OrderDiscount;
+            oi.tid = TaxItemDiscount;
+            oi.tod = TaxOrderDiscount;
+            oi.ext = Extra;
+            oi.msg = Message;
+            oi.kri = kotrefid;
+            oi.ri = refid;
+            oi.issu = IsStockUpdate;
+            return oi;
+        }
     }
 }

@@ -10,6 +10,8 @@ namespace Biz1PosApi.Models
 {
     public class UPLog
     {
+        [Key]
+        public int UPLogId { get; set; }
         public int Id { get; set; }
         public string Action { get; set; }
         public string Json { get; set; }

@@ -21,6 +21,8 @@ using System.Net.Mail;
 using System.Text;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
+using Biz1PosApi.Services;
+using Biz1Retail_API.Models;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Biz1PosApi.Controllers
@@ -36,18 +38,21 @@ namespace Biz1PosApi.Controllers
         private int CustomerId;
         private int CustomerNo;
         private string CustomerPhone;
-        private POSDbContext db;
+        //private POSDbContext db;
+        private TempDbContext db;
+        private ConnectionStringService connserve;
         private IHubContext<ChatHub> _hubContext;
         private IHubContext<UrbanPiperHub, IHubClient> _uhubContext;
         private static TimeZoneInfo India_Standard_Time = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         public IConfiguration Configuration { get; }
-        public POSOrderController(POSDbContext contextOptions, IConfiguration configuration, IHubContext<ChatHub> hubContext, IHubContext<UrbanPiperHub, IHubClient> uhubContext, IServiceScopeFactory serviceScopeFactory)
+        public POSOrderController(POSDbContext contextOptions, IConfiguration configuration, IHubContext<ChatHub> hubContext, IHubContext<UrbanPiperHub, IHubClient> uhubContext, IServiceScopeFactory serviceScopeFactory, ConnectionStringService _connserve)
         {
-            db = contextOptions;
+            db = DbContextFactory.Create("myconn");
             Configuration = configuration;
             _hubContext = hubContext;
             _uhubContext = uhubContext;
             _serviceScopeFactory = serviceScopeFactory;
+            connserve = _connserve;
         }
 
         // GET: api/<controller>
@@ -112,7 +117,7 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
-                if(invoiceno.Contains("ENQ"))
+                if (invoiceno.Contains("ENQ"))
                 {
                     orderid = Int32.Parse(invoiceno.Split(" | ")[1]);
                 }
@@ -121,9 +126,9 @@ namespace Biz1PosApi.Controllers
                 {
                     orders = db.Orders.Where(x => x.Id == orderid).Include(x => x.Store).ToList();
                 }
-                else 
-                { 
-                orders = db.Orders.Where(x => x.OrderedDate == date && x.StoreId == storeid && x.CompanyId == companyId && x.InvoiceNo == invoiceno).Include(x => x.Store).ToList();
+                else
+                {
+                    orders = db.Orders.Where(x => x.OrderedDate == date && x.StoreId == storeid && x.CompanyId == companyId && x.InvoiceNo == invoiceno).Include(x => x.Store).ToList();
                 }
                 var response = new
                 {
@@ -144,7 +149,7 @@ namespace Biz1PosApi.Controllers
             }
         }
         [HttpPost("cancellorder")]
-        public IActionResult cancellorder(int orderid, [FromBody]JObject orderjson)
+        public IActionResult cancellorder(int orderid, [FromBody] JObject orderjson)
         {
             try
             {
@@ -152,7 +157,7 @@ namespace Biz1PosApi.Controllers
                 Order order = db.Orders.Find(orderid);
                 order.OrderStatusId = -1;
                 order.CancelReason = json.CancelReason;
-                if(order.OrderJson != null)
+                if (order.OrderJson != null)
                 {
                     order.OrderJson = JsonConvert.SerializeObject(orderjson);
                 }
@@ -240,7 +245,7 @@ namespace Biz1PosApi.Controllers
             }
         }
         [HttpPost("saveorder")]
-        public IActionResult saveorder([FromBody]OrderPayload payload)
+        public IActionResult saveorder([FromBody] OrderPayload payload)
         {
             int? storeid = null;
             int? companyid = null;
@@ -300,9 +305,9 @@ namespace Biz1PosApi.Controllers
                 }
                 else
                 {
-                    if(cphone != "" && cphone != null)
+                    if (cphone != "" && cphone != null)
                     {
-                        customerid = db.Customers.Where(x => x.PhoneNo == cphone).Any()? db.Customers.Where(x => x.PhoneNo == cphone).FirstOrDefault().Id : 0;
+                        customerid = db.Customers.Where(x => x.PhoneNo == cphone).Any() ? db.Customers.Where(x => x.PhoneNo == cphone).FirstOrDefault().Id : 0;
                     }
                     using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("myconn")))
                     {
@@ -367,7 +372,7 @@ namespace Biz1PosApi.Controllers
             }
         }
         [HttpPost("saveorder_2")]
-        public IActionResult saveorder_2([FromBody]OrderPayload payload)
+        public IActionResult saveorder_2([FromBody] OrderPayload payload)
         {
             int? storeid = null;
             int? companyid = null;
@@ -427,9 +432,9 @@ namespace Biz1PosApi.Controllers
                 }
                 else
                 {
-                    if(cphone != "" && cphone != null)
+                    if (cphone != "" && cphone != null)
                     {
-                        customerid = db.Customers.Where(x => x.PhoneNo == cphone).Any()? db.Customers.Where(x => x.PhoneNo == cphone).FirstOrDefault().Id : 0;
+                        customerid = db.Customers.Where(x => x.PhoneNo == cphone).Any() ? db.Customers.Where(x => x.PhoneNo == cphone).FirstOrDefault().Id : 0;
                     }
                     using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("myconn")))
                     {
@@ -524,7 +529,7 @@ namespace Biz1PosApi.Controllers
             invoice = invoice.Split("/")[0];
             string datestr = invoice.Substring(invoice.Length - 8, 4) + "-" + invoice.Substring(invoice.Length - 4, 2) + "-" + invoice.Substring(invoice.Length - 2, 2);
             DateTime orderdate = DateTime.ParseExact(datestr, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
-            int storeid = Int32.Parse(invoice.Substring(0, invoice.Length-8));
+            int storeid = Int32.Parse(invoice.Substring(0, invoice.Length - 8));
             SplitInvocie si = new SplitInvocie();
             si.orderdate = orderdate;
             si.storeid = storeid;
@@ -552,6 +557,12 @@ namespace Biz1PosApi.Controllers
                 storeid = si.storeid;
                 int orderno = si.orderno;
                 long createdtimestamp = 0;
+                string conn_name = connserve.getConnString(companyid);
+                db = DbContextFactory.Create(conn_name);
+                //if(companyid == 3)
+                //{
+                //    conn_name = "logout";
+                //}
                 if (orderjson.cts != null)
                 {
                     createdtimestamp = (long)orderjson.cts;
@@ -571,7 +582,7 @@ namespace Biz1PosApi.Controllers
                 }
                 else
                 {
-                    using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("myconn")))
+                    using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString(conn_name)))
                     {
                         conn.Open();
                         SqlTransaction tran = conn.BeginTransaction("Transaction1");
@@ -641,7 +652,7 @@ namespace Biz1PosApi.Controllers
 
         //Master Save Order 5 Test END -->
         [HttpPost("saveorder_4")]
-        public IActionResult saveorder_4([FromBody]OrderPayload payload)
+        public IActionResult saveorder_4([FromBody] OrderPayload payload)
         {
             int orderid = 0;
             dynamic data = new { };
@@ -663,7 +674,7 @@ namespace Biz1PosApi.Controllers
                 {
                     createdtimestamp = (long)orderjson.cts;
                 }
-                if(db.Orders.Where(x => x.OrderedDate == ordereddate && x.StoreId == storeid && x.OrderNo == orderno && x.CreatedTimeStamp == createdtimestamp).Any())
+                if (db.Orders.Where(x => x.OrderedDate == ordereddate && x.StoreId == storeid && x.OrderNo == orderno && x.CreatedTimeStamp == createdtimestamp).Any())
                 {
                     message = "It is a duplicate Order!";
                     status = 409;
@@ -745,7 +756,7 @@ namespace Biz1PosApi.Controllers
             }
         }
         [HttpPost("saveorder_3")]
-        public IActionResult saveorder_3([FromBody]OrderPayload payload)
+        public IActionResult saveorder_3([FromBody] OrderPayload payload)
         {
             int? storeid = null;
             int? companyid = null;
@@ -758,7 +769,7 @@ namespace Biz1PosApi.Controllers
                 dynamic orderjson = JsonConvert.DeserializeObject(payload.OrderJson);
                 string invoiceno = orderjson.InvoiceNo.ToString();
                 long createdtimestamp = 0;
-                if(orderjson.createdtimestamp != null)
+                if (orderjson.createdtimestamp != null)
                 {
                     createdtimestamp = (long)orderjson.createdtimestamp;
                 }
@@ -810,9 +821,9 @@ namespace Biz1PosApi.Controllers
                 }
                 else
                 {
-                    if(cphone != "" && cphone != null)
+                    if (cphone != "" && cphone != null)
                     {
-                        customerid = db.Customers.Where(x => x.PhoneNo == cphone).Any()? db.Customers.Where(x => x.PhoneNo == cphone).FirstOrDefault().Id : 0;
+                        customerid = db.Customers.Where(x => x.PhoneNo == cphone).Any() ? db.Customers.Where(x => x.PhoneNo == cphone).FirstOrDefault().Id : 0;
                     }
                     using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("myconn")))
                     {
@@ -839,7 +850,7 @@ namespace Biz1PosApi.Controllers
                             orderid = (int)table.Rows[0].ItemArray[0];
                             tran.Commit(); //both are successful
                             conn.Close();
-                            if(orderjson.DeliveryStoreId != null)
+                            if (orderjson.DeliveryStoreId != null)
                             {
                                 _uhubContext.Clients.All.DeliveryOrderUpdate((int)orderjson.StoreId, (int)orderjson.DeliveryStoreId, invoiceno, "NEW_ORDER", orderid);
                             }
@@ -880,12 +891,22 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        public Order GetOrder(dynamic raworder)
+        {
+            if (raworder.DiscAmount == null)
+            {
+                raworder.DiscAmount = 0;
+            }
+            return raworder.ToObject<Order>();
+        }
         [HttpPost("updateorder_3")]
         public IActionResult updateorder_3([FromBody] OrderPayload payload)
         {
-            using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("myconn")))
+            string conn_name = connserve.getConnString(GetOrder(JsonConvert.DeserializeObject(payload.OrderJson)).CompanyId);
+            using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString(conn_name)))
             {
                 conn.Open();
+                db = DbContextFactory.Create(conn_name);
                 SqlTransaction tran = conn.BeginTransaction("Transaction1");
                 try
                 {
@@ -897,12 +918,12 @@ namespace Biz1PosApi.Controllers
                     string orderjson = payload.OrderJson;
                     raworder.Id = raworder.OrderId;
                     int orderid = (int)raworder.OrderId;
-                    Order reforder = db.Orders.AsNoTracking().Where(x => x.Id == orderid).FirstOrDefault();
+                    // Order reforder = db.Orders.AsNoTracking().Where(x => x.Id == orderid).FirstOrDefault();
                     Order order = raworder.ToObject<Order>();
-                    order.CustomerId = reforder.CustomerId;
-                    order.Charges = reforder.Charges;
+                    // order.CustomerId = reforder.CustomerId;
+                    // order.Charges = reforder.Charges;
                     order.OrderStatusId = raworder.OrderStatusId;
-                    double factor = db.StoreFIlters.Where(x => x.StoreId == order.StoreId).Any() ? db.StoreFIlters.Where(x => x.StoreId == order.StoreId).FirstOrDefault().FIlterValue : 1.0;
+                    double factor = 1.0; // db.StoreFIlters.Where(x => x.StoreId == order.StoreId).Any() ? db.StoreFIlters.Where(x => x.StoreId == order.StoreId).FirstOrDefault().FIlterValue : 1.0;
                     order.TotalAmount = (order.BillAmount - order.Tax1 - order.Tax2 - order.Tax3) * factor;
                     string json_v = "v1";
                     if (raworder.json != null)
@@ -927,7 +948,7 @@ namespace Biz1PosApi.Controllers
                     }
                     order.DeliveryDate = order.DeliveryDateTime == null ? order.OrderedDate : order.DeliveryDateTime;
                     order.DeliveryStoreId = order.DeliveryStoreId == null ? order.StoreId : order.DeliveryStoreId;
-                    order.OrderedTime = db.Orders.Where(x => x.Id == order.Id).AsNoTracking().FirstOrDefault().OrderedTime;
+                    // order.OrderedTime = db.Orders.Where(x => x.Id == order.Id).AsNoTracking().FirstOrDefault().OrderedTime;
                     order.OrderJson = null;
                     order.ItemJson = null;
                     if (json_v == "v1")
@@ -935,7 +956,12 @@ namespace Biz1PosApi.Controllers
                         order.OrderJson = orderjson;
                         order.ItemJson = JsonConvert.SerializeObject(raworder.Items);
                     }
-                    db.Entry(order).State = EntityState.Modified;
+                    //db.Entry(order).State = EntityState.Modified;
+                    //db.SaveChanges();
+                    int odrsid = db.Odrs.AsNoTracking().Where(x => x.Id == order.Id && x.ino == order.InvoiceNo).FirstOrDefault().OdrsId;
+                    Odrs odrs = order.ToOdrs();
+                    odrs.OdrsId = odrsid;
+                    db.Entry(odrs).State = EntityState.Modified;
                     db.SaveChanges();
                     if (order.DeliveryStoreId != null)
                     {
@@ -964,7 +990,7 @@ namespace Biz1PosApi.Controllers
             }
         }
         [HttpPost("updateorder_2")]
-        public IActionResult updateorder_2([FromBody]OrderPayload payload)
+        public IActionResult updateorder_2([FromBody] OrderPayload payload)
         {
             using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("myconn")))
             {
@@ -973,7 +999,7 @@ namespace Biz1PosApi.Controllers
                 try
                 {
                     dynamic raworder = JsonConvert.DeserializeObject(payload.OrderJson);
-                    if(raworder.DiscAmount == null)
+                    if (raworder.DiscAmount == null)
                     {
                         raworder.DiscAmount = 0;
                     }
@@ -995,7 +1021,7 @@ namespace Biz1PosApi.Controllers
                         }
                     }
                     order.OrderJson = orderjson;
-                    if(order.OrderStatusId == 5)
+                    if (order.OrderStatusId == 5)
                     {
                         order.DeliveredDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
                         order.DeliveredDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
@@ -1006,7 +1032,7 @@ namespace Biz1PosApi.Controllers
                     order.ItemJson = JsonConvert.SerializeObject(raworder.Items);
                     db.Entry(order).State = EntityState.Modified;
                     db.SaveChanges();
-                    if(order.DeliveryStoreId != null)
+                    if (order.DeliveryStoreId != null)
                     {
                         _uhubContext.Clients.All.DeliveryOrderUpdate((int)order.StoreId, (int)order.DeliveryStoreId, order.InvoiceNo, "EDIT_ORDER", order.Id);
                     }
@@ -1057,7 +1083,7 @@ namespace Biz1PosApi.Controllers
             }
         }
         [HttpPost("orderstatuschange")]
-        public IActionResult orderstatuschange([FromBody]OrderPayload payload, int orderid, int statusid)
+        public IActionResult orderstatuschange([FromBody] OrderPayload payload, int orderid, int statusid)
         {
             try
             {
@@ -1089,14 +1115,15 @@ namespace Biz1PosApi.Controllers
             dynamic raworder = JsonConvert.DeserializeObject(orderPayload.OrderJson);
             orderPayload.Transactions = raworder.Transactions.ToObject<List<Transaction>>();
             int orderid = (int)orderPayload.Transactions.FirstOrDefault().OrderId;
+            Odrs odrs = new Odrs();
             Order order = db.Orders.AsNoTracking().Where(x => x.Id == orderid).FirstOrDefault();
             List<Transaction> oldTransactions = db.Transactions.Where(x => x.OrderId == orderid).ToList();
             double totaltransactionamnt = 0;
-            foreach(Transaction otrnsction in oldTransactions)
+            foreach (Transaction otrnsction in oldTransactions)
             {
                 totaltransactionamnt += otrnsction.Amount;
             }
-            if(order.PaidAmount > totaltransactionamnt)
+            if (order.PaidAmount > totaltransactionamnt)
             {
                 foreach (Transaction transaction in orderPayload.Transactions)
                 {
@@ -1108,7 +1135,7 @@ namespace Biz1PosApi.Controllers
             //var list = raworder.changeditems.ToArray<string>();
             //list.Remove("transaction");
             raworder.closedtransactions = new JArray();
-            for(int i = 0; i < raworder.Transactions.Count; i++)
+            for (int i = 0; i < raworder.Transactions.Count; i++)
             {
                 raworder.closedtransactions.Add(raworder.Transactions[i]);
             }
@@ -1121,31 +1148,38 @@ namespace Biz1PosApi.Controllers
         {
             dynamic raworder = JsonConvert.DeserializeObject(orderPayload.OrderJson);
             int orderid = (int)raworder.OrderId;
+            string invoiceno = (string)raworder.InvoiceNo;
+            int odrsid = db.Odrs.AsNoTracking().Where(x => x.Id == orderid && x.ino == invoiceno).FirstOrDefault().OdrsId;
             //orderPayload.Transactions = raworder.Transactions.ToObject<List<Transaction>>();
             foreach (var kotobj in raworder.KOTS)
             {
-                kotobj.OrderId = orderid;
+                kotobj.OrderId = odrsid;
                 KOT kOT = kotobj.ToObject<KOT>();
+                kOT.Id = 0;
                 kOT.json = JsonConvert.SerializeObject(kotobj);
-                if (!db.KOTs.Where(x => x.refid == kOT.refid && x.OrderId == orderid).Any())
+                if (!db.KOTs.Where(x => x.refid == kOT.refid && x.OrderId == odrsid).Any())
                 {
                     db.KOTs.Add(kOT);
                     db.SaveChanges();
-                    foreach(var item in kotobj.Items)
+                    foreach (var item in kotobj.Items)
                     {
                         item.Product = null;
                         item.OrderId = orderid;
                         OrderItem orderItem = item.ToObject<OrderItem>();
-                        orderItem.KOTId = kOT.Id;
-                        db.OrderItems.Add(orderItem);
+                        orderItem.KOTId = kOT.KOTId;
+                        //db.OrderItems.Add(orderItem);
+                        //db.SaveChanges();
+                        Otms oi = orderItem.ToOtms();
+                        db.Otms.Add(oi);
                         db.SaveChanges();
-                        foreach(var optionGroup in item.OptionGroup)
+
+                        foreach (var optionGroup in item.OptionGroup)
                         {
-                            if(optionGroup.selected == true)
+                            if (optionGroup.selected == true)
                             {
-                                foreach(var option in optionGroup.Option)
+                                foreach (var option in optionGroup.Option)
                                 {
-                                    if(option.selected == true)
+                                    if (option.selected == true)
                                     {
                                         OrdItemOptions itemoption = new OrdItemOptions();
                                         itemoption.OptionId = (int)option.Id;
@@ -1390,7 +1424,7 @@ namespace Biz1PosApi.Controllers
                 order.ModifiedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
                 db.Entry(order).State = EntityState.Modified;
                 db.SaveChanges();
-                if(statusid == -1)
+                if (statusid == -1)
                 {
                     Transaction transaction = new Transaction();
                     transaction.Amount = order.PaidAmount;
@@ -1532,7 +1566,7 @@ namespace Biz1PosApi.Controllers
         // POST api/<controller>
         [HttpPost("CreateOrder")]
         [EnableCors("AllowOrigin")]
-        public async Task<IActionResult> CreateOrder([FromForm]string ordData, int compId, int storeId)
+        public async Task<IActionResult> CreateOrder([FromForm] string ordData, int compId, int storeId)
         {
             string message = "";
             using (var connection = new SqlConnection(Configuration.GetConnectionString("myconn")))
@@ -1554,7 +1588,7 @@ namespace Biz1PosApi.Controllers
                         storeid = ord.StoreId;
                         payload = JsonConvert.SerializeObject(ord);
                         var oldorder = db.Orders.Where(x => x.InvoiceNo == order_invoice).FirstOrDefault();
-                        if(oldorder == null)
+                        if (oldorder == null)
                         {
                             ord.CustomerDetails.Id = 0;
                             CustomerPhone = ord.CustomerDetails.PhoneNo;
@@ -1788,7 +1822,7 @@ namespace Biz1PosApi.Controllers
         //{
         //    try
         //    {
-                
+
         //    }
         //    catch (Exception e)
         //    {
@@ -1829,7 +1863,7 @@ namespace Biz1PosApi.Controllers
 
         [HttpPost("UpdateKotStatus")]
         [EnableCors("AllowOrigin")]
-        public IActionResult UpdateKotStatus([FromBody]JObject objData)
+        public IActionResult UpdateKotStatus([FromBody] JObject objData)
         {
             try
             {
@@ -1870,7 +1904,7 @@ namespace Biz1PosApi.Controllers
         }
         [HttpPost("UpdateOrder")]
         [EnableCors("AllowOrigin")]
-        public async Task<IActionResult> UpdateOrder([FromForm]string ordData)
+        public async Task<IActionResult> UpdateOrder([FromForm] string ordData)
         {
             try
             {
@@ -1961,7 +1995,7 @@ namespace Biz1PosApi.Controllers
                     order.ModifiedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
                     db.Entry(order).State = EntityState.Modified;
                     db.SaveChanges();
-                    if(ord.changelevelid == 2)
+                    if (ord.changelevelid == 2)
                     {
                         var room = order.StoreId + "/" + order.CompanyId;
                         await _hubContext.Clients.Group(room).SendAsync("orderupdated", order.Id);
@@ -2034,7 +2068,7 @@ namespace Biz1PosApi.Controllers
                         }
                         else
                         {
-                            if(nkot.dirtystatus == 1)
+                            if (nkot.dirtystatus == 1)
                             {
                                 int kotid = kots.Where(x => x.KOTNo == nkot.KOTNo).FirstOrDefault().Id;
                                 var room = order.StoreId + "/" + order.CompanyId;
@@ -2153,7 +2187,7 @@ namespace Biz1PosApi.Controllers
 
         [HttpPost("UpdateItemStatus")]
         [EnableCors("AllowOrigin")]
-        public IActionResult UpdateItemStatus([FromBody]JObject objData)
+        public IActionResult UpdateItemStatus([FromBody] JObject objData)
         {
             try
             {
@@ -2191,7 +2225,7 @@ namespace Biz1PosApi.Controllers
         }
         [HttpPost("StatusUpdate")]
         [EnableCors("AllowOrigin")]
-        public IActionResult StatusUpdate([FromForm]string data)
+        public IActionResult StatusUpdate([FromForm] string data)
         {
             try
             {
@@ -2257,7 +2291,7 @@ namespace Biz1PosApi.Controllers
         [HttpPost("aggregatorOrder")]
         [Authorize(Roles = "Administrator")]
         [EnableCors("AllowOrigin")]
-        public IActionResult aggregatorOrder([FromBody]JObject data)
+        public IActionResult aggregatorOrder([FromBody] JObject data)
         {
             try
             {
@@ -2303,7 +2337,7 @@ namespace Biz1PosApi.Controllers
         }
         [HttpPost("AcceptOnlineOrder")]
         [EnableCors("AllowOrigin")]
-        public IActionResult AcceptOnlineOrder([FromForm]string ordData, int compId, int storeId)
+        public IActionResult AcceptOnlineOrder([FromForm] string ordData, int compId, int storeId)
         {
             try
             {
@@ -2312,12 +2346,12 @@ namespace Biz1PosApi.Controllers
                 {
                     long uporderid = ord.UPOrderId;
                     Order oldorder = db.Orders.Where(x => x.UPOrderId == uporderid).FirstOrDefault();
-                    if(oldorder == null)
+                    if (oldorder == null)
                     {
                         if (ord.OrderStatusId == -1)
                         {
                             Order order = ord.ToObject<Order>();
-                            var temp_json = new { placed=0};
+                            var temp_json = new { placed = 0 };
                             if (order.OrderStatusDetails == null) { order.OrderStatusDetails = JsonConvert.SerializeObject(temp_json); };
                             order.CustomerData = JsonConvert.SerializeObject(ord.CustomerDetails);
                             if (order.Source == "swiggy")
@@ -2541,7 +2575,7 @@ namespace Biz1PosApi.Controllers
             {
                 int[] pendingStatusIds = { 0, 1, 2, 3, 4 };
                 int[] advancedOrderTypeIds = { 2, 3, 4 };
-                
+
                 DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
                 List<Order> order = db.Orders.Where(o => (o.OrderedDate == today || pendingStatusIds.Contains(o.OrderStatusId) || o.BillAmount != o.PaidAmount) && o.DeliveryStoreId == storeid && advancedOrderTypeIds.Contains(o.OrderTypeId)).ToList();
                 return Json(order);
@@ -2563,8 +2597,10 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
-                int[] pendingStatusIds = { 0,1,2,3,4 };
-                int[] advancedOrderTypeIds = { 2,3,4 };
+                //int companyid = db.Stores.Where(x => x.Id == storeid).FirstOrDefault().CompanyId;
+                //TempDbContext td = DbContextFactory.Create(connserve.getConnString(companyid));
+                int[] pendingStatusIds = { 0, 1, 2, 3, 4 };
+                int[] advancedOrderTypeIds = { 2, 3, 4 };
 
                 DateTime today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
                 List<Order> order = db.Orders.Where(o => (pendingStatusIds.Contains(o.OrderStatusId)) && o.StoreId == storeid && advancedOrderTypeIds.Contains(o.OrderTypeId) && o.OrderJson != null).ToList();
@@ -2666,14 +2702,14 @@ namespace Biz1PosApi.Controllers
         }
 
         [HttpPost("completePayment")]
-        public IActionResult completePayment([FromBody]List<CompleteOrderPayload> payloads)
+        public IActionResult completePayment([FromBody] List<CompleteOrderPayload> payloads)
         {
             try
             {
                 foreach (CompleteOrderPayload pl in payloads)
                 {
                     Order ord = db.Orders.Find(pl.orderid);
-                    if(pl.billamount - pl.paidamount > 0)
+                    if (pl.billamount - pl.paidamount > 0)
                     {
                         Transaction tr = new Transaction();
                         tr.OrderId = pl.orderid;
@@ -2693,7 +2729,7 @@ namespace Biz1PosApi.Controllers
                     }
                     ord.PaidAmount = ord.BillAmount;
                     ord.OrderStatusId = 5;
-                    if(ord.OrderJson != null)
+                    if (ord.OrderJson != null)
                     {
                         dynamic json = JsonConvert.DeserializeObject(ord.OrderJson);
                         json.BillAmount = ord.BillAmount;
@@ -2870,7 +2906,7 @@ namespace Biz1PosApi.Controllers
                 };
                 return Ok(response);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var error = new
                 {

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Biz1BookPOS.Models;
+using Biz1PosApi.Models;
+using Biz1PosApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -15,10 +18,12 @@ namespace Biz1PosApi.Controllers
     {
         private POSDbContext db;
         public IConfiguration Configuration { get; }
-        public OrderWiseController(POSDbContext contextOptions, IConfiguration configuration)
+        private ConnectionStringService connserve;
+        public OrderWiseController(POSDbContext contextOptions, IConfiguration configuration, ConnectionStringService _connserve)
         {
             db = contextOptions;
             Configuration = configuration;
+            connserve = _connserve;
         }
         public IActionResult Index()
         {
@@ -71,6 +76,44 @@ namespace Biz1PosApi.Controllers
             }
         }
 
+        [HttpGet("GetReport")]
+        public IActionResult GetReport(DateTime frmdate, DateTime todate, int Id, int compId, int sourceId, int cancelOrder)
+        {
+            try
+            {
+                Dictionary<string, dynamic> pl = new Dictionary<string, dynamic>
+                {
+                    { "@fromDate", frmdate },
+                    { "@toDate", todate },
+                    { "@storeId", Id },
+                    { "@companyId", compId },
+                    { "@sourceId", sourceId },
+                    { "@cancelorder", cancelOrder }
+                };
+                SP sp = new SP();
+                SPService sPService = new SPService(connserve.getConnString(compId), Configuration);
+                DataSet ds = sPService.exec(sp.OrderWiseReport, pl);
+                var data = new
+                {
+                    Order = ds.Tables[0],
+                    order1 = ds.Tables[1],
+                    order2 = ds.Tables[2],
+                    order3 = ds.Tables[3]
+
+                };
+                return Ok(data);
+            }
+            catch(Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
         [HttpGet("GetStore")]
         public IActionResult GetStore()
         {
@@ -89,6 +132,6 @@ namespace Biz1PosApi.Controllers
                 };
                 return Json(error);
             }
-            }
+        }
     }
 }

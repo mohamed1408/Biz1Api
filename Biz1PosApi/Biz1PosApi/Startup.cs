@@ -47,7 +47,7 @@ namespace Biz1PosApi
             //services.AddSingleton<OrderRepository>(_ => new OrderRepository(Configuration.GetConnectionString("myconn")));
             //services.AddSingleton<ILoggerService, OrderService>();
             //services.AddHostedService<OrderService>();
-
+            services.AddTransient<ConnectionStringService>();
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => {
@@ -64,13 +64,25 @@ namespace Biz1PosApi
                 });
             });
             services.AddDbContext<POSDbContext>(item => item.UseSqlServer(Configuration.GetConnectionString("myconn")));
-            
+            services.AddDbContext<TempDbContext>();
+            Dictionary<string, string> ConnStrings = new Dictionary<string, string>
+            {
+                { "myconn", "Server=tcp:b1zd0m.database.windows.net,1433;Initial Catalog=Biz1Retail;Persist Security Info=False;User ID=BizDom_Admin;Password=BIzD0m@2K23;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=1000;" },
+                { "logout", "Server=tcp:logout.database.windows.net,1433;Initial Catalog=Biz1Retail;Persist Security Info=False;User ID=CloudSAe0c934ac;Password=BizDom##;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=1000;" },
+                { "hydconn", "Server=tcp:fb-hyd.database.windows.net,1433;Initial Catalog=fb-hyd;Persist Security Info=False;User ID=Fb_Admin-Hyd;Password=Master@0229;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=1000;" },
+                { "bangconn", "Server=tcp:fb-karnataka.database.windows.net,1433;Initial Catalog=fb-karnataka;Persist Security Info=False;User ID=Fb_Admin_Kar;Password=Master@0229;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=1000;" }
+            };
+            DbContextFactory.SetConnString(ConnStrings);
             services.AddHostedService<UPOrderService>();
             services.AddSingleton(Channel.CreateUnbounded<UPRawPayload>());
-            
+            services.AddSingleton<Student>();
             services.AddSignalR();
             services
-            .AddMvc()
+            .AddMvc(o =>
+            {
+                o.RespectBrowserAcceptHeader = true;
+            })
+            //.AddXmlDataContractSerializerFormatters()
             .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver());
             ///JWT/////
             string securityKey = _config["Jwt:Key"];

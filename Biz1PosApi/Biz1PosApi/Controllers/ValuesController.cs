@@ -33,6 +33,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Data.SqlClient;
 using System.Data;
+using System.Net.Http;
+using System.Xml;
+using System.Reflection;
+using System.Security.Cryptography;
 //using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Biz1PosApi.Controllers
@@ -49,7 +53,9 @@ namespace Biz1PosApi.Controllers
         private POSDbContext db;
         private static TraceSource ts = new TraceSource("TraceTest");
         readonly ILogger<ValuesController> _log;
-        public ValuesController(IConfiguration config, POSDbContext contextOptions, IHubContext<ChatHub> hubContext, IHostingEnvironment environment, ILogger<ValuesController> log, IHubContext<UrbanPiperHub, IHubClient> uhubContext)
+        private static TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+        private Student student;
+        public ValuesController(IConfiguration config, POSDbContext contextOptions, IHubContext<ChatHub> hubContext, IHostingEnvironment environment, ILogger<ValuesController> log, IHubContext<UrbanPiperHub, IHubClient> uhubContext, Student _student)
         {
             _config = config;
             //Configuration = configuration;
@@ -60,7 +66,105 @@ namespace Biz1PosApi.Controllers
             _environment = environment;
             _log = log;
             Configuration = config;
+            student = _student;
         }
+        public static IEnumerable<T> GetInstancesOfImplementingTypes<T>()
+        {
+            AppDomain app = AppDomain.CurrentDomain;
+            Assembly[] ass = app.GetAssemblies();
+            Type[] types;
+            Type targetType = typeof(T);
+
+            foreach (Assembly a in ass)
+            {
+                types = a.GetTypes();
+                foreach (Type t in types)
+                {
+                    if (t.IsInterface) continue;
+                    if (t.IsAbstract) continue;
+                    foreach (Type iface in t.GetInterfaces())
+                    {
+                        if (!iface.Equals(targetType)) continue;
+                        yield return (T)Activator.CreateInstance(t);
+                        break;
+                    }
+                }
+            }
+        }
+        [HttpGet]
+        [Route("md5hash")]
+        public string CreateMD5(string input)
+        {
+            // Use input string to calculate MD5 hash
+            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            {
+                // given, a password in a string
+                string password = input;
+
+                // byte array representation of that string
+                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
+
+                // need MD5 to calculate the hash
+                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+
+                // string representation (similar to UNIX format)
+                string encoded = BitConverter.ToString(hash)
+                   // without dashes
+                   .Replace("-", string.Empty)
+                   // make lowercase
+                   .ToLower();
+
+                // encoded contains the hash you want
+                return encoded;
+            }
+        }
+        public class q { }
+        [HttpGet]
+        [Route("qrtest")]
+        public int getoid_item(int orderid, string hash)
+        {
+            List<JObject> list = new List<JObject>();
+
+            list.Add(new JObject{ new JProperty("Id", 5) });
+
+            JObject obj = new JObject
+            {
+                new JProperty("Id",5)
+            };
+            list.Add(obj);
+            List<int> ints = new List<int> { 1,2,3,4,5,-1 };
+            int oti = 0;
+            foreach(int i in ints)
+            {
+                var _hash = CreateMD5(orderid.ToString() + "|" + i.ToString() + "|gopi");
+                if(hash == _hash)
+                {
+                    oti = i; break;
+                }
+            }
+            Uri uri = null;
+            return oti;
+        }
+
+        public class obj
+        {
+            public int id;
+            public string name;
+            public obj(int id)
+            {
+                this.id = id;
+            }
+        }
+
+        [HttpGet]
+        [Route("testerror")]
+        public IActionResult getError(int id)
+        {
+            List<UserAccounts> user = db.UserAccounts.ToList();
+            return Ok(user);
+        }
+
+
 
 
         // GET api/values
@@ -69,6 +173,7 @@ namespace Biz1PosApi.Controllers
         [EnableCors("AllowOrigin")]
         public ActionResult<IEnumerable<string>> Get()
         {
+            Console.WriteLine("Values Console");
             return new string[] { "value1", "value2" };
         }
 
@@ -94,6 +199,7 @@ namespace Biz1PosApi.Controllers
         [HttpPost("token")]
         public ActionResult GetToken()
         {
+            HttpClient client = new HttpClient();
             //security key
             string securityKey = _config["Jwt:Key"];
             //symmetric security key
@@ -281,7 +387,7 @@ namespace Biz1PosApi.Controllers
 
         [HttpGet("fcm")]
         //public async Task<string> fcm()
-        public static string fcm(POSDbContext db, int deviceId)
+        public static string fcm(TempDbContext db, int deviceId)
         {
             try
             {
@@ -746,6 +852,24 @@ namespace Biz1PosApi.Controllers
             var response = new
             {
                 htmlString
+            };
+            return Json(response);
+        }
+        [HttpGet("customdate")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult customdate(TimeSpan time)
+        {
+            int hourstogoback = 0;
+            DateTime indianTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+            var totime = indianTime.TimeOfDay;
+            if(totime < time)
+            {
+                indianTime = indianTime.AddHours(time.Hours*-1);
+            }
+            var response = new
+            {
+                indianTime,
+                totime,
             };
             return Json(response);
         }

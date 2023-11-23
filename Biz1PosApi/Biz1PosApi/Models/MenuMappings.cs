@@ -6,5 +6,6 @@
         public int groupid { get; set; }
         public int companyid { get; set; }
         public int menutype { get; set; }
+        public int? storeid { get; set; }
     }
 }

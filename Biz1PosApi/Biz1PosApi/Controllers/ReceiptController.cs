@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Biz1BookPOS.Models;
 using Biz1PosApi.Models;
+using Biz1PosApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,12 +20,15 @@ namespace Biz1PosApi.Controllers
     [Route("api/[controller]")]
     public class ReceiptController : Controller
     {
-        private POSDbContext db;
+        //private POSDbContext db;
+        private TempDbContext db;
+        private ConnectionStringService connserve;
         public IConfiguration Configuration { get; }
-        public ReceiptController(POSDbContext contextOptions, IConfiguration configuration)
+        public ReceiptController(POSDbContext contextOptions, IConfiguration configuration, ConnectionStringService _connserve)
         {
-            db = contextOptions;
+            db = DbContextFactory.Create("myconn");
             Configuration = configuration;
+            connserve = _connserve;
         }
 
         // GET: api/<controller>
@@ -223,6 +227,29 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpGet("spt")]
+        public IActionResult spt(int storeid)
+        {
+            try
+            {
+                var data = new
+                {
+                    paymenttypes = db.StorePaymentTypes.Where(x => x.StoreId == storeid && x.IsActive == true).ToList()
+                };
+                return Ok(data);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider",
+                    paymenttypes = new List<StorePaymentType>()
+                };
+                return Json(error);
+            }
+        }
         [HttpGet("last10transactions")]
         public IActionResult storepaymentsbytype(int storeid, int companyid, string invoiceno)
         {
@@ -272,19 +299,19 @@ namespace Biz1PosApi.Controllers
                 double difference = 0;
                 data.PaymentType = null;
                 Transaction transaction = data.ToObject<Transaction>();
-                oldTransaction = db.Transactions.Where(x => x.Id == transaction.Id).AsNoTracking().FirstOrDefault();
+                oldTransaction = db.Transactions.Where(x => x.TransactionId == transaction.TransactionId).AsNoTracking().FirstOrDefault();
                 orderid = transaction.OrderId;
                 db.Entry(transaction).State = EntityState.Modified;
                 difference = oldTransaction.Amount - transaction.Amount;
                 if (orderid != null && orderid > 0 && difference != 0)
                 {
-                    Order order = db.Orders.Find(orderid);
-                    order.PaidAmount = order.PaidAmount - difference;
-                    if(order.OrderJson != null)
+                    Odrs order = db.Odrs.Find(orderid);
+                    order.pa = order.pa - difference;
+                    if(order.oj != null)
                     {
-                        dynamic payload = JsonConvert.DeserializeObject(order.OrderJson);
-                        payload.PaidAmount = order.PaidAmount;
-                        order.OrderJson = JsonConvert.SerializeObject(payload);
+                        dynamic payload = JsonConvert.DeserializeObject(order.oj);
+                        payload.PaidAmount = order.pa;
+                        order.oj = JsonConvert.SerializeObject(payload);
                     }
                     db.Entry(order).State = EntityState.Modified;
                     db.SaveChanges();
@@ -372,7 +399,12 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
-                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                string conn_name = connserve.getConnString(companyid);
+                //if (companyid == 3)
+                //{
+                //    conn_name = "logout";
+                //}
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(conn_name));
                 sqlCon.Open();
 
                 SqlCommand cmd = new SqlCommand("dbo.StoreCashSales", sqlCon);
@@ -429,8 +461,9 @@ namespace Biz1PosApi.Controllers
                 DataTable table = ds.Tables[0];
                 var data = new
                 {
-                    pos_transactions = ds.Tables[0],
-                    sw_zm_transactions = ds.Tables[1]
+                    pos_summary = ds.Tables[0],
+                    pos_transactions = ds.Tables[1],
+                    sw_zm_summary = ds.Tables[2]
                 };
                 sqlCon.Close();
                 return Ok(data);
@@ -495,21 +528,28 @@ namespace Biz1PosApi.Controllers
             order = db.Orders.Where(x => x.InvoiceNo == invoice).FirstOrDefault();
             return Ok(order);
         }
+        public class transaction : Transaction
+        {
+            public string InvoiceNo { get; set; }
+        }
         // POST api/<controller>
         [HttpPost("ordertransaction")]
         public IActionResult ordertransaction([FromBody]dynamic transactionlist)
         {
             try
             {
-                List<Transaction> transactions = transactionlist.ToObject<List<Transaction>>();
-                Order order = db.Orders.Find(transactions[0].OrderId);
-                List<Transaction> oldtransactions = db.Transactions.Where(x => x.OrderId == order.Id).ToList();
+                List<transaction> transactions = transactionlist.ToObject<List<transaction>>();
+                string conn_name = connserve.getConnString(transactions[0].CompanyId);
+                db = DbContextFactory.Create(conn_name);
+                Odrs order = db.Odrs.Where(x => x.Id == transactions[0].OrderId && x.ino == transactions[0].InvoiceNo).FirstOrDefault();
+                List<Transaction> oldtransactions = db.Transactions.Where(x => x.OrderId == order.OdrsId).ToList();
                 List<Transaction> alltranasctions = new List<Transaction>();
                 alltranasctions.AddRange(oldtransactions);
                 foreach (Transaction transaction in transactions)
                 {
                     if(!alltranasctions.Where(x => x.TransDateTime == transaction.TransDateTime && x.Amount == transaction.Amount && x.StorePaymentTypeId == transaction.StorePaymentTypeId).Any())
                     {
+                        transaction.OrderId = order.OdrsId;
                         alltranasctions.Add(transaction);
                         db.Transactions.Add(transaction);
                         db.SaveChanges();
@@ -517,15 +557,15 @@ namespace Biz1PosApi.Controllers
                 }
                 double totalpaid = (alltranasctions.Where(x => x.TranstypeId == 1).Select(x => x.Amount).Sum()) - (alltranasctions.Where(x => x.TranstypeId == 2).Select(x => x.Amount).Sum());
                 
-                if(totalpaid <= order.BillAmount)
+                if(totalpaid <= order.ba)
                 {
-                    order.PaidAmount = totalpaid;
-                    if (order.OrderJson != null)
+                    order.pa = totalpaid;
+                    if (order.oj != null)
                     {
-                        dynamic json = JsonConvert.DeserializeObject(order.OrderJson);
+                        dynamic json = JsonConvert.DeserializeObject(order.oj);
                         json.alltransactions = JToken.FromObject(alltranasctions.Select(x => new { x.Amount, x.CompanyId, x.CustomerId, x.Id, x.ModifiedDateTime, x.Notes, x.TransDate, x.TransDateTime, x.TranstypeId, x.UserId }));
                         json.PaidAmount = totalpaid;
-                        order.OrderJson = JsonConvert.SerializeObject(json);
+                        order.oj = JsonConvert.SerializeObject(json);
                     }
                     db.Entry(order).State = EntityState.Modified;
                     db.SaveChanges();

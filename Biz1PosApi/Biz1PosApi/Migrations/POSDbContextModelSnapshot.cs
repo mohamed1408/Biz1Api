@@ -242,13 +242,15 @@ namespace Biz1PosApi.Migrations
 
             modelBuilder.Entity("Biz1BookPOS.Models.KOT", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("KOTId")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("CompanyId");
 
                     b.Property<DateTime>("CreatedDate");
+
+                    b.Property<int>("Id");
 
                     b.Property<string>("Instruction");
 
@@ -270,7 +272,7 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<string>("refid");
 
-                    b.HasKey("Id");
+                    b.HasKey("KOTId");
 
                     b.HasIndex("CompanyId");
 
@@ -281,6 +283,136 @@ namespace Biz1PosApi.Migrations
                     b.HasIndex("StoreId");
 
                     b.ToTable("KOTs");
+                });
+
+            modelBuilder.Entity("Biz1BookPOS.Models.Odrs", b =>
+                {
+                    b.Property<int>("OdrsId")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Id");
+
+                    b.Property<double?>("aidb");
+
+                    b.Property<double?>("aitadb");
+
+                    b.Property<double?>("aitodb");
+
+                    b.Property<string>("aoi");
+
+                    b.Property<double?>("ba");
+
+                    b.Property<int?>("bsi");
+
+                    b.Property<bool?>("c");
+
+                    b.Property<int?>("cai");
+
+                    b.Property<double?>("cgesb");
+
+                    b.Property<int?>("ci");
+
+                    b.Property<string>("cj");
+
+                    b.Property<string>("cr");
+
+                    b.Property<long?>("cts");
+
+                    b.Property<string>("cud");
+
+                    b.Property<int?>("cui");
+
+                    b.Property<double?>("da");
+
+                    b.Property<DateTime?>("ddd")
+                        .HasColumnType("Date");
+
+                    b.Property<DateTime?>("dddt");
+
+                    b.Property<DateTime?>("did")
+                        .HasColumnType("Date");
+
+                    b.Property<DateTime?>("didt");
+
+                    b.Property<double?>("dp");
+
+                    b.Property<int?>("dri");
+
+                    b.Property<int?>("dsi");
+
+                    b.Property<int?>("dti");
+
+                    b.Property<bool?>("fr");
+
+                    b.Property<string>("ij");
+
+                    b.Property<string>("ino");
+
+                    b.Property<string>("inoj");
+
+                    b.Property<bool?>("isao");
+
+                    b.Property<bool?>("isp");
+
+                    b.Property<DateTime>("md");
+
+                    b.Property<string>("n");
+
+                    b.Property<DateTime>("od")
+                        .HasColumnType("Date");
+
+                    b.Property<double?>("odb");
+
+                    b.Property<DateTime>("oddt");
+
+                    b.Property<string>("oj");
+
+                    b.Property<int?>("on");
+
+                    b.Property<string>("osd");
+
+                    b.Property<int?>("osi");
+
+                    b.Property<double?>("otadb");
+
+                    b.Property<int?>("oti");
+
+                    b.Property<double?>("otodb");
+
+                    b.Property<double?>("pa");
+
+                    b.Property<int?>("psi");
+
+                    b.Property<double?>("ra");
+
+                    b.Property<string>("rsd");
+
+                    b.Property<string>("s");
+
+                    b.Property<int?>("si");
+
+                    b.Property<int?>("soi");
+
+                    b.Property<int?>("sti");
+
+                    b.Property<double?>("ta");
+
+                    b.Property<double?>("to");
+
+                    b.Property<double?>("tt");
+
+                    b.Property<double?>("tth");
+
+                    b.Property<int?>("ui");
+
+                    b.Property<long?>("upoi");
+
+                    b.Property<int?>("wi");
+
+                    b.HasKey("OdrsId");
+
+                    b.ToTable("Odrs");
                 });
 
             modelBuilder.Entity("Biz1BookPOS.Models.OrdItemAddon", b =>
@@ -784,6 +916,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<string>("Name");
 
+                    b.Property<double?>("OpeningBalance");
+
                     b.Property<TimeSpan>("OpeningTime");
 
                     b.Property<int?>("ParentStoreId");
@@ -916,7 +1050,7 @@ namespace Biz1PosApi.Migrations
 
             modelBuilder.Entity("Biz1BookPOS.Models.Transaction", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("TransactionId")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -925,6 +1059,8 @@ namespace Biz1PosApi.Migrations
                     b.Property<int>("CompanyId");
 
                     b.Property<int?>("CustomerId");
+
+                    b.Property<int>("Id");
 
                     b.Property<DateTime?>("ModifiedDateTime");
 
@@ -949,7 +1085,7 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int?>("UserId");
 
-                    b.HasKey("Id");
+                    b.HasKey("TransactionId");
 
                     b.HasIndex("CompanyId");
 
@@ -1625,7 +1761,7 @@ namespace Biz1PosApi.Migrations
 
             modelBuilder.Entity("Biz1PosApi.Models.DenomEntry", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("DenomEntryId")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -1647,6 +1783,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<double>("ExpectedBalance");
 
+                    b.Property<int>("Id");
+
                     b.Property<double>("OpeningBalance");
 
                     b.Property<double>("SalesCash");
@@ -1665,7 +1803,7 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<double?>("lastcomparedvalue");
 
-                    b.HasKey("Id");
+                    b.HasKey("DenomEntryId");
 
                     b.HasIndex("CompanyId");
 
@@ -1680,7 +1818,7 @@ namespace Biz1PosApi.Migrations
 
             modelBuilder.Entity("Biz1PosApi.Models.Denomination", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("DenominationId")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -1692,9 +1830,9 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<string>("DenomName");
 
-                    b.HasKey("Id");
+                    b.Property<int>("Id");
 
-                    b.HasIndex("DenomEntryId");
+                    b.HasKey("DenominationId");
 
                     b.ToTable("Denominations");
                 });
@@ -1965,139 +2103,11 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int>("menutype");
 
+                    b.Property<int?>("storeid");
+
                     b.HasKey("Id");
 
                     b.ToTable("MenuMappings");
-                });
-
-            modelBuilder.Entity("Biz1PosApi.Models.Odrs", b =>
-                {
-                    b.Property<int>("OdrsId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("Id");
-
-                    b.Property<double?>("aidb");
-
-                    b.Property<double?>("aitadb");
-
-                    b.Property<double?>("aitodb");
-
-                    b.Property<string>("aoi");
-
-                    b.Property<double?>("ba");
-
-                    b.Property<int?>("bsi");
-
-                    b.Property<bool?>("c");
-
-                    b.Property<int?>("cai");
-
-                    b.Property<double?>("cgesb");
-
-                    b.Property<int?>("ci");
-
-                    b.Property<string>("cj");
-
-                    b.Property<string>("cr");
-
-                    b.Property<long?>("cts");
-
-                    b.Property<string>("cud");
-
-                    b.Property<int?>("cui");
-
-                    b.Property<double?>("da");
-
-                    b.Property<DateTime?>("ddd")
-                        .HasColumnType("Date");
-
-                    b.Property<DateTime?>("dddt");
-
-                    b.Property<DateTime?>("did")
-                        .HasColumnType("Date");
-
-                    b.Property<DateTime?>("didt");
-
-                    b.Property<double?>("dp");
-
-                    b.Property<int?>("dri");
-
-                    b.Property<int?>("dsi");
-
-                    b.Property<int?>("dti");
-
-                    b.Property<bool?>("fr");
-
-                    b.Property<string>("ij");
-
-                    b.Property<string>("ino");
-
-                    b.Property<string>("inoj");
-
-                    b.Property<bool?>("isao");
-
-                    b.Property<bool?>("isp");
-
-                    b.Property<DateTime>("md");
-
-                    b.Property<string>("n");
-
-                    b.Property<DateTime>("od")
-                        .HasColumnType("Date");
-
-                    b.Property<double?>("odb");
-
-                    b.Property<DateTime>("oddt");
-
-                    b.Property<string>("oj");
-
-                    b.Property<int?>("on");
-
-                    b.Property<string>("osd");
-
-                    b.Property<int?>("osi");
-
-                    b.Property<double?>("otadb");
-
-                    b.Property<int?>("oti");
-
-                    b.Property<double?>("otodb");
-
-                    b.Property<double?>("pa");
-
-                    b.Property<int?>("psi");
-
-                    b.Property<double?>("ra");
-
-                    b.Property<string>("rsd");
-
-                    b.Property<string>("s");
-
-                    b.Property<int?>("si");
-
-                    b.Property<int?>("soi");
-
-                    b.Property<int?>("sti");
-
-                    b.Property<double?>("ta");
-
-                    b.Property<double?>("to");
-
-                    b.Property<double?>("tt");
-
-                    b.Property<double?>("tth");
-
-                    b.Property<int?>("ui");
-
-                    b.Property<long?>("upoi");
-
-                    b.Property<int?>("wi");
-
-                    b.HasKey("OdrsId");
-
-                    b.ToTable("Odrs");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.Offer", b =>
@@ -2376,7 +2386,7 @@ namespace Biz1PosApi.Migrations
 
             modelBuilder.Entity("Biz1PosApi.Models.OrderLog", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("OrderLogId")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -2384,15 +2394,15 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<string>("Error");
 
-                    b.Property<DateTime>("LoggedDateTime");
+                    b.Property<int?>("Id");
 
-                    b.Property<int>("OrderLogId");
+                    b.Property<DateTime>("LoggedDateTime");
 
                     b.Property<string>("Payload");
 
                     b.Property<int?>("StoreId");
 
-                    b.HasKey("Id");
+                    b.HasKey("OrderLogId");
 
                     b.HasIndex("CompanyId");
 
@@ -3184,19 +3194,40 @@ namespace Biz1PosApi.Migrations
 
             modelBuilder.Entity("Biz1PosApi.Models.StoreLog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("StoreLogId")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Action");
 
+                    b.Property<int>("Id");
+
                     b.Property<DateTime>("LogedDateTime");
 
                     b.Property<string>("Store");
 
-                    b.HasKey("Id");
+                    b.HasKey("StoreLogId");
 
                     b.ToTable("StoreLogs");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.StoreOB", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<double?>("Expense");
+
+                    b.Property<double?>("OpeningBalance");
+
+                    b.Property<DateTime>("OrderedDateTime");
+
+                    b.Property<int>("StoreId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StoreOB");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.StoreOption", b =>
@@ -3556,7 +3587,7 @@ namespace Biz1PosApi.Migrations
 
             modelBuilder.Entity("Biz1PosApi.Models.UPLog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UPLogId")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -3566,6 +3597,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int>("CompanyId");
 
+                    b.Property<int>("Id");
+
                     b.Property<string>("Json");
 
                     b.Property<DateTime>("LogDateTime");
@@ -3574,7 +3607,7 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int>("StoreId");
 
-                    b.HasKey("Id");
+                    b.HasKey("UPLogId");
 
                     b.HasIndex("BrandId");
 
@@ -3614,7 +3647,7 @@ namespace Biz1PosApi.Migrations
 
             modelBuilder.Entity("Biz1PosApi.Models.UPProduct", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UPProductId")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -3624,6 +3657,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int>("CompanyId");
 
+                    b.Property<int>("Id");
+
                     b.Property<bool>("IsEnabled");
 
                     b.Property<double>("Price");
@@ -3632,7 +3667,7 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int>("StoreId");
 
-                    b.HasKey("Id");
+                    b.HasKey("UPProductId");
 
                     b.HasIndex("BrandId");
 
@@ -3775,6 +3810,43 @@ namespace Biz1PosApi.Migrations
                     b.HasIndex("StoreId");
 
                     b.ToTable("UrbanPiperStores");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.UserAccounts", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId");
+
+                    b.Property<string>("Email");
+
+                    b.Property<string>("FCM_Token");
+
+                    b.Property<bool>("IsConfirmed");
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("Password");
+
+                    b.Property<string>("PhoneNo");
+
+                    b.Property<string>("SatPass");
+
+                    b.Property<string>("SatUname");
+
+                    b.Property<string>("UPAPIKey");
+
+                    b.Property<string>("UPUsername");
+
+                    b.Property<string>("bizid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("UserAccounts");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.UserCompany", b =>
@@ -4177,6 +4249,71 @@ namespace Biz1PosApi.Migrations
                     b.HasIndex("StoreId");
 
                     b.ToTable("testorders");
+                });
+
+            modelBuilder.Entity("Biz1Retail_API.Models.Otms", b =>
+                {
+                    b.Property<int>("OtmsId")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Id");
+
+                    b.Property<int?>("cati");
+
+                    b.Property<float?>("cqy");
+
+                    b.Property<double?>("da");
+
+                    b.Property<double?>("dp");
+
+                    b.Property<double?>("ext");
+
+                    b.Property<double?>("imd");
+
+                    b.Property<bool?>("issu");
+
+                    b.Property<int?>("ki");
+
+                    b.Property<string>("kri");
+
+                    b.Property<int?>("kui");
+
+                    b.Property<string>("msg");
+
+                    b.Property<string>("n");
+
+                    b.Property<int?>("ob");
+
+                    b.Property<double?>("od");
+
+                    b.Property<string>("oj");
+
+                    b.Property<int?>("pi");
+
+                    b.Property<float?>("pr");
+
+                    b.Property<float?>("qy");
+
+                    b.Property<string>("ri");
+
+                    b.Property<int?>("sti");
+
+                    b.Property<double?>("ta");
+
+                    b.Property<double?>("tid");
+
+                    b.Property<double?>("to");
+
+                    b.Property<double?>("tod");
+
+                    b.Property<double?>("tt");
+
+                    b.Property<double?>("tth");
+
+                    b.HasKey("OtmsId");
+
+                    b.ToTable("Otms");
                 });
 
             modelBuilder.Entity("Biz1BookPOS.Models.AddonGroup", b =>
@@ -4828,14 +4965,6 @@ namespace Biz1PosApi.Migrations
                     b.HasOne("Biz1BookPOS.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Biz1PosApi.Models.Denomination", b =>
-                {
-                    b.HasOne("Biz1PosApi.Models.DenomEntry", "DenomEntry")
-                        .WithMany()
-                        .HasForeignKey("DenomEntryId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -5541,6 +5670,14 @@ namespace Biz1PosApi.Migrations
                     b.HasOne("Biz1BookPOS.Models.Store", "Store")
                         .WithMany()
                         .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.UserAccounts", b =>
+                {
+                    b.HasOne("Biz1BookPOS.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

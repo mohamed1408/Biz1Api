@@ -6,17 +6,17 @@ namespace Biz1PosApi.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Name",
-                table: "OldProducts",
-                nullable: true,
-                oldClrType: typeof(int));
+            //migrationBuilder.AlterColumn<string>(
+            //    name: "Name",
+            //    table: "OldProducts",
+            //    nullable: true,
+            //    oldClrType: typeof(int));
 
-            migrationBuilder.AddColumn<int>(
-                name: "CategoryId",
-                table: "OldProducts",
-                nullable: false,
-                defaultValue: 0);
+            //migrationBuilder.AddColumn<int>(
+            //    name: "CategoryId",
+            //    table: "OldProducts",
+            //    nullable: false,
+            //    defaultValue: 0);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

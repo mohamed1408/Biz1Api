@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -122,6 +123,31 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        public class ShiftManager
+        {
+            List<ArrayList> shifts;
+            public ShiftManager()
+            {
+                shifts.Add(new ArrayList { 1, new TimeSpan(08, 00, 0) , new TimeSpan(11, 59, 0) });
+                shifts.Add(new ArrayList { 2, new TimeSpan(12, 00, 0) , new TimeSpan(14, 29, 0) });
+                shifts.Add(new ArrayList { 3, new TimeSpan(14, 30, 0) , new TimeSpan(16, 29, 0) });
+                shifts.Add(new ArrayList { 4, new TimeSpan(16, 30, 0) , new TimeSpan(18, 29, 0) });
+                shifts.Add(new ArrayList { 5, new TimeSpan(18, 30, 0) , new TimeSpan(20, 29, 0) });
+                shifts.Add(new ArrayList { 6, new TimeSpan(20, 30, 0) , new TimeSpan(23, 59, 0) });
+            }
+            public int getShiftId(DateTime denomDate)
+            {
+                TimeSpan time = denomDate.TimeOfDay;
+                foreach(ArrayList shift in shifts)
+                {
+                    if(time >= (TimeSpan)shift[1] && time <= (TimeSpan)shift[2])
+                    {
+                        return (int)shift[0];
+                    }
+                }
+                return 0;
+            }
+        }
         [HttpPost("addDenomEntry")]
         public ActionResult addDenomEntry([FromBody]JObject data)
         {
@@ -130,6 +156,7 @@ namespace Biz1PosApi.Controllers
                 dynamic entryData = data;
                 DenomEntry denomEntry = new DenomEntry();
                 denomEntry = entryData.ToObject<DenomEntry>();
+                denomEntry.ShiftId = new ShiftManager().getShiftId(denomEntry.EntryDateTime);
                 //denomEntry.CompanyId = entryData.CompanyId;
                 //denomEntry.EntryDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
                 //denomEntry.StoreId = entryData.StoreId;
@@ -139,9 +166,9 @@ namespace Biz1PosApi.Controllers
                 foreach (var entry in entryData.Entries)
                 {
                     Denomination denomination = new Denomination();
-                    entry.DenomEntryId = denomEntry.Id;
+                    entry.DenomEntryId = denomEntry.DenomEntryId;
                     denomination = entry.ToObject<Denomination>();
-                    denomination.DenomEntryId = denomEntry.Id;
+                    //denomination.DenomEntryId = denomEntry.DenomEntryId;
                     db.Denominations.Add(denomination);
                     db.SaveChanges();
                 }

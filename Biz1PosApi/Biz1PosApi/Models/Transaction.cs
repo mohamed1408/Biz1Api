@@ -10,6 +10,8 @@ namespace Biz1BookPOS.Models
 {
     public class Transaction
     {
+        [Key]
+        public int TransactionId { get; set; }
         public int Id { get; set; }
         public double Amount { get; set; }
         

@@ -87,15 +87,16 @@ namespace Biz1PosApi.Controllers
             SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
             sqlAdp.Fill(ds);
 
+            int groupid = db.MenuMappings.Where(x => x.companyid == 3).FirstOrDefault().groupid;
 
             var prod = new
             {
                 Products = ds.Tables[0],
                 OptionGroups = ds.Tables[1],
                 Options = ds.Tables[2],
-                TaxGroups = db.TaxGroups.Where(x => x.CompanyId == compId).ToList(),
+                TaxGroups = db.TaxGroups.Where(x => x.groupid == groupid).ToList(),
                 Charges = db.AdditionalCharges.Where(x => x.CompanyId == compId).ToList(),
-                Categories = db.Categories.Where(x => x.CompanyId == compId).ToList(),
+                Categories = db.Categories.Where(x => x.groupid == groupid).ToList(),
                 Tags = db.UPTags.Where(x => x.CompanyId == compId).ToList()
             };
             sqlCon.Close();
@@ -1390,8 +1391,8 @@ namespace Biz1PosApi.Controllers
                 var products = db.StoreProducts.Where(x => x.StoreId == storeid).ToList();
                 products.ForEach(p => p.UPAction = 0);
                 db.SaveChanges();
-                string username = db.Accounts.Where(x => x.CompanyId == companyId).FirstOrDefault().UPUsername;
-                string apikey = db.Accounts.Where(x => x.CompanyId == companyId).FirstOrDefault().UPAPIKey;
+                string username = db.UserAccounts.Where(x => x.CompanyId == companyId).FirstOrDefault().UPUsername;
+                string apikey = db.UserAccounts.Where(x => x.CompanyId == companyId).FirstOrDefault().UPAPIKey;
                 int retrycount = 0;
             retry:
                 retrycount++;
@@ -1404,6 +1405,7 @@ namespace Biz1PosApi.Controllers
 
                 dynamic responsejson = JsonConvert.DeserializeObject(response.Content);
                 UPLog uPLog = new UPLog();
+                uPLog.Id = 0;
                 uPLog.Action = "item_action";
                 uPLog.CompanyId = companyId;
                 uPLog.Json = response.Content;
@@ -1491,6 +1493,7 @@ namespace Biz1PosApi.Controllers
                 string referenceid = json.reference_id;
                 UPLog actionuplog = db.UPLogs.Where(x => x.ReferenceId == referenceid).FirstOrDefault();
                 UPLog uPLog = new UPLog();
+                uPLog.Id = 0;
                 uPLog.Action = "item_action_callback";
                 uPLog.ReferenceId = referenceid;
                 uPLog.LogDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);

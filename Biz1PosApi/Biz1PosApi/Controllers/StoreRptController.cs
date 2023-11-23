@@ -72,6 +72,11 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
+                string connanme = "myconn";
+                if(string.IsNullOrEmpty(companykey))
+                {
+
+                }
                 //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
                 SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
                 sqlCon.Open();

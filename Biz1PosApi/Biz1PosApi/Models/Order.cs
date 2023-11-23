@@ -1,4 +1,6 @@
 ﻿using Biz1PosApi.Models;
+using Microsoft.Extensions.DependencyInjection;
+using Remotion.Linq.Clauses;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,6 +12,11 @@ namespace Biz1BookPOS.Models
 {
     public class Order
     {
+        private readonly IServiceProvider provider;
+        public Order()
+        {
+            //this.provider = provider;
+        }
         public int Id { get; set; }//------------------
         //public int InvoiceNo { get; set; }
 
@@ -149,5 +156,77 @@ namespace Biz1BookPOS.Models
 
         [NotMapped]
         public List<OrderItem> OrderItems { get; set; }
+
+        public Odrs ToOdrs()
+        {
+            int odrsid = 0;
+            Odrs o = new Odrs
+            {
+                //using (var scope = provider.CreateScope())
+                //{
+                //    var db = scope.ServiceProvider.GetRequiredService<POSDbContext>();
+                //    odrsid = db.Odrs.Where(x => x.Id == Id && x.ino == InvoiceNo).FirstOrDefault().OdrsId;
+                //}
+                Id = Id,
+                OdrsId = odrsid,
+                on = OrderNo,
+                ino = InvoiceNo,
+                cr = CancelReason,
+                soi = SourceId,
+                aoi = AggregatorOrderId,
+                upoi = UPOrderId,
+                si = StoreId,
+                dsi = DeliveryStoreId,
+                cui = CustomerId,
+                cai = CustomerAddressId,
+                dri = DiscountRuleId,
+                osi = OrderStatusId,
+                psi = PreviousStatusId,
+                ba = BillAmount,
+                ta = TotalAmount,
+                pa = PaidAmount,
+                ra = RefundAmount,
+                s = Source,
+                to = Tax1,
+                tt = Tax2,
+                tth = Tax3,
+                bsi = BillStatusId,
+                sti = SplitTableId,
+                dp = DiscPercent,
+                da = DiscAmount,
+                isao = IsAdvanceOrder,
+                cud = CustomerData,
+                dti = DiningTableId,
+                wi = WaiterId,
+                oddt = OrderedDateTime,
+                od = OrderedDate,
+                did = DeliveryDate,
+                ddd = DeliveredDate,
+                didt = DeliveryDateTime,
+                dddt = DeliveredDateTime,
+                n = Note,
+                osd = OrderStatusDetails,
+                rsd = RiderStatusDetails,
+                fr = FoodReady,
+                c = Closed,
+                isp = isPaid,
+                oj = OrderJson,
+                ij = ItemJson,
+                cj = ChargeJson,
+                cgesb = Charges,
+                odb = OrderDiscount,
+                otadb = OrderTaxDisc,
+                otodb = OrderTotDisc,
+                aidb = AllItemDisc,
+                aitadb = AllItemTaxDisc,
+                aitodb = AllItemTotalDisc,
+                cts = CreatedTimeStamp,
+                md = ModifiedDate,
+                ui = UserId,
+                ci = CompanyId,
+                oti = OrderTypeId
+            };
+            return o;
+        }
     }
 }

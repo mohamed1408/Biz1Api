@@ -31,6 +31,7 @@ namespace Biz1BookPOS.Models
         public int AutoAcceptTime { get; set; }
         public double? SalesCash { get; set; }
         public double? ExpenseCash { get; set; }
+        public double? OpeningBalance { get; set; }
 
         [DataType(DataType.Time)]
         public TimeSpan OpeningTime { get; set; }

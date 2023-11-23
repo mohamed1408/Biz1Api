@@ -10,6 +10,8 @@ namespace Biz1BookPOS.Models
 {
     public class KOT
     {
+        [Key]
+        public int KOTId { get; set; }
         public int Id { get; set; }
         public int KOTStatusId { get; set; }
         public string Instruction { get; set; }
