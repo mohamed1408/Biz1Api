@@ -770,6 +770,12 @@ namespace Biz1BookPOS.Controllers
 
         }
 
+        //[EnableCors("AllowOrigin")]
+        //[HttpGet("GetProdById")]
+        //public IActionResult GetProdById(int id, int compId)
+        //{
+        //    Product product = null
+        //}
         [EnableCors("AllowOrigin")]
         [HttpGet("GetById")]
         public IActionResult GetById(int id, int compId)

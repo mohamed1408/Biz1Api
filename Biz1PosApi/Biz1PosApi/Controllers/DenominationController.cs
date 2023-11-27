@@ -125,15 +125,15 @@ namespace Biz1PosApi.Controllers
         }
         public class ShiftManager
         {
-            List<ArrayList> shifts;
+            List<ArrayList> shifts = new List<ArrayList>();
             public ShiftManager()
             {
                 shifts.Add(new ArrayList { 1, new TimeSpan(08, 00, 0) , new TimeSpan(11, 59, 0) });
-                shifts.Add(new ArrayList { 2, new TimeSpan(12, 00, 0) , new TimeSpan(14, 29, 0) });
-                shifts.Add(new ArrayList { 3, new TimeSpan(14, 30, 0) , new TimeSpan(16, 29, 0) });
-                shifts.Add(new ArrayList { 4, new TimeSpan(16, 30, 0) , new TimeSpan(18, 29, 0) });
-                shifts.Add(new ArrayList { 5, new TimeSpan(18, 30, 0) , new TimeSpan(20, 29, 0) });
-                shifts.Add(new ArrayList { 6, new TimeSpan(20, 30, 0) , new TimeSpan(23, 59, 0) });
+                shifts.Add(new ArrayList { 2, new TimeSpan(12, 00, 0) , new TimeSpan(13, 59, 0) });
+                shifts.Add(new ArrayList { 3, new TimeSpan(14, 00, 0) , new TimeSpan(15, 59, 0) });
+                shifts.Add(new ArrayList { 4, new TimeSpan(16, 00, 0) , new TimeSpan(17, 59, 0) });
+                shifts.Add(new ArrayList { 5, new TimeSpan(18, 00, 0) , new TimeSpan(19, 59, 0) });
+                shifts.Add(new ArrayList { 6, new TimeSpan(20, 00, 0) , new TimeSpan(23, 59, 0) });
             }
             public int getShiftId(DateTime denomDate)
             {

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Cors;
+using Biz1PosApi.Services;
 
 namespace Biz1PosApi.Controllers
 {
@@ -18,10 +19,13 @@ namespace Biz1PosApi.Controllers
     {
         private POSDbContext db;
         public IConfiguration Configuration { get; }
-        public StoreRptController(POSDbContext contextOptions, IConfiguration configuration)
+        private ConnectionStringService connserve;
+
+        public StoreRptController(POSDbContext contextOptions, IConfiguration configuration, ConnectionStringService _connserve)
         {
             db = contextOptions;
             Configuration = configuration;
+            connserve = _connserve;
         }
 
         public IActionResult Index()
@@ -73,12 +77,14 @@ namespace Biz1PosApi.Controllers
             try
             {
                 string connanme = "myconn";
-                if(string.IsNullOrEmpty(companykey))
+                int ci = 0;
+                bool isNumeric = int.TryParse(companykey, out ci);
+                if (isNumeric)
                 {
-
+                    connanme = connserve.getConnString(ci);
                 }
                 //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
-                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(connanme));
                 sqlCon.Open();
                 SqlCommand cmd = new SqlCommand("dbo.MultiCompaniesStoreReport", sqlCon);
                 cmd.CommandType = CommandType.StoredProcedure;

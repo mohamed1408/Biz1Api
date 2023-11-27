@@ -27,7 +27,15 @@ namespace Biz1PosApi
             //    //MessageBox.Show(e.ToString(), "Something Went Wrong!!");
             //    //Application.Exit();
             //}
-            CreateWebHostBuilder(args).Build().Run();
+            //CreateWebHostBuilder(args).Build().Run();
+            try
+            {
+                CreateWebHostBuilder(args).Build().Run();
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
         //public static void emit_order(string order, string room)
         //{

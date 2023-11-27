@@ -75,6 +75,8 @@ namespace Biz1PosApi
             DbContextFactory.SetConnString(ConnStrings);
             services.AddHostedService<UPOrderService>();
             services.AddSingleton(Channel.CreateUnbounded<UPRawPayload>());
+            services.AddHostedService<OrderMigrateService>();
+            services.AddSingleton(Channel.CreateUnbounded<OrderPckg>());
             services.AddSingleton<Student>();
             services.AddSignalR();
             services

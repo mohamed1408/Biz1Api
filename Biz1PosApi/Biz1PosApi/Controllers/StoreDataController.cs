@@ -171,11 +171,23 @@ namespace Biz1PosApi.Controllers
         [HttpGet("GetPrice")]
         public IActionResult GetPrice(int storeId)
         {
+            int? mstoreid = 0;
+            int companyid = 0;
+            Store store = db.Stores.Where(x => x.Id == storeId).FirstOrDefault();
+            if(store != null)
+            {
+                companyid = store.CompanyId;
+            }
+            if(db.MenuMappings.Where(x => x.storeid == storeId).Any())
+            {
+                mstoreid = storeId;
+            }
             var prod = new
             {
                 streprd =  from sp in db.StoreProducts
                            join p in db.OldProducts on sp.ProductId equals p.OldId
-                           where sp.StoreId ==storeId
+                           join mm in db.MenuMappings on p.groupid equals mm.groupid
+                           where sp.StoreId == storeId && mm.companyid == companyid && mm.storeid == storeId
                            select new {p.Name, sp.Price,sp.TakeawayPrice,sp.DeliveryPrice,sp.StoreId,sp.CompanyId,sp.ProductId,sp.Id, sp.SortOrder, sp.Recommended},
                 streopt = from os in db.StoreOptions
                           join o in db.Options on os.OptionId equals o.Id
@@ -382,7 +394,7 @@ namespace Biz1PosApi.Controllers
 
                 System.Diagnostics.Debug.WriteLine("STarting at ", DateTime.Now);
                 var pendingorderstask = pendingordersTask(storeid, companyid);
-                var productstask = newProductsTask(storeid, companyid);
+                var productstask = productsTask2(storeid, companyid);
                 var categorytask = categoryTask(storeid, companyid);
                 var taxgrouptask = taxGroupTask(storeid, companyid);
                 var diningareatask = diningAreaTask(storeid, companyid);
@@ -618,6 +630,8 @@ namespace Biz1PosApi.Controllers
             sqlCon.Open();
 
             SqlCommand cmd = new SqlCommand(@"
+declare @mstoreid int = 0
+select @mstoreid = storeid from MenuMappings where storeid = @storeid
 SELECT sp.ProductId AS Id, isnull(op.Name, p.Name) as Product, p.BarCode, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
 sp.DeliveryPrice, sp.IsActive,
 sp.IsDineInService, sp.IsDeliveryService, sp.IsTakeAwayService, tg.Id AS TaxGroupId,ca.Id as CategoryId,ca.ParentCategoryId,p.KOTGroupId,
@@ -643,7 +657,7 @@ JOIN OldProducts op on op.OldId = p.Id
 JOIN Categories ca on ca.Id = op.CategoryId
 JOIN Units u on u.Id = p.UnitId
 JOIN TaxGroups tg on tg.Id = op.TaxGroupId
-join MenuMappings m on m.groupid = p.groupid and m.companyid = @companyid
+join MenuMappings m on m.groupid = p.groupid and m.companyid = @companyid and (m.storeid = @mstoreid)
 JOIN StorePreferences sr ON sp.StoreId = sr.StoreId
 --JOIN MenuMappings pm on pm.groupid = op.groupid and pm.menutype = 3
 --JOIN MenuMappings cm on cm.groupid = ca.groupid and pm.menutype = 1 and cm.companyid = pm.companyid
@@ -837,7 +851,7 @@ FOR JSON PATH
                                 left JOIN OldProducts p on p.OldId = oi.pi and mm.groupid = p.groupid
                                 left JOIN StoreProducts sp on sp.StoreId = o.si and sp.ProductId = p.OldId
                                 where o.ci = @companyid 
-                                AND (o.si = @storeid) 
+                                AND (o.si = @storeid)
                                 AND (
                                 (o.od = CONVERT(VARCHAR(10), getdate(), 23) AND o.oti IN (3,4)) 
                                 --OR (o.OrderTypeId IN (2,3,4) AND o.OrderStatusId NOT IN (-1,5)) 
@@ -850,7 +864,7 @@ FOR JSON PATH
                                 SELECT 0, 0, NULL as OrderJson";
             string conn_name = connserve.getConnString(companyid);
             System.Diagnostics.Debug.WriteLine("pendingordersTask START: -- " + DateTime.Now.ToString());
-            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(conn_name));
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
             sqlCon.Open();
 
             SqlCommand cmd = new SqlCommand(@"SELECT DISTINCT o.Id, o.[on] OrderNo, dbo.ordjsn(o.OdrsId) OrderJson
@@ -930,7 +944,9 @@ FOR JSON PATH
             SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
             sqlCon.Open();
 
-            SqlCommand cmd = new SqlCommand(@"                                            
+            SqlCommand cmd = new SqlCommand(@"
+declare @mstoreid int = null
+select @mstoreid = storeid from MenuMappings where storeid = @storeid
 SELECT sp.ProductId AS Id, isnull(op.Name, p.Name) as Product, p.BarCode, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
 sp.DeliveryPrice, sp.IsActive,
 sp.IsDineInService, sp.IsDeliveryService, sp.IsTakeAwayService, tg.Id AS TaxGroupId,ca.Id as CategoryId,ca.ParentCategoryId,p.KOTGroupId,
@@ -956,7 +972,7 @@ JOIN OldProducts op on op.OldId = p.Id
 JOIN Categories ca on ca.Id = op.CategoryId
 JOIN Units u on u.Id = p.UnitId
 JOIN TaxGroups tg on tg.Id = op.TaxGroupId
-join MenuMappings m on m.groupid = p.groupid and m.companyid = @companyid
+join MenuMappings m on m.groupid = p.groupid and m.companyid = @companyid and (m.storeid = @mstoreid)
 JOIN StorePreferences sr ON sp.StoreId = sr.StoreId
 --JOIN MenuMappings pm on pm.groupid = op.groupid and pm.menutype = 3
 --JOIN MenuMappings cm on cm.groupid = ca.groupid and pm.menutype = 1 and cm.companyid = pm.companyid
@@ -987,7 +1003,9 @@ FOR JSON PATH", sqlCon);
             SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
             sqlCon.Open();
 
-            SqlCommand cmd = new SqlCommand(@"                                            
+            SqlCommand cmd = new SqlCommand(@"
+declare @mstoreid int = 0
+select @mstoreid = storeid from MenuMappings where storeid = @storeid
 SELECT sp.ProductId AS Id, isnull(op.Name, p.Name) as Product, p.BarCode, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
 sp.DeliveryPrice, sp.IsActive,
 sp.IsDineInService, sp.IsDeliveryService, sp.IsTakeAwayService, tg.Id AS TaxGroupId,ca.Id as CategoryId,ca.ParentCategoryId,p.KOTGroupId,
@@ -1013,7 +1031,7 @@ JOIN OldProducts op on op.OldId = p.Id
 JOIN Categories ca on ca.Id = op.CategoryId
 JOIN Units u on u.Id = p.UnitId
 JOIN TaxGroups tg on tg.Id = op.TaxGroupId
-join MenuMappings m on m.groupid = p.groupid and m.companyid = @companyid
+join MenuMappings m on m.groupid = p.groupid and m.companyid = @companyid and (m.storeid = @mstoreid)
 JOIN StorePreferences sr ON sp.StoreId = sr.StoreId
 --JOIN MenuMappings pm on pm.groupid = op.groupid and pm.menutype = 3
 --JOIN MenuMappings cm on cm.groupid = ca.groupid and pm.menutype = 1 and cm.companyid = pm.companyid
