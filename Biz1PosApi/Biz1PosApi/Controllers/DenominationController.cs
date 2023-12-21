@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Biz1BookPOS.Models;
 using Biz1PosApi.Models;
+using Biz1PosApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,11 +24,12 @@ namespace Biz1PosApi.Controllers
         private object addon;
         private static TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         public IConfiguration Configuration { get; }
-
-        public DenominationController(POSDbContext contextOptions, IConfiguration configuration)
+        private ConnectionStringService connserve;
+        public DenominationController(POSDbContext contextOptions, IConfiguration configuration, ConnectionStringService _connserve)
         {
             db = contextOptions;
             Configuration = configuration;
+            connserve = _connserve;
         }
         // GET: DeniminationController
         [HttpGet("GetDenominationTypes")]
@@ -234,6 +236,7 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
+                string conname = connserve.getConnString(companyid);
                 //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
                 SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
                 sqlCon.Open();

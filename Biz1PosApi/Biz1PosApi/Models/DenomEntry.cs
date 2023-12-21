@@ -14,9 +14,13 @@ namespace Biz1PosApi.Models
         public int DenomEntryId { get; set; }
         public int Id { get; set; }
         public double TotalAmount { get; set; }
+        public double? PhonePe { get; set; }
+        public double? Card { get; set; }
         public double OpeningBalance { get; set; }
         public double CashIn { get; set; }
         public double SalesCash { get; set; }
+        public double? SalesCard { get; set; }
+        public double? SalesPhonePe { get; set; }
         public double CashOut { get; set; }
         public double ExpectedBalance { get; set; }
         public string CashInJson { get; set; }

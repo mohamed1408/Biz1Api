@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
@@ -299,6 +300,8 @@ namespace Biz1PosApi.Controllers
                 double difference = 0;
                 data.PaymentType = null;
                 Transaction transaction = data.ToObject<Transaction>();
+                string conname = connserve.getConnString(transaction.CompanyId);
+                db = DbContextFactory.Create(conname);
                 oldTransaction = db.Transactions.Where(x => x.TransactionId == transaction.TransactionId).AsNoTracking().FirstOrDefault();
                 orderid = transaction.OrderId;
                 db.Entry(transaction).State = EntityState.Modified;
@@ -443,7 +446,8 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
-                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                string conname = connserve.getConnString(companyid);
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(conname));
                 sqlCon.Open();
 
                 SqlCommand cmd = new SqlCommand("dbo.StorePaymentsByTypes", sqlCon);

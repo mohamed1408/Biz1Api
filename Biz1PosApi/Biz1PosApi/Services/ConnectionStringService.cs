@@ -10,7 +10,7 @@ namespace Biz1PosApi.Services
             switch (companyid)
             {
                 case 3:
-                    conn = "logout";
+                    conn = "myconn";
                     break;
                 case 4:
                     conn = "myconn";

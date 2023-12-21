@@ -966,7 +966,7 @@ namespace Biz1PosApi.Migrations
 
             modelBuilder.Entity("Biz1BookPOS.Models.StoreProduct", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("StoreProductId")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -977,6 +977,8 @@ namespace Biz1PosApi.Migrations
                     b.Property<DateTime>("CreatedDate");
 
                     b.Property<double>("DeliveryPrice");
+
+                    b.Property<int>("Id");
 
                     b.Property<bool>("IsActive");
 
@@ -1010,7 +1012,7 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<bool>("UPenabled");
 
-                    b.HasKey("Id");
+                    b.HasKey("StoreProductId");
 
                     b.HasIndex("CompanyId");
 
@@ -1765,6 +1767,8 @@ namespace Biz1PosApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<double?>("Card");
+
                     b.Property<double>("CashIn");
 
                     b.Property<string>("CashInJson");
@@ -1787,7 +1791,13 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<double>("OpeningBalance");
 
+                    b.Property<double?>("PhonePe");
+
+                    b.Property<double?>("SalesCard");
+
                     b.Property<double>("SalesCash");
+
+                    b.Property<double?>("SalesPhonePe");
 
                     b.Property<int?>("ShiftId");
 
@@ -1991,6 +2001,27 @@ namespace Biz1PosApi.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("EComProducts");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.GuestAddon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AddonGroupId");
+
+                    b.Property<int>("CompanyId");
+
+                    b.Property<DateTime>("CreatedDate");
+
+                    b.Property<DateTime>("ModifiedDate");
+
+                    b.Property<int>("ProductId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Addons","guest");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.KOTGroup", b =>

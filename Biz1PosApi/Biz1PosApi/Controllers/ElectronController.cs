@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Biz1BookPOS.Models;
+using Biz1PosApi.Services;
 
 namespace Biz1PosApi.Controllers
 {
@@ -18,10 +19,12 @@ namespace Biz1PosApi.Controllers
     {
         private POSDbContext db;
         public IConfiguration Configuration { get; }
-        public ElectronController(POSDbContext contextOptions, IConfiguration configuration)
+        private ConnectionStringService connserve;
+        public ElectronController(POSDbContext contextOptions, IConfiguration configuration, ConnectionStringService _connserve)
         {
             db = contextOptions;
             Configuration = configuration;
+            connserve = _connserve;
         }
 
         // GET: ElectronController
@@ -47,8 +50,9 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
+                string connanme = connserve.getConnString(companyid);
                 //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
-                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(connanme));
                 sqlCon.Open();
                 SqlCommand cmd = new SqlCommand("dbo.AppversionRpt", sqlCon);
                 cmd.CommandType = CommandType.StoredProcedure;

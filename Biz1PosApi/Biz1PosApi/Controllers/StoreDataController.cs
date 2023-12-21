@@ -171,7 +171,7 @@ namespace Biz1PosApi.Controllers
         [HttpGet("GetPrice")]
         public IActionResult GetPrice(int storeId)
         {
-            int? mstoreid = 0;
+            int mstoreid = 0;
             int companyid = 0;
             Store store = db.Stores.Where(x => x.Id == storeId).FirstOrDefault();
             if(store != null)
@@ -187,8 +187,8 @@ namespace Biz1PosApi.Controllers
                 streprd =  from sp in db.StoreProducts
                            join p in db.OldProducts on sp.ProductId equals p.OldId
                            join mm in db.MenuMappings on p.groupid equals mm.groupid
-                           where sp.StoreId == storeId && mm.companyid == companyid && mm.storeid == storeId
-                           select new {p.Name, sp.Price,sp.TakeawayPrice,sp.DeliveryPrice,sp.StoreId,sp.CompanyId,sp.ProductId,sp.Id, sp.SortOrder, sp.Recommended},
+                           where sp.StoreId == storeId && mm.companyid == companyid && mm.storeid == mstoreid
+                           select new {p.Name, sp.Price,sp.TakeawayPrice,sp.DeliveryPrice,sp.StoreId,sp.CompanyId,sp.ProductId,Id = sp.StoreProductId, sp.SortOrder, sp.Recommended},
                 streopt = from os in db.StoreOptions
                           join o in db.Options on os.OptionId equals o.Id
                           where os.StoreId ==storeId
@@ -213,6 +213,7 @@ namespace Biz1PosApi.Controllers
                 foreach (var item in prds)
                 {
                     StoreProduct storeProduct = item.ToObject<StoreProduct>();
+                    storeProduct.StoreProductId = storeProduct.Id;
                     storeProduct.IsDineInService = true;
                     storeProduct.IsDeliveryService = true;
                     storeProduct.IsTakeAwayService = true;
@@ -227,7 +228,7 @@ namespace Biz1PosApi.Controllers
                 var error = new
                 {
                     status = 200,
-                    msg = "Price Book Succefully Updated"
+                    msg = "Price Book Successfully Updated"
                 };
                 return Json(error);
             }
@@ -271,6 +272,7 @@ namespace Biz1PosApi.Controllers
             System.Diagnostics.Debug.WriteLine("STarting at ", DateTime.Now);
             List<Task> tasks = new List<Task>();
             var pendingorderstask = pendingordersTask(storeid, companyid);
+            var ecomordertask = ecomOrderTask(storeid, companyid);
             var productstask = productsTask2(storeid, companyid, lastsynceddatetime);
             var categorytask = categoryTask(storeid, companyid);
             var taxgrouptask = taxGroupTask(storeid, companyid);
@@ -289,7 +291,7 @@ namespace Biz1PosApi.Controllers
             {
                 tasks = new List<Task>() { productstask, pendingorderstask, categorytask, taxgrouptask, diningareatask, diningtablestask, discountrulestask,
              additionalchargestask, ordertypestask, customerstask, paymenttypestask, kotgroupprinterstask,
-             storepaymenttypestask, storestask, ordernoTask };
+             storepaymenttypestask, storestask, ordernoTask, ecomordertask };
             }
             else if(data == "MENU")
             {
@@ -297,7 +299,11 @@ namespace Biz1PosApi.Controllers
             }
             else if(data == "ORDERS")
             {
-                tasks = new List<Task>() { pendingorderstask, ordernoTask };
+                tasks = new List<Task>() { pendingorderstask, ecomordertask, ordernoTask };
+            }
+            else if(data == "ORDERS_")
+            {
+                tasks = new List<Task>() { pendingorderstask };
             }
             await Task.WhenAll(tasks);
             //await Task.WhenAll(productstask, pendingorderstask, categorytask, taxgrouptask, diningareatask, diningtablestask, discountrulestask,
@@ -324,6 +330,7 @@ namespace Biz1PosApi.Controllers
                 StorePaymentTypes = tasks.Contains(storepaymenttypestask) ? storepaymenttypestask.Result : new DataTable(),
                 Stores = tasks.Contains(storestask) ? storestask.Result : new List<Store>(),
                 orderInfo = tasks.Contains(ordernoTask) ? ordernoTask.Result : new DataTable(),
+                ecomorders = tasks.Contains(ecomordertask) ? ecomordertask.Result : new DataTable(),
                 //Printers = db.Printers.Where(x => x.StoreId == storeid).ToList(),
                 //OrderStatus = new[]
                 //                {
@@ -393,6 +400,7 @@ namespace Biz1PosApi.Controllers
                 db.SaveChanges();
 
                 System.Diagnostics.Debug.WriteLine("STarting at ", DateTime.Now);
+                var ecomordertask = ecomOrderTask(storeid, companyid);
                 var pendingorderstask = pendingordersTask(storeid, companyid);
                 var productstask = productsTask2(storeid, companyid);
                 var categorytask = categoryTask(storeid, companyid);
@@ -411,7 +419,7 @@ namespace Biz1PosApi.Controllers
 
                 await Task.WhenAll(productstask, pendingorderstask, categorytask, taxgrouptask, diningareatask, diningtablestask, discountrulestask,
                  additionalchargestask, ordertypestask, customerstask, paymenttypestask, kotgroupprinterstask,
-                 storepaymenttypestask, storestask, ordernoTask);
+                 storepaymenttypestask, storestask, ordernoTask, ecomordertask);
 
                 //DataTable category = new DataTable();
                 //DataTable taxGroup = new DataTable();
@@ -479,6 +487,7 @@ namespace Biz1PosApi.Controllers
                     PendingOrders = pendingorderstask.Result,
                     StorePaymentTypes = storepaymenttypestask.Result,
                     Stores = storestask.Result,
+                    ecomorders = ecomordertask.Result,
                     OrderStatusButtons = Array.Empty<OrderStatusButton>(),
                     orderInfo = new
                     {
@@ -487,7 +496,7 @@ namespace Biz1PosApi.Controllers
                     },
                     Printers = db.Printers.Where(x => x.StoreId == storeid).ToList(),
                     OrderStatus = new[]
-                                    {
+                            {
                                 new { Id = -1,Status = "Canceled" },
                                 new { Id = 0, Status = "Pending" },
                                 new { Id = 1, Status = "Accepted" },
@@ -497,7 +506,7 @@ namespace Biz1PosApi.Controllers
                                 new { Id = 5, Status = "Completed" }
                             },
                     ItemStatus = new[]
-                                    {
+                            {
                                 new { Id = -1,Status = "Canceled" },
                                 new { Id = 1, Status = "Accepted" },
                                 new { Id = 2, Status = "Started" },
@@ -561,7 +570,7 @@ namespace Biz1PosApi.Controllers
             sqlCon.Open();
             
             SqlCommand cmd = new SqlCommand(@"SELECT isnull(MAX(o.OrderNo),0) orderno, isnull(MAX(k.KOTNo),0) kotno FROM POSOrder o
-                                            JOIN KOTs k ON k.OrderId = o.Id
+                                            JOIN KOTs k ON k.OrderId = o.OdrsId
                                             WHERE o.OrderTypeId <= 5 AND o.OrderedDate =  CONVERT(VARCHAR(10), getdate(), 111) AND o.StoreId = @storeid
                                             
                                             --SELECT ca.Id,  ca.Description as Category, ISNULL(ca.ParentCategoryId,0) AS ParentId FROM Categories ca
@@ -841,7 +850,7 @@ FOR JSON PATH
             System.Diagnostics.Debug.WriteLine("KOTGroupPrintersTask END: -- " + DateTime.Now.ToString());
             return table;
         }
-        public async Task<DataTable> pendingordersTask(int storeid, int companyid)
+        public async Task<DataTable> pendingordersTask2(int storeid, int companyid)
         {
             string oldproc = @" SELECT DISTINCT o.Id, o.[on] OrderNo, dbo.ordjsn(o.OdrsId) OrderJson
                                 FROM Odrs o
@@ -864,7 +873,7 @@ FOR JSON PATH
                                 SELECT 0, 0, NULL as OrderJson";
             string conn_name = connserve.getConnString(companyid);
             System.Diagnostics.Debug.WriteLine("pendingordersTask START: -- " + DateTime.Now.ToString());
-            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(conn_name));
             sqlCon.Open();
 
             SqlCommand cmd = new SqlCommand(@"SELECT DISTINCT o.Id, o.[on] OrderNo, dbo.ordjsn(o.OdrsId) OrderJson
@@ -896,6 +905,42 @@ FOR JSON PATH
             DataTable table = new DataTable();
             table.Load(reader);
             System.Diagnostics.Debug.WriteLine("pendingordersTask END: -- " + DateTime.Now.ToString());
+            return table;
+        }
+        public async Task<DataTable> pendingordersTask(int storeid, int companyid)
+        {
+            string conn_name = connserve.getConnString(companyid);
+            System.Diagnostics.Debug.WriteLine("pendingordersTask START: -- " + DateTime.Now.ToString());
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(conn_name));
+            sqlCon.Open();
+
+            SqlCommand cmd = new SqlCommand("dbo.GetPendingOrders", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+            cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+
+            //Task<SqlDataReader> reader = cmd.ExecuteReaderAsync();
+            SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            DataTable table = new DataTable();
+            table.Load(reader);
+            System.Diagnostics.Debug.WriteLine("pendingordersTask END: -- " + DateTime.Now.ToString());
+            return table;
+        }
+        public async Task<DataTable> ecomOrderTask(int storeid, int companyid)
+        {
+            System.Diagnostics.Debug.WriteLine("ecomOrderTask START: -- " + DateTime.Now.ToString());
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+
+            SqlCommand cmd = new SqlCommand("dbo.FetchEcomOrders", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+
+            SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            DataTable table = new DataTable();
+            table.Load(reader);
+            System.Diagnostics.Debug.WriteLine("ecomOrderTask END: -- " + DateTime.Now.ToString());
             return table;
         }
         public async Task<DataTable> storePaymentTypesTask(int storeid, int companyid)
@@ -945,41 +990,41 @@ FOR JSON PATH
             sqlCon.Open();
 
             SqlCommand cmd = new SqlCommand(@"
-declare @mstoreid int = null
-select @mstoreid = storeid from MenuMappings where storeid = @storeid
-SELECT sp.ProductId AS Id, isnull(op.Name, p.Name) as Product, p.BarCode, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
-sp.DeliveryPrice, sp.IsActive,
-sp.IsDineInService, sp.IsDeliveryService, sp.IsTakeAwayService, tg.Id AS TaxGroupId,ca.Id as CategoryId,ca.ParentCategoryId,p.KOTGroupId,
-ca.MinimumQty, ca.FreeQtyPercentage, tg.Tax1, tg.Tax2, tg.Tax3,p.ProductTypeId,tg.IsInclusive as IsTaxInclusive, 
-CAST(CASE WHEN ca.IsUPCategory = 0 OR sr.ShowUpcategory = ca.IsUPCategory THEN 0 ELSE 1 END AS BIT) ishidden,
-(
-  SELECT pog.OptionGroupId AS Id, og.Name,og.OptionGroupType,
-  (
-    SELECT so.OptionId AS Id, so.Price, so.TakeawayPrice, so.DeliveryPrice, o.Name, o.IsSingleQtyOption
-    FROM dbo.StoreOptions so
-    JOIN Options o ON so.OptionId = o.Id
-    WHERE (so.StoreId = @storeid AND o.OptionGroupId = pog.OptionGroupId)
-    FOR JSON PATH
-  )AS 'Option'
-  FROM dbo.ProductOptionGroups pog
-  JOIN dbo.OptionGroups og ON pog.OptionGroupId = og.Id
-  WHERE (pog.ProductId = sp.ProductId AND pog.CompanyId = @companyid)
-  FOR JSON PATH
-)AS 'OptionGroup'
-FROM StoreProducts sp
-JOIN Products p on p.Id = sp.ProductId
-JOIN OldProducts op on op.OldId = p.Id
-JOIN Categories ca on ca.Id = op.CategoryId
-JOIN Units u on u.Id = p.UnitId
-JOIN TaxGroups tg on tg.Id = op.TaxGroupId
-join MenuMappings m on m.groupid = p.groupid and m.companyid = @companyid and (m.storeid = @mstoreid)
-JOIN StorePreferences sr ON sp.StoreId = sr.StoreId
---JOIN MenuMappings pm on pm.groupid = op.groupid and pm.menutype = 3
---JOIN MenuMappings cm on cm.groupid = ca.groupid and pm.menutype = 1 and cm.companyid = pm.companyid
---JOIN MenuMappings tm on tm.groupid = tg.groupid and pm.menutype = 2 and tm.companyid = pm.companyid
-WHERE p.isactive = 1 AND ca.isactive = 1 AND
-(sp.StoreId = @storeid) AND (sp.CompanyId = @companyid) --AND ((sr.ShowUpcategory = 0 AND ca.IsUPCategory = 0) OR (sr.ShowUpcategory = 1))
-FOR JSON PATH", sqlCon);
+            declare @mstoreid int = null
+            select @mstoreid = storeid from MenuMappings where storeid = @storeid
+            SELECT sp.ProductId AS Id, isnull(op.Name, p.Name) as Product, p.BarCode, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
+            sp.DeliveryPrice, sp.IsActive,
+            sp.IsDineInService, sp.IsDeliveryService, sp.IsTakeAwayService, tg.Id AS TaxGroupId,ca.Id as CategoryId,ca.ParentCategoryId,p.KOTGroupId,
+            ca.MinimumQty, ca.FreeQtyPercentage, tg.Tax1, tg.Tax2, tg.Tax3,p.ProductTypeId,tg.IsInclusive as IsTaxInclusive, 
+            CAST(CASE WHEN ca.IsUPCategory = 0 OR sr.ShowUpcategory = ca.IsUPCategory THEN 0 ELSE 1 END AS BIT) ishidden,
+            (
+                SELECT pog.OptionGroupId AS Id, og.Name,og.OptionGroupType,
+                (
+                SELECT so.OptionId AS Id, so.Price, so.TakeawayPrice, so.DeliveryPrice, o.Name, o.IsSingleQtyOption
+                FROM dbo.StoreOptions so
+                JOIN Options o ON so.OptionId = o.Id
+                WHERE (so.StoreId = @storeid AND o.OptionGroupId = pog.OptionGroupId)
+                FOR JSON PATH
+                )AS 'Option'
+                FROM dbo.ProductOptionGroups pog
+                JOIN dbo.OptionGroups og ON pog.OptionGroupId = og.Id
+                WHERE (pog.ProductId = sp.ProductId AND pog.CompanyId = @companyid)
+                FOR JSON PATH
+            )AS 'OptionGroup'
+            FROM StoreProducts sp
+            JOIN Products p on p.Id = sp.ProductId
+            JOIN OldProducts op on op.OldId = p.Id
+            JOIN Categories ca on ca.Id = op.CategoryId
+            JOIN Units u on u.Id = p.UnitId
+            JOIN TaxGroups tg on tg.Id = op.TaxGroupId
+            join MenuMappings m on m.groupid = p.groupid and m.companyid = @companyid and (m.storeid = @mstoreid)
+            JOIN StorePreferences sr ON sp.StoreId = sr.StoreId
+            --JOIN MenuMappings pm on pm.groupid = op.groupid and pm.menutype = 3
+            --JOIN MenuMappings cm on cm.groupid = ca.groupid and pm.menutype = 1 and cm.companyid = pm.companyid
+            --JOIN MenuMappings tm on tm.groupid = tg.groupid and pm.menutype = 2 and tm.companyid = pm.companyid
+            WHERE p.isactive = 1 AND ca.isactive = 1 AND
+            (sp.StoreId = @storeid) AND (sp.CompanyId = @companyid) --AND ((sr.ShowUpcategory = 0 AND ca.IsUPCategory = 0) OR (sr.ShowUpcategory = 1))
+            FOR JSON PATH", sqlCon);
             cmd.CommandType = CommandType.Text;
 
             cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
@@ -1004,41 +1049,41 @@ FOR JSON PATH", sqlCon);
             sqlCon.Open();
 
             SqlCommand cmd = new SqlCommand(@"
-declare @mstoreid int = 0
-select @mstoreid = storeid from MenuMappings where storeid = @storeid
-SELECT sp.ProductId AS Id, isnull(op.Name, p.Name) as Product, p.BarCode, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
-sp.DeliveryPrice, sp.IsActive,
-sp.IsDineInService, sp.IsDeliveryService, sp.IsTakeAwayService, tg.Id AS TaxGroupId,ca.Id as CategoryId,ca.ParentCategoryId,p.KOTGroupId,
-ca.MinimumQty, ca.FreeQtyPercentage, tg.Tax1, tg.Tax2, tg.Tax3,p.ProductTypeId,tg.IsInclusive as IsTaxInclusive, 
-CAST(CASE WHEN ca.IsUPCategory = 0 OR sr.ShowUpcategory = ca.IsUPCategory THEN 0 ELSE 1 END AS BIT) ishidden,
-(
-  SELECT pog.OptionGroupId AS Id, og.Name,og.OptionGroupType,
-  (
-    SELECT so.OptionId AS Id, so.Price, so.TakeawayPrice, so.DeliveryPrice, o.Name, o.IsSingleQtyOption
-    FROM dbo.StoreOptions so
-    JOIN Options o ON so.OptionId = o.Id
-    WHERE (so.StoreId = @storeid AND o.OptionGroupId = pog.OptionGroupId)
-    FOR JSON PATH
-  )AS 'Option'
-  FROM dbo.ProductOptionGroups pog
-  JOIN dbo.OptionGroups og ON pog.OptionGroupId = og.Id
-  WHERE (pog.ProductId = sp.ProductId AND pog.CompanyId = @companyid)
-  FOR JSON PATH
-)AS 'OptionGroup'
-FROM StoreProducts sp
-JOIN Products p on p.Id = sp.ProductId
-JOIN OldProducts op on op.OldId = p.Id
-JOIN Categories ca on ca.Id = op.CategoryId
-JOIN Units u on u.Id = p.UnitId
-JOIN TaxGroups tg on tg.Id = op.TaxGroupId
-join MenuMappings m on m.groupid = p.groupid and m.companyid = @companyid and (m.storeid = @mstoreid)
-JOIN StorePreferences sr ON sp.StoreId = sr.StoreId
---JOIN MenuMappings pm on pm.groupid = op.groupid and pm.menutype = 3
---JOIN MenuMappings cm on cm.groupid = ca.groupid and pm.menutype = 1 and cm.companyid = pm.companyid
---JOIN MenuMappings tm on tm.groupid = tg.groupid and pm.menutype = 2 and tm.companyid = pm.companyid
-WHERE p.isactive = 1 AND ca.isactive = 1 AND
-(sp.StoreId = @storeid) AND (sp.CompanyId = @companyid) --AND ((sr.ShowUpcategory = 0 AND ca.IsUPCategory = 0) OR (sr.ShowUpcategory = 1))
-FOR JSON PATH", sqlCon);
+            declare @mstoreid int = 0
+            select @mstoreid = storeid from MenuMappings where storeid = @storeid
+            SELECT sp.ProductId AS Id, isnull(op.Name, p.Name) as Product, p.BarCode, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
+            sp.DeliveryPrice, sp.IsActive,
+            sp.IsDineInService, sp.IsDeliveryService, sp.IsTakeAwayService, tg.Id AS TaxGroupId,ca.Id as CategoryId,ca.ParentCategoryId,p.KOTGroupId,
+            ca.MinimumQty, ca.FreeQtyPercentage, tg.Tax1, tg.Tax2, tg.Tax3,p.ProductTypeId,tg.IsInclusive as IsTaxInclusive, 
+            CAST(CASE WHEN (ca.IsUPCategory = 0 OR sr.ShowUpcategory = ca.IsUPCategory) and m.groupid is not null THEN 0 ELSE 1 END AS BIT) ishidden, m.groupid,
+            (
+              SELECT pog.OptionGroupId AS Id, og.Name,og.OptionGroupType,
+              (
+                SELECT so.OptionId AS Id, so.Price, so.TakeawayPrice, so.DeliveryPrice, o.Name, o.IsSingleQtyOption
+                FROM dbo.StoreOptions so
+                JOIN Options o ON so.OptionId = o.Id
+                WHERE (so.StoreId = @storeid AND o.OptionGroupId = pog.OptionGroupId)
+                FOR JSON PATH
+              )AS 'Option'
+              FROM dbo.ProductOptionGroups pog
+              JOIN dbo.OptionGroups og ON pog.OptionGroupId = og.Id
+              WHERE (pog.ProductId = sp.ProductId AND pog.CompanyId = @companyid)
+              FOR JSON PATH
+            )AS 'OptionGroup'
+            FROM StoreProducts sp
+            JOIN Products p on p.Id = sp.ProductId
+            JOIN OldProducts op on op.OldId = p.Id
+            JOIN Categories ca on ca.Id = op.CategoryId
+            JOIN Units u on u.Id = p.UnitId
+            JOIN TaxGroups tg on tg.Id = op.TaxGroupId
+            JOIN StorePreferences sr ON sp.StoreId = sr.StoreId
+            left join MenuMappings m on m.groupid = p.groupid and m.companyid = @companyid and (m.storeid = @mstoreid)
+            --JOIN MenuMappings pm on pm.groupid = op.groupid and pm.menutype = 3
+            --JOIN MenuMappings cm on cm.groupid = ca.groupid and pm.menutype = 1 and cm.companyid = pm.companyid
+            --JOIN MenuMappings tm on tm.groupid = tg.groupid and pm.menutype = 2 and tm.companyid = pm.companyid
+            WHERE p.isactive = 1 AND ca.isactive = 1 AND
+            (sp.StoreId = @storeid) AND (sp.CompanyId = @companyid) --AND ((sr.ShowUpcategory = 0 AND ca.IsUPCategory = 0) OR (sr.ShowUpcategory = 1))
+            FOR JSON PATH", sqlCon);
             cmd.CommandType = CommandType.Text;
 
             cmd.Parameters.Add(new SqlParameter("@companyid", companyid));

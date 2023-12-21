@@ -52,6 +52,16 @@
     <Compile Include="Migrations\20231114053042_storeob_expense.Designer.cs" />
     <Compile Include="Migrations\20231115061949_expense.cs" />
     <Compile Include="Migrations\20231115061949_expense.Designer.cs" />
+    <Compile Include="Migrations\20231127062605_guestAddon.cs" />
+    <Compile Include="Migrations\20231127062605_guestAddon.Designer.cs" />
+    <Compile Include="Migrations\20231212055718_pending.cs" />
+    <Compile Include="Migrations\20231212055718_pending.Designer.cs" />
+    <Compile Include="Migrations\20231212060015_denomentry_pc.cs" />
+    <Compile Include="Migrations\20231212060015_denomentry_pc.Designer.cs" />
+    <Compile Include="Migrations\20231212063626_denomentry_spsc.cs" />
+    <Compile Include="Migrations\20231212063626_denomentry_spsc.Designer.cs" />
+    <Compile Include="Migrations\20231212083741_denomentry_pc1.cs" />
+    <Compile Include="Migrations\20231212083741_denomentry_pc1.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 

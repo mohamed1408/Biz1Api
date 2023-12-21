@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -769,13 +770,30 @@ namespace Biz1BookPOS.Controllers
             return Json(response);
 
         }
-
-        //[EnableCors("AllowOrigin")]
-        //[HttpGet("GetProdById")]
-        //public IActionResult GetProdById(int id, int compId)
-        //{
-        //    Product product = null
-        //}
+        public static string CreateMD5(string input)
+        {
+            string result;
+            using (MD5 hash = MD5.Create())
+            {
+                result = String.Join
+                (
+                    "",
+                    from ba in hash.ComputeHash
+                    (
+                        Encoding.UTF8.GetBytes(input)
+                    )
+                    select ba.ToString("x2")
+                );
+            }
+            return result;
+        }
+        [EnableCors("AllowOrigin")]
+        [HttpGet("GetAllOld")]
+        public IActionResult GetAllOld()
+        {
+            List<OldProducts> products = db.OldProducts.ToList();
+            return Ok(products);
+        }
         [EnableCors("AllowOrigin")]
         [HttpGet("GetById")]
         public IActionResult GetById(int id, int compId)

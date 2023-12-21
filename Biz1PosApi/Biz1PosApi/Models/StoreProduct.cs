@@ -9,6 +9,8 @@ namespace Biz1BookPOS.Models
 {
     public class StoreProduct
     {
+        [Key]
+        public int StoreProductId { get; set; }
         public int Id { get; set; }
 
         [ForeignKey("Store")]

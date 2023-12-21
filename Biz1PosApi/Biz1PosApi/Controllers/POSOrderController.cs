@@ -1276,7 +1276,7 @@ namespace Biz1PosApi.Controllers
                     transaction.PaymentTypeId = trans.PaymentId;
                     transaction.TranstypeId = 1;
                     transaction.CustomerId = order.CustomerId;
-                    transaction.TransDate = order.OrderedDate;
+                    transaction.TransDate = order.OrderedDate;  
                     transaction.TransDateTime = order.OrderedDateTime;
                     db.Transactions.Add(transaction);
                     db.SaveChanges();
@@ -2913,6 +2913,40 @@ namespace Biz1PosApi.Controllers
                     error = new Exception(e.Message, e.InnerException),
                     status = 0,
                     msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("FetchEcomOrders")]
+        public IActionResult FetchEcomOrders(int storeid)
+        {
+            try
+            {
+                string conname = "myconn";
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(conname));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.FetchEcomOrders", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var report = new
+                {
+                    status = 200,
+                    orders = ds.Tables[0],
+                };
+                return Json(report);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider",
+                    orders = new DataTable()
                 };
                 return Json(error);
             }

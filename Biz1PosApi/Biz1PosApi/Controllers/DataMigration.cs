@@ -78,15 +78,15 @@ namespace Biz1PosApi.Controllers
             try
             {
                 int ordercount = 0;
-                DateTime date = new DateTime(2023, 09, 23);
-                DateTime today = new DateTime(2023, 11, 27);
+                DateTime date = new DateTime(2023, 08, 01);
+                DateTime today = new DateTime(2023, 11, 18);
                 while (date <= today)
                 {
                     DataSet dataSet = new DataSet();
-                    SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("logout"));
+                    SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("hydconn"));
                     conn.Open();
-                    string selectData = String.Format(@"select * from Odrs where ci = 3 and od = '{0}-{1}-{2}'
-select oi.* from Otms oi join KOTs k on k.KOTId = oi.ki join Odrs o on o.OdrsId = k.OrderId where o.ci = 3 and o.od = '{0}-{1}-{2}'", date.Year,date.Month,date.Day);
+                    string selectData = String.Format(@"select * from Odrs where od = '{0}-{1}-{2}'
+select oi.* from Otms oi join KOTs k on k.KOTId = oi.ki join Odrs o on o.OdrsId = k.OrderId where o.od = '{0}-{1}-{2}'", date.Year,date.Month,date.Day);
                     //string selectoi = String.Format("select oi.* from Otms oi join KOTs k on k.KOTId = oi.ki join Odrs o on o.OdrsId = k.OrderId where o.ci = 3 and o.od = '{0}-{1}-{2}'", date.Year,date.Month,date.Day);
                     SqlCommand command = new SqlCommand(selectData, conn);
                     DataTable dataTable = new DataTable();
@@ -97,14 +97,6 @@ select oi.* from Otms oi join KOTs k on k.KOTId = oi.ki join Odrs o on o.OdrsId 
                     dataTable = dataSet.Tables[0];
                     oitable = dataSet.Tables[1];
                     conn.Close();
-                    //DateTime date = new DateTime(2023, 09, 21);
-                    //List<Odrs> odrs = db.Odrs.Where(x => x.od == date).ToList();
-                    //odrs.ForEach(odr => { odr.OdrsId = 0; });
-                    //dataTable = JsonConvert.DeserializeObject<DataTable>(JsonConvert.SerializeObject(odrs));
-                    //foreach (DataRow item in dataTable.Rows)
-                    //{
-                    //    item["OdrsId"] = 0;
-                    //}
                     dataTable.Columns.Remove("odt");
                     dataTable.Columns.Remove("bdt");
                     dataTable.Columns.Remove("bd");
@@ -122,6 +114,7 @@ select oi.* from Otms oi join KOTs k on k.KOTId = oi.ki join Odrs o on o.OdrsId 
                         conn2.Close();
                     }
                     _log.LogInformation("[" + date.ToString() + " order count]: " + dataTable.Rows.Count.ToString());
+                    _log.LogInformation("[" + date.ToString() + " item count]: " + oitable.Rows.Count.ToString());
                     ordercount += dataTable.Rows.Count;
                     date = date.AddDays(1);
                 }

@@ -1614,9 +1614,71 @@ namespace Biz1PosApi.Controllers
             }
 
         }
-
-
-
+        public class PAYLoad
+        {
+            public int orderid;
+            public float totalamount;
+            public List<Transaction> transactions;
+        }
+        [HttpPost("pay")]
+        public IActionResult statuschange([FromBody]PAYLoad payload)
+        {
+            try
+            {
+                Odrs ecomorder = db.Odrs.Where(x => x.OdrsId == payload.orderid).FirstOrDefault();
+                if(ecomorder != null && ecomorder.ba >= (ecomorder.pa + payload.totalamount))
+                {
+                    db.Transactions.AddRange(payload.transactions);
+                    db.SaveChanges();
+                    ecomorder.pa = ecomorder.pa + payload.totalamount;
+                    db.Entry(ecomorder).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                var responce = new
+                {
+                    status = 200,
+                    message = "Payed Successfully"
+                };
+                return Ok(responce);
+            }
+            catch(Exception ex)
+            {
+                var responce = new
+                {
+                    status = 500,
+                    error = new Exception(ex.Message, ex.InnerException),
+                    message = "Contact service provider "
+                };
+                return Ok(responce);
+            }
+        }
+        [HttpGet("statuschange")]
+        public IActionResult statuschange(int OrderId, int statusid)
+        {
+            try
+            {
+                Odrs ecomorder = db.Odrs.Where(x => x.OdrsId == OrderId).FirstOrDefault();
+                ecomorder.osi = statusid;
+                db.Entry(ecomorder).State = EntityState.Modified;
+                db.SaveChanges();
+                var responce = new
+                {
+                    status = 200,
+                    message = "Status Changed!"
+                };
+                return Ok(responce);
+            }
+            catch(Exception ex)
+            {
+                var responce = new
+                {
+                    status = 500,
+                    error = new Exception(ex.Message, ex.InnerException),
+                    message = "Contact service provider "
+                };
+                return Ok(responce);
+            }
+        }
         [HttpGet("getmsgOrderitem")]
         public IActionResult getmsgOrderitem(int OrderId)
         {
