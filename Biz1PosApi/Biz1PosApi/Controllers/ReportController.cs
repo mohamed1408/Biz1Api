@@ -8,6 +8,7 @@ using Biz1BookPOS.Models;
 using Biz1PosApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
@@ -172,6 +173,7 @@ namespace Biz1PosApi.Controllers
                 {
                     status = 200,
                     report = ds.Tables[0],
+                    transactions = ds.Tables[1]
                 };
                 sqlCon.Close();
                 return Ok(response);
@@ -322,6 +324,33 @@ namespace Biz1PosApi.Controllers
                     report = ds.Tables[0]
                 };
                 sqlCon.Close();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("savereason")]
+        public IActionResult savereason(int orderid, string ItemCanelledReason, string DiscountReason)
+        {
+            try
+            {
+                Odrs odrs = db.Odrs.Find(orderid);
+                odrs.icr = ItemCanelledReason;
+                odrs.dr = DiscountReason;
+                db.Entry(odrs).State = EntityState.Modified;
+                db.SaveChanges();
+                var response = new
+                {
+                    status = 200,
+                };
                 return Ok(response);
             }
             catch (Exception e)

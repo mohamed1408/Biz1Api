@@ -135,7 +135,8 @@ namespace Biz1PosApi.Controllers
                 shifts.Add(new ArrayList { 3, new TimeSpan(14, 00, 0) , new TimeSpan(15, 59, 0) });
                 shifts.Add(new ArrayList { 4, new TimeSpan(16, 00, 0) , new TimeSpan(17, 59, 0) });
                 shifts.Add(new ArrayList { 5, new TimeSpan(18, 00, 0) , new TimeSpan(19, 59, 0) });
-                shifts.Add(new ArrayList { 6, new TimeSpan(20, 00, 0) , new TimeSpan(23, 59, 0) });
+                shifts.Add(new ArrayList { 6, new TimeSpan(20, 00, 0) , new TimeSpan(21, 59, 0) });
+                shifts.Add(new ArrayList { 7, new TimeSpan(22, 00, 0) , new TimeSpan(23, 59, 0) });
             }
             public int getShiftId(DateTime denomDate)
             {

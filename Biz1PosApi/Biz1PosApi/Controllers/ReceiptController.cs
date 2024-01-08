@@ -593,6 +593,62 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpPost("ordertransaction2")]
+        public IActionResult ordertransaction2([FromBody]dynamic transactionlist)
+        {
+            try
+            {
+                List<transaction> transactions = transactionlist.ToObject<List<transaction>>();
+                string conn_name = connserve.getConnString(transactions[0].CompanyId);
+                db = DbContextFactory.Create(conn_name);
+                Odrs order = db.Odrs.Find(transactions[0].OrderId);
+                List<Transaction> oldtransactions = db.Transactions.Where(x => x.OrderId == order.OdrsId).ToList();
+                List<Transaction> alltranasctions = new List<Transaction>();
+                alltranasctions.AddRange(oldtransactions);
+                foreach (Transaction transaction in transactions)
+                {
+                    if(!alltranasctions.Where(x => x.TransDateTime == transaction.TransDateTime && x.Amount == transaction.Amount && x.StorePaymentTypeId == transaction.StorePaymentTypeId).Any())
+                    {
+                        transaction.OrderId = order.OdrsId;
+                        alltranasctions.Add(transaction);
+                        db.Transactions.Add(transaction);
+                        db.SaveChanges();
+                    }
+                }
+                double totalpaid = (alltranasctions.Where(x => x.TranstypeId == 1).Select(x => x.Amount).Sum()) - (alltranasctions.Where(x => x.TranstypeId == 2).Select(x => x.Amount).Sum());
+                
+                if(totalpaid <= order.ba)
+                {
+                    order.pa = totalpaid;
+                    if (order.oj != null)
+                    {
+                        dynamic json = JsonConvert.DeserializeObject(order.oj);
+                        json.alltransactions = JToken.FromObject(alltranasctions.Select(x => new { x.Amount, x.CompanyId, x.CustomerId, x.Id, x.ModifiedDateTime, x.Notes, x.TransDate, x.TransDateTime, x.TranstypeId, x.UserId }));
+                        json.PaidAmount = totalpaid;
+                        order.oj = JsonConvert.SerializeObject(json);
+                    }
+                    db.Entry(order).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+
+                var error = new
+                {
+                    status = 200,
+                    msg = "Transactions saved"
+                };
+                return Json(error);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
         [HttpPost("Pay")]
         public IActionResult Pay([FromForm]string value)
         {

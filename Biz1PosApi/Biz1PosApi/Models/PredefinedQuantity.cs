@@ -16,6 +16,7 @@ namespace Biz1PosApi.Models
         public double TotalQuantity { get; set; }
         public double? Price { get; set; }
         public int CakeQuantityId { get; set; }
+        public bool IsOnline { get; set; }
 
         [ForeignKey("Product")]
         public int ProductId { get; set; }

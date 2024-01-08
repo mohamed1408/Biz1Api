@@ -23,6 +23,7 @@ using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Biz1PosApi.Services;
 using Biz1Retail_API.Models;
+using System.Threading.Channels;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Biz1PosApi.Controllers
@@ -536,10 +537,44 @@ namespace Biz1PosApi.Controllers
             si.orderno = orderno;
             return si;
         }
-
+        public async Task<IActionResult> saveOrderAsync(OrderPayload orderpayload, Channel<UPRawPayload> channel)
+        {
+            try
+            {
+                UPRawPayload rawPayload = new UPRawPayload()
+                {
+                    Payload = orderpayload.OrderJson,
+                    PayloadType = "quick_order",
+                    retry_count = 0
+                };
+                await channel.Writer.WriteAsync(rawPayload);
+                DataTable data = new DataTable();
+                data.Columns.Add(new DataColumn("OrderId", typeof(int)));
+                DataRow dr = data.NewRow();
+                dr[0] = 0;
+                data.Rows.Add(dr);
+                var response = new
+                {
+                    data = data,
+                    message = "Order Sent...",
+                    status = 200
+                };
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 500,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
         //Master Save Order 5 Test Start -->
         [HttpPost("saveorder_5")]
-        public IActionResult saveorder_5([FromBody] OrderPayload payload)
+        public async Task<IActionResult> saveorder_5([FromBody] OrderPayload payload, [FromServices] Channel<UPRawPayload> channel)
         {
             int orderid = 0;
             dynamic data = new { };
@@ -551,6 +586,11 @@ namespace Biz1PosApi.Controllers
             {
                 dynamic orderjson = JsonConvert.DeserializeObject(payload.OrderJson);
                 string invoiceno = orderjson["in"].ToString();
+                int oti = orderjson["oti"];
+                if(oti == 5)
+                {
+                    return await saveOrderAsync(payload, channel);
+                }
                 SplitInvocie si = splitinvoice(invoiceno);
                 DateTime ordereddate = si.orderdate;
                 companyid = (int)orderjson.ci;
@@ -2708,7 +2748,7 @@ namespace Biz1PosApi.Controllers
             {
                 foreach (CompleteOrderPayload pl in payloads)
                 {
-                    Order ord = db.Orders.Find(pl.orderid);
+                    Odrs ord = db.Odrs.Find(pl.orderid);
                     if (pl.billamount - pl.paidamount > 0)
                     {
                         Transaction tr = new Transaction();
@@ -2716,25 +2756,25 @@ namespace Biz1PosApi.Controllers
                         tr.Amount = pl.billamount - pl.paidamount;
                         tr.PaymentTypeId = 6;
                         tr.TranstypeId = 1;
-                        tr.CustomerId = ord.CustomerId;
+                        tr.CustomerId = ord.cui;
                         tr.TransDate = pl.transdate;
                         tr.TransDateTime = pl.transdatetime;
-                        tr.UserId = ord.UserId;
-                        tr.CompanyId = ord.CompanyId;
-                        tr.StoreId = ord.StoreId;
+                        tr.UserId = ord.ui;
+                        tr.CompanyId = (int)ord.ci;
+                        tr.StoreId = ord.si;
                         tr.ModifiedDateTime = DateTime.Now;
                         tr.StorePaymentTypeId = pl.paymenttypeid;
                         tr.Notes = "closed by admin";
                         db.Transactions.Add(tr);
                     }
-                    ord.PaidAmount = ord.BillAmount;
-                    ord.OrderStatusId = 5;
-                    if (ord.OrderJson != null)
+                    ord.pa = ord.ba;
+                    ord.osi = 5;
+                    if (ord.oj != null)
                     {
-                        dynamic json = JsonConvert.DeserializeObject(ord.OrderJson);
-                        json.BillAmount = ord.BillAmount;
+                        dynamic json = JsonConvert.DeserializeObject(ord.oj);
+                        json.BillAmount = ord.ba;
                         json.OrderStatusId = 5;
-                        ord.OrderJson = JsonConvert.SerializeObject(json);
+                        ord.oj = JsonConvert.SerializeObject(json);
                     }
                     db.Entry(ord).State = EntityState.Modified;
                 }
@@ -2858,6 +2898,41 @@ namespace Biz1PosApi.Controllers
 
 
             return Ok(table);
+        }
+
+        [HttpGet("cancellorder")]
+        public IActionResult cancellorder(int orderid, string reason)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.CancellOrder", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@ordid", orderid));
+                cmd.Parameters.Add(new SqlParameter("@reason", reason));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var error = new
+                {
+                    status = 200,
+                    msg = "Order Cancelled!",
+                };
+                return Json(error);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider",
+                };
+                return Json(error);
+            }
         }
         [HttpGet("GetKOTInspectdetail")]
         public IActionResult GetKOTInspectdetail(int orderid)

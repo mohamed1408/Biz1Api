@@ -5,6 +5,7 @@
     <SccProvider>SAK</SccProvider>
     <SccAuxPath>SAK</SccAuxPath>
     <SccLocalPath>SAK</SccLocalPath>
+	<LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -62,6 +63,14 @@
     <Compile Include="Migrations\20231212063626_denomentry_spsc.Designer.cs" />
     <Compile Include="Migrations\20231212083741_denomentry_pc1.cs" />
     <Compile Include="Migrations\20231212083741_denomentry_pc1.Designer.cs" />
+    <Compile Include="Migrations\20240103085433_storepcname.cs" />
+    <Compile Include="Migrations\20240103085433_storepcname.Designer.cs" />
+    <Compile Include="Migrations\20240105041528_predefinedqtys.cs" />
+    <Compile Include="Migrations\20240105041528_predefinedqtys.Designer.cs" />
+    <Compile Include="Migrations\20240105051432_odrs_icdr.cs" />
+    <Compile Include="Migrations\20240105051432_odrs_icdr.Designer.cs" />
+    <Compile Include="Migrations\20240108070653_store_cpname.cs" />
+    <Compile Include="Migrations\20240108070653_store_cpname.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 

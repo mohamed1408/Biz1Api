@@ -8,8 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Remotion.Linq.Clauses;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
@@ -106,6 +108,46 @@ namespace Biz1PosApi.Services
 
                             await db.Database.ExecuteSqlCommandAsync($"EXECUTE SaveUPOrder_ {uPOrder.UPOrderId}");
                             await uhubContext.Clients.All.NewOrder(platform, uPOrder.UPOrderId, uPOrder.StoreId);
+                        }
+                    }
+                    else if(_payload.PayloadType == "quick_order")
+                    {
+                        using (SqlConnection conn = new SqlConnection("Server=tcp:b1zd0m.database.windows.net,1433;Initial Catalog=Biz1Retail;Persist Security Info=False;User ID=BizDom_Admin;Password=BIzD0m@2K23;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=1000;"))
+                        {
+                            conn.Open();
+                            dynamic orderjson = JsonConvert.DeserializeObject(_payload.Payload);
+                            int companyid = (int)orderjson.ci;
+                            int storeid = (int)orderjson.stoi;
+                            SqlTransaction tran = conn.BeginTransaction("Transaction1");
+                            try
+                            {
+                                SqlCommand cmd = new SqlCommand("dbo.saveorder", conn);
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.Transaction = tran;
+
+                                cmd.Parameters.Add(new SqlParameter("@orderjson", _payload.Payload));
+                                cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+                                cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+
+                                DataSet ds = new DataSet();
+                                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                                sqlAdp.Fill(ds);
+
+                                DataTable table = ds.Tables[0];
+                                tran.Commit(); //both are successful
+                                conn.Close();
+                                //if (orderjson.DeliveryStoreId != null)
+                                //{
+                                //    _uhubContext.Clients.All.DeliveryOrderUpdate((int)orderjson.StoreId, (int)orderjson.DeliveryStoreId, invoiceno, "NEW_ORDER", orderid);
+                                //}
+                            }
+                            catch (Exception e)
+                            {
+                                //if error occurred, reverse all actions. By this, your data consistent and correct
+                                tran.Rollback();
+                                conn.Close();
+                                throw e;
+                            }
                         }
                     }
                     else if(_payload.PayloadType == "order_status_update")

@@ -106,6 +106,8 @@ namespace Biz1BookPOS.Models
         public int? oti { get; set; }
 
         public string inoj { get; set; }
+        public string icr { get; set; }
+        public string dr { get; set; }
 
         [NotMapped]
         public List<OrderItem> OrderItems { get; set; }

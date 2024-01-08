@@ -110,6 +110,77 @@ namespace Biz1PosApi.Controllers
             }
         }
 
+        [HttpGet("TransactionHistory")]
+        public IActionResult TransactionHistory()
+        {
+            try
+            {
+                //Biz1BookPOS.Models.Transaction transaction = new Biz1BookPOS.Models.Transaction();
+                //transaction.Id = random.Next();
+                //transaction.Amount = pyload.amount;
+                //transaction.CompanyId = pyload.companyid;
+                //transaction.CustomerId = pyload.customerid;
+                //transaction.ModifiedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                //transaction.OrderId = pyload.orderid;
+                //transaction.PaymentStatusId = 0;
+                //transaction.StoreId = pyload.storeid;
+                //transaction.PaymentTypeId = 8;
+                //transaction.TransDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                //transaction.TransDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                //transaction.TranstypeId = 1;
+                //transaction.Notes = "";
+                //db.Transactions.Add(transaction);
+                //db.SaveChanges();
+
+                //transaction.Notes = "T" + transaction.Id.ToString() + "S" + transaction.StoreId.ToString();
+                //db.Entry(transaction).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                //db.SaveChanges();
+                string key = "bff43f70-7033-4740-ba04-53dd4958a6de";
+                string salt = "1";
+                TransactionPayload payload = new TransactionPayload();
+                payload.size = 10;
+                payload.merchantId = "FBCAKESONLINE";
+                payload.storeId = "MS2111301155025847417881";
+                //PhonePePayload payload = new PhonePePayload();
+                //payload.merchantId = "FBCAKESONLINE";
+                //payload.merchantTransactionId = transaction.Notes;
+                //payload.merchantUserId = "MUID2209";
+                //payload.amount = (int)pyload.amount * 100;
+                //payload.redirectUrl = pyload.redirecturl;
+                //payload.redirectMode = "POST";
+                //payload.callbackUrl = "https://biz1ps.azurewebsites.net/api/PhonePe/PaymentStatusCallback";
+                //payload.mobileNumber = pyload.mobilenumber;
+                //payload.paymentInstrument = new PaymentInstrument();
+                //payload.paymentInstrument.type = "PAY_PAGE";
+
+                string base64Payload = Base64Encode(JsonConvert.SerializeObject(payload, Formatting.Indented));
+                string sha256hash = ComputeSha256Hash(base64Payload + "/v3/qr/transaction/list" + key) + "###" + salt;
+                dynamic body = new
+                {
+                    request = base64Payload
+                };
+                var client = new RestClient("https://api.phonepe.com/apis/hermes/v3/qr/transaction/list");
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("accept", "application/json");
+                request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("X-VERIFY", sha256hash);
+                request.AddParameter("application/json", JsonConvert.SerializeObject(body), ParameterType.RequestBody);
+                IRestResponse response = client.Execute(request);
+                return Ok(response.Content);
+            }
+            catch (Exception e)
+            {
+
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 500,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+
+                return StatusCode(500, error);
+            }
+        }
         [HttpGet("PhonePeDashboard")]
         public IActionResult PhonePeDashboard(int CompanyId, int StoreId, DateTime? from, DateTime? to)
         {
@@ -438,6 +509,12 @@ namespace Biz1PosApi.Controllers
     public class CBPayload
     {
         public string response { get; set; }
+    }
+    public class TransactionPayload
+    {
+        public int size { get; set; }
+        public string merchantId { get; set; }
+        public string storeId { get; set; }
     }
     public class PayPayload
     {

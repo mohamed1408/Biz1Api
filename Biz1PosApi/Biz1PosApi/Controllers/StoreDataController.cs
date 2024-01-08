@@ -1048,10 +1048,10 @@ FOR JSON PATH
             SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
             sqlCon.Open();
 
-            SqlCommand cmd = new SqlCommand(@"
+            SqlCommand cmd1 = new SqlCommand(@"
             declare @mstoreid int = 0
             select @mstoreid = storeid from MenuMappings where storeid = @storeid
-            SELECT sp.ProductId AS Id, isnull(op.Name, p.Name) as Product, p.BarCode, p.ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
+            SELECT sp.ProductId AS Id, (case when m.groupid is not null then 'N/A' else isnull(op.Name, p.Name) end) as Product, p.BarCode, cast(sp.Price as nvarchar(max)) ProductCode, u.Description as Unit, sp.Price,sp.TakeawayPrice,
             sp.DeliveryPrice, sp.IsActive,
             sp.IsDineInService, sp.IsDeliveryService, sp.IsTakeAwayService, tg.Id AS TaxGroupId,ca.Id as CategoryId,ca.ParentCategoryId,p.KOTGroupId,
             ca.MinimumQty, ca.FreeQtyPercentage, tg.Tax1, tg.Tax2, tg.Tax3,p.ProductTypeId,tg.IsInclusive as IsTaxInclusive, 
@@ -1084,7 +1084,8 @@ FOR JSON PATH
             WHERE p.isactive = 1 AND ca.isactive = 1 AND
             (sp.StoreId = @storeid) AND (sp.CompanyId = @companyid) --AND ((sr.ShowUpcategory = 0 AND ca.IsUPCategory = 0) OR (sr.ShowUpcategory = 1))
             FOR JSON PATH", sqlCon);
-            cmd.CommandType = CommandType.Text;
+            SqlCommand cmd = new SqlCommand("dbo.productsTask", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
 
             cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
             cmd.Parameters.Add(new SqlParameter("@storeid", storeid));

@@ -32,6 +32,9 @@ namespace Biz1BookPOS.Models
         public double? SalesCash { get; set; }
         public double? ExpenseCash { get; set; }
         public double? OpeningBalance { get; set; }
+        public string PhonePeName { get; set; }
+        public string CardName { get; set; }
+        public string CompanyName { get; set; }
 
         [DataType(DataType.Time)]
         public TimeSpan OpeningTime { get; set; }

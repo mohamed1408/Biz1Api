@@ -337,6 +337,8 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<double?>("dp");
 
+                    b.Property<string>("dr");
+
                     b.Property<int?>("dri");
 
                     b.Property<int?>("dsi");
@@ -344,6 +346,8 @@ namespace Biz1PosApi.Migrations
                     b.Property<int?>("dti");
 
                     b.Property<bool?>("fr");
+
+                    b.Property<string>("icr");
 
                     b.Property<string>("ij");
 
@@ -894,11 +898,15 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int>("AutoAcceptTime");
 
+                    b.Property<string>("CardName");
+
                     b.Property<string>("City");
 
                     b.Property<TimeSpan>("ClosingTime");
 
                     b.Property<int>("CompanyId");
+
+                    b.Property<string>("CompanyName");
 
                     b.Property<string>("ContactNo");
 
@@ -921,6 +929,8 @@ namespace Biz1PosApi.Migrations
                     b.Property<TimeSpan>("OpeningTime");
 
                     b.Property<int?>("ParentStoreId");
+
+                    b.Property<string>("PhonePeName");
 
                     b.Property<string>("PostalCode");
 
@@ -2514,6 +2524,8 @@ namespace Biz1PosApi.Migrations
                     b.Property<int>("CompanyId");
 
                     b.Property<double>("FreeQuantity");
+
+                    b.Property<bool>("IsOnline");
 
                     b.Property<double?>("Price");
 
