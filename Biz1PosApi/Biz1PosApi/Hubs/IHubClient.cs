@@ -18,4 +18,10 @@ namespace Biz1PosApi.Hubs
         Task DeliveryOrderUpdate(int fromstore, int tostore, string invoiceno, string action, int orderid);
         Task NewFBOrder(int storeid, int orderid, string action);
     }
+    public interface IChatClient
+    {
+        Task NewMessage(int storeid, Message message);
+        Task Delivered(int MessaegId);
+        Task Read(int MessaegId);
+    }
 }

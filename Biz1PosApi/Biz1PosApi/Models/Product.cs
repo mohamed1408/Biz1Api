@@ -10,6 +10,8 @@ namespace Biz1BookPOS.Models
 {
     public class Product : ICloneable
     {
+        [Key]
+        public int ProductId { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -73,6 +75,20 @@ namespace Biz1BookPOS.Models
             var clone = (Category)MemberwiseClone();
             clone.Id = Id;
             return clone;
+        }
+        public OldProducts ToOldProd()
+        {
+            OldProducts oldProduct = new OldProducts
+            {
+                Id = 0,
+                OldId = Id,
+                Name = Name,
+                TaxGroupId = (int)TaxGroupId,
+                CategoryId = CategoryId,
+                Price = Price,
+                groupid = (int)groupid
+            };
+            return oldProduct;
         }
     }
 }

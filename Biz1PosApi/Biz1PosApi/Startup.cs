@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Owin;
 using Biz1PosApi.Models;
 using Biz1PosApi.Services;
 using System.Threading.Channels;
+using Newtonsoft.Json.Serialization;
 
 namespace Biz1PosApi
 {
@@ -78,7 +79,10 @@ namespace Biz1PosApi
             services.AddHostedService<OrderMigrateService>();
             services.AddSingleton(Channel.CreateUnbounded<OrderPckg>());
             services.AddSingleton<Student>();
-            services.AddSignalR();
+            services.AddSignalR().AddJsonProtocol(options =>
+            {
+                options.PayloadSerializerSettings.ContractResolver = new DefaultContractResolver();
+            }); ;
             services
             .AddMvc(o =>
             {

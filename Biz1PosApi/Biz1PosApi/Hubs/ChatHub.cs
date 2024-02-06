@@ -1,4 +1,5 @@
 ﻿using Biz1BookPOS.Models;
+using Biz1PosApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
@@ -6,58 +7,72 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Biz1PosApi.Hubs
 {
-    public class ChatHub : Hub
+    public class ChatUser
+    {
+        public ChatUser(int StoreId, string ConnectionId) 
+        {
+            this.StoreId = StoreId;
+            this.ConnectionId = ConnectionId;
+        }
+        public int StoreId { get; set; }
+        public string ConnectionId { get; set; }
+    }
+    public static class UserHandler
+    {
+        public static List<ChatUser> Users = new List<ChatUser>();
+    }
+    public class ChatHub : Hub<IChatClient>
     {
         private POSDbContext db;
         public List<dynamic> orders { get; set; }
-        public ChatHub(POSDbContext contextOptions )
+        public ChatHub(POSDbContext contextOptions)
         {
             orders = new List<dynamic>();
             db = contextOptions;
         }
-        public async Task SendMessage(string user, string message)
+        public override Task OnConnectedAsync()
         {
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
+            //UserHandler.ConnectedIds.Add(Context.ConnectionId);
+            return base.OnConnectedAsync();
         }
-        public async Task JoinRoom(string roomName, int storeid)
+        public void Register(int storeid)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
-            await Clients.Group(roomName).SendAsync("joinmessage",$"{Context.ConnectionId} joined {roomName}");
-        }
-        public async Task GetStoreOrders(string roomName, int storeid)
-        {
-            var orders = db.UPOrders.Where(x => x.StoreId == storeid).ToList();
-            await Clients.Group(roomName).SendAsync("order", orders);
-        }
-        public async Task GetStoreKOTs(string roomName, int storeid)
-        {
-            //var orders = db.UPOrders.Where(x => x.StoreId == storeid).ToList();
-            List<KOT> kOTs = db.KOTs.Where(x => x.StoreId == storeid && x.KOTStatusId != 5 && x.KOTStatusId != -1).ToList(); ;
-            foreach (KOT kot in kOTs)
+            if(UserHandler.Users.Where(x => x.StoreId == storeid).Any())
             {
-                kot.OrderItems = JsonConvert.SerializeObject(db.OrderItems.Where(x => x.KOTId == kot.Id).ToList());
+                ChatUser user = UserHandler.Users.Where(x => x.StoreId == storeid).FirstOrDefault();
+                UserHandler.Users.Remove(user);
             }
-            await Clients.Group(roomName).SendAsync("kot", kOTs);
+            UserHandler.Users.Add(new ChatUser(storeid, Context.ConnectionId));
         }
-        public async Task RoomChat(string roomName)
+        //public override Task OnReconnectedAsync(Exception exception)
+        //{
+        //    ChatUser user = UserHandler.Users.Where(x => x.ConnectionId == Context.ConnectionId).FirstOrDefault();
+        //    UserHandler.Users.Remove(user);
+        //    return base.OnDisconnectedAsync(exception);
+        //}
+        public override Task OnDisconnectedAsync(Exception exception)
         {
-            await Clients.Group(roomName).SendAsync("ReceiveMessage", "user", "message");
+            ChatUser user = UserHandler.Users.Where(x => x.ConnectionId == Context.ConnectionId).FirstOrDefault();
+            UserHandler.Users.Remove(user);
+            return base.OnDisconnectedAsync(exception);
         }
-        public void storeorder(Object[] order)
+        public async Task Delivered(int messageid)
         {
-            orders.Add(order[0]);
+            Message message = await db.Messages.FindAsync(messageid);
+            message.RecieverStatus = 1;
+            db.Entry(message).State = EntityState.Modified;
+            await db.SaveChangesAsync();
         }
-        public Task LeaveRoom(string roomName)
+        public async Task Read(int messageid)
         {
-            return Groups.RemoveFromGroupAsync(Context.ConnectionId, roomName);
-        }
-        public List<dynamic> getorders()
-        {
-            return orders;
+            Message message = await db.Messages.FindAsync(messageid);
+            message.RecieverStatus = 2;
+            db.Entry(message).State = EntityState.Modified;
+            await db.SaveChangesAsync();
         }
     }
 }

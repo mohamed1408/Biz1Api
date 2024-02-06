@@ -102,8 +102,8 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
-                Order order = db.Orders.Find(orderid);
-                _uhubContext.Clients.All.NewFBOrder(storeid, order.Id, "NewOrder");
+                //Odrs order = db.Odrs.Find(orderid);
+                _uhubContext.Clients.All.NewFBOrder(storeid, orderid, "NewOrder");
                 var response = new
                 {
                     status = 200,

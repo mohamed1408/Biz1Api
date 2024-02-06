@@ -188,7 +188,7 @@ namespace Biz1PosApi.Controllers
                            join p in db.OldProducts on sp.ProductId equals p.OldId
                            join mm in db.MenuMappings on p.groupid equals mm.groupid
                            where sp.StoreId == storeId && mm.companyid == companyid && mm.storeid == mstoreid
-                           select new {p.Name, sp.Price,sp.TakeawayPrice,sp.DeliveryPrice,sp.StoreId,sp.CompanyId,sp.ProductId,Id = sp.StoreProductId, sp.SortOrder, sp.Recommended},
+                           select new {p.Name, sp.UPPrice, p.TaxGroupId, p.CategoryId, sp.Price,sp.TakeawayPrice,sp.DeliveryPrice,sp.StoreId,sp.CompanyId,sp.ProductId,Id = sp.StoreProductId, sp.SortOrder, sp.Recommended},
                 streopt = from os in db.StoreOptions
                           join o in db.Options on os.OptionId equals o.Id
                           where os.StoreId ==storeId

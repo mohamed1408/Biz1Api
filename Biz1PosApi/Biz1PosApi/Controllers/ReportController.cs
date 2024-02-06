@@ -301,6 +301,40 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpGet("GetBillWise")]
+        public IActionResult GetBillWise(string gstno, DateTime from, DateTime to)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.GetBillWise", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@gstno", gstno));
+                cmd.Parameters.Add(new SqlParameter("@frmdate", from));
+                cmd.Parameters.Add(new SqlParameter("@todate", to));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    report = ds.Tables[0]
+                };
+                sqlCon.Close();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
         [HttpGet("SalesByProducts")]
         public IActionResult SusOrders(int companyid, int storeid, DateTime from, DateTime to, int catgeoryid, int ordertypeid)
         {
@@ -371,7 +405,7 @@ namespace Biz1PosApi.Controllers
             {
                 SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
                 sqlCon.Open();
-                SqlCommand cmd = new SqlCommand("dbo.SusOrders", sqlCon);
+                SqlCommand cmd = new SqlCommand("dbo.SusOrders2", sqlCon);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
                 cmd.Parameters.Add(new SqlParameter("@storeid", storeid));

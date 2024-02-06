@@ -1,5 +1,15 @@
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\audios\3\KOT\files2023-3-23-15-39.wav
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\audio\plucky.mp3
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\chat\audios\notification_2a485d84012c106acef03b527bb54635.mp3
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\chat\documents\33AAECF5895R1ZS-2022-06-01 (1).xlsx
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\chat\documents\Auth-purchase-Entr-api.txt
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\chat\documents\denomcheckreport _ 01_19 to 02_19_export_1700815805290.xlsx
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\chat\documents\Downloads.rar
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\chat\images\Denom_Report (2).png
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\chat\images\Denom_Report (3).png
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\chat\images\patterns.png
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\chat\videos\Lac Making Processes at Parwati Lakh Udyog.mp4
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\chat\videos\saudi-yemen-war-sheikh-assim-al-hakeem.mp4
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\email_template.html
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\htmlpages\password_reset.html
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\images\0\KOT\6446f1c1-c69f-48a8-9f46-da40e8ee8008.jpg
@@ -39,7 +49,15 @@ C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\js\signalr\dist\browser\signalr.min.js
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\logs\myapp-20200814.txt
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\logs\myapp-20200815.txt
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\products\48\8460.jpg
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\products\48\8461.jpg
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\products\48\8462.jpg
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\products\48\8463.jpg
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\products\48\8464.jpg
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\products\48\a4c5abac8378e958a26f2be8efeadf66.jpg
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\products\48\da1ff7404d6fdf15ce05a80231abaec0.jpg
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\wwwroot\web_orders\orders.json
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\web.config
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\appsettings.Development.json
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\appsettings.json
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Release\netcoreapp2.2\PubTmp\Out\google-services.json

@@ -143,3 +143,4 @@ C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.d
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.pdb
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.genruntimeconfig.cache
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.csproj.CopyComplete
+C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\web.config

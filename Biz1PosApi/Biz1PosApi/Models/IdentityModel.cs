@@ -159,6 +159,8 @@ namespace Biz1BookPOS.Models
         public DbSet<MenuMappings> MenuMappings { get; set; }
         public DbSet<OldProducts> OldProducts { get; set; }
         public DbSet<StoreOB> StoreOB { get; set; }
+        public DbSet<Img> Imgs { get; set; }
+        public DbSet<Message> Messages { get; set; }
         public DbSet<Q> Q { get; set; }
         public DbSet<W> W { get; set; }
         public DbSet<E> E { get; set; }

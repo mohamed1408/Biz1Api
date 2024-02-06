@@ -71,6 +71,12 @@
     <Compile Include="Migrations\20240105051432_odrs_icdr.Designer.cs" />
     <Compile Include="Migrations\20240108070653_store_cpname.cs" />
     <Compile Include="Migrations\20240108070653_store_cpname.Designer.cs" />
+    <Compile Include="Migrations\20240128093303_img1.cs" />
+    <Compile Include="Migrations\20240128093303_img1.Designer.cs" />
+    <Compile Include="Migrations\20240128094241_Message.cs" />
+    <Compile Include="Migrations\20240128094241_Message.Designer.cs" />
+    <Compile Include="Migrations\20240128100137_Message1.cs" />
+    <Compile Include="Migrations\20240128100137_Message1.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 
@@ -84,6 +90,14 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="106.11.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\Models\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\Models\.editorconfig" />
   </ItemGroup>
 
 </Project>

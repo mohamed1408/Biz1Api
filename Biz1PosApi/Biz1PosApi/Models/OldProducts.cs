@@ -1,4 +1,6 @@
-﻿namespace Biz1PosApi.Models
+﻿using Biz1BookPOS.Models;
+
+namespace Biz1PosApi.Models
 {
     public class OldProducts
     {

@@ -441,6 +441,48 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        [HttpGet("RevokeTransaction")]
+        public IActionResult RevokeTransaction(int transactionid)
+        {
+            try
+            {
+                //string conn_name = connserve.getConnString(companyid);
+                //if (companyid == 3)
+                //{
+                //    conn_name = "logout";
+                //}
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+
+                SqlCommand cmd = new SqlCommand("dbo.RevokeTransaction", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@transactionid", transactionid));
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+
+                DataTable table = ds.Tables[0];
+                var data = new
+                {
+                    status = 200,
+                    msg = "transaction revoked"
+                };
+                sqlCon.Close();
+                return Ok(data);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
         [HttpGet("storepaymentsbytype")]
         public IActionResult storepaymentsbytype(int storeid, int companyid, DateTime? from, DateTime? to)
         {

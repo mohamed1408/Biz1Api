@@ -66,27 +66,22 @@ namespace Biz1BookPOS.Controllers
             return "value";
         }
         [HttpGet("CompanyProducts")]
-        public IActionResult CompanyProducts(int companyid, int storeid)
+        public IActionResult CompanyProducts(int companyid)
         {
-            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
-            sqlCon.Open();
-            SqlCommand cmd = new SqlCommand("dbo.CompanyProducts", sqlCon);
-            cmd.CommandType = CommandType.StoredProcedure;
+            int groupid = db.MenuMappings.Where(x => x.companyid == companyid).FirstOrDefault().groupid;
 
-            cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
-            cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
-
-            DataSet ds = new DataSet();
-            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
-            sqlAdp.Fill(ds);
-
-            string jstring = "";
-            for (int j = 0; j < ds.Tables[0].Rows.Count; j++)
+            List<OldProducts> oldProducts = db.OldProducts.Where(x => x.groupid == groupid).ToList();
+            List<Product> products = db.Products.Where(x => oldProducts.Where(op => op.OldId == x.Id).Any()).ToList();
+            products.ForEach(p =>
             {
-                jstring += ds.Tables[0].Rows[j].ItemArray[0].ToString();
-            }
+                OldProducts op = oldProducts.Where(x => x.OldId == p.Id).FirstOrDefault();
+                p.Name = op.Name;
+                p.TaxGroupId = op.TaxGroupId;
+                p.CategoryId = op.CategoryId;
+                p.Price = op.Price;
+            });
 
-            return Json(JsonConvert.DeserializeObject(jstring));
+            return Json(products);
         }
         [HttpGet("ProductOptionGroups")]
         public IActionResult ProductOptionGroups(int companyid)
@@ -589,48 +584,57 @@ namespace Biz1BookPOS.Controllers
         // POST api/<controller>
 
         [HttpPost("AddProduct")]
-        public IActionResult AddProduct([FromForm]string objData, IFormFile image)
+        public IActionResult AddProduct([FromForm]IFormCollection collection, [FromForm]IFormFile image)
         {
-            dynamic orderJson = JsonConvert.DeserializeObject(objData);
             try
             {
-                if (orderJson.KOTGroupId == 0)
-                {
-                    orderJson.KOTGroupId = null;
-                }
-                Product product = orderJson.ToObject<Product>();
-                product.CreatedDate = DateTime.Now;
-                product.ModifiedDate = DateTime.Now;
-                // product.UPPrice = product.Price;
-                product.Name = product.Name;
-                product.Description = product.Description;
-                if (image != null)
-                    product.ImgUrl = ImageUpload(product.CompanyId, image);
+                Product product = JsonConvert.DeserializeObject<Product>(collection["product"][0]);
+                int groupid = db.MenuMappings.Where(mm => mm.companyid == product.CompanyId).FirstOrDefault().groupid;
+                int Id = db.Products.LastOrDefault().Id;
+                Id = Id + 1;
+                product.Id = Id;
+                product.CreatedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                product.ModifiedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+                product.UPPrice = product.Price;
+                product.groupid = groupid;
                 db.Products.Add(product);
+
+                OldProducts oldProduct = product.ToOldProd();
+                db.OldProducts.Add(oldProduct);
+
                 db.SaveChanges();
-                int? akountzCompId = db.Companies.Find(product.CompanyId).AkountzCompanyId;
-                if (akountzCompId.HasValue) AddProdInAkountz(product.Id, product.CompanyId, akountzCompId);
-                JArray OptionGroupJson = orderJson.ProductOptionGroups;
-                if (OptionGroupJson != null)
+
+                if (image != null)
                 {
-                    dynamic optionGroups = OptionGroupJson.ToList();
-                    foreach (var item in optionGroups)
-                    {
-                        int itemId = item.ToObject<int>();
-                        if (item != 0)
-                        {
-                            ProductOptionGroup productOptionGroup = new ProductOptionGroup();
-                            productOptionGroup.ProductId = product.Id;
-                            productOptionGroup.OptionGroupId = item;
-                            productOptionGroup.CompanyId = product.CompanyId;
-                            productOptionGroup.CreatedDate = DateTime.Now;
-                            productOptionGroup.ModifiedDate = DateTime.Now;
-                            db.ProductOptionGroups.Add(productOptionGroup);
-                            db.SaveChanges();
-                            if (akountzCompId.HasValue) AddProdInAkountz(product.Id, product.CompanyId, akountzCompId);
-                        }
-                    }
+                    string filename = FileMD5(image) + "." + image.FileName.Split(".").LastOrDefault();
+                    product.ImgUrl = ImageUpload(image, filename, "/products/" + product.CompanyId.ToString() + "/");
+                    db.Entry(product).State = EntityState.Modified;
+                    db.SaveChanges();
                 }
+
+                //int? akountzCompId = db.Companies.Find(product.CompanyId).AkountzCompanyId;
+                //if (akountzCompId.HasValue) AddProdInAkountz(product.Id, product.CompanyId, akountzCompId);
+                //JArray OptionGroupJson = orderJson.ProductOptionGroups;
+                //if (OptionGroupJson != null)
+                //{
+                //    dynamic optionGroups = OptionGroupJson.ToList();
+                //    foreach (var item in optionGroups)
+                //    {
+                //        int itemId = item.ToObject<int>();
+                //        if (item != 0)
+                //        {
+                //            ProductOptionGroup productOptionGroup = new ProductOptionGroup();
+                //            productOptionGroup.ProductId = product.Id;
+                //            productOptionGroup.OptionGroupId = item;
+                //            productOptionGroup.CompanyId = product.CompanyId;
+                //            productOptionGroup.CreatedDate = DateTime.Now;
+                //            productOptionGroup.ModifiedDate = DateTime.Now;
+                //            db.ProductOptionGroups.Add(productOptionGroup);
+                //            db.SaveChanges();
+                //            if (akountzCompId.HasValue) AddProdInAkountz(product.Id, product.CompanyId, akountzCompId);
+                //        }
+                //    }
+                //}
 
                 //JArray optionJson = orderJson.ProductOptions;
                 //if (optionJson != null)
@@ -687,20 +691,30 @@ namespace Biz1BookPOS.Controllers
                 //        }
                 //    }
                 //}
-                int compId = product.CompanyId;
-                int productId = product.Id;
                 SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
                 sqlCon.Open();
                 SqlCommand cmd = new SqlCommand("dbo.StoreProduct", sqlCon);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.Add(new SqlParameter("@compId", compId));
-                cmd.Parameters.Add(new SqlParameter("@productId", productId));
+                cmd.Parameters.Add(new SqlParameter("@compId", product.CompanyId));
+                cmd.Parameters.Add(new SqlParameter("@productId", product.Id));
                 int success = cmd.ExecuteNonQuery();
 
                 var_status = 200;
                 var_value = product.Id;
                 var_msg = "Product added Successfully";
                 sqlCon.Close();
+
+                var response = new
+                {
+                    status = 200,
+                    data = new
+                    {
+                        imageurl = product.ImgUrl,
+                        productid = product.Id
+                    },
+                    msg = "Product added successfully!"
+                };
+                return Json(response);
             }
             catch (Exception ex)
             {
@@ -712,17 +726,6 @@ namespace Biz1BookPOS.Controllers
                 };
                 return Json(error);
             }
-            var response = new
-            {
-                status = var_status,
-                data = new
-                {
-                    value = var_value
-                },
-                msg = var_msg
-            };
-            return Json(response);
-
         }
         [HttpPost("AddProduct1")]
         public IActionResult AddProduct1()
@@ -836,81 +839,92 @@ namespace Biz1BookPOS.Controllers
             }
         }
 
+        public string FileMD5(IFormFile file)
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    return string.Join("", md5.ComputeHash((md5.ComputeHash(stream))).Select(x => x.ToString("x2")));
+                }
+            }
+        }
+
         [HttpPost("Update")]
         [EnableCors("AllowOrigin")]
-        public IActionResult Update([FromForm]string objData, IFormFile image)
+        public IActionResult Update([FromForm]IFormCollection collection, [FromForm] IFormFile image)
         {
             try
             {
-                dynamic orderJson = JsonConvert.DeserializeObject(objData);
-                if (orderJson.KOTGroupId == 0)
+                Product product = JsonConvert.DeserializeObject<Product>(collection["product"][0]);
+                if (image != null)
                 {
-                    orderJson.KOTGroupId = null;
+                    string filename = FileMD5(image) + "." + image.FileName.Split(".").LastOrDefault();
+                    product.ImgUrl = ImageUpload(image, filename, "/products/" + product.CompanyId.ToString() + "/");
                 }
-                Product product = orderJson.ToObject<Product>();
-                product.CreatedDate = db.Products.Where(x => x.Id == product.Id).AsNoTracking().FirstOrDefault().CreatedDate;
-                product.ModifiedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time); ;
-                product.Name = product.Name;
-                product.Description = product.Description;
-                product.IsQtyPredefined = db.PredefinedQuantities.Where(x => x.ProductId == product.Id).Any();
-                if(image != null)
-                product.ImgUrl = ImageUpload(product.CompanyId, image);
                 db.Entry(product).State = EntityState.Modified;
                 db.SaveChanges();
 
-                List<UPProduct> uPProducts = db.UPProducts.Where(x => x.ProductId == product.Id && x.CompanyId == product.CompanyId).ToList();
-                foreach(var upproduct in uPProducts)
-                {
-                    upproduct.Price = product.UPPrice;
-                    db.Entry(upproduct).State = EntityState.Modified;
-                    db.SaveChanges();
-                }
+                OldProducts oldProduct = db.OldProducts.Where(x => x.OldId == product.Id).FirstOrDefault();
+                oldProduct.Name = product.Name;
+                oldProduct.TaxGroupId = (int)product.TaxGroupId;
+                oldProduct.CategoryId = product.CategoryId;
+                oldProduct.Price = product.Price;
 
-                JArray OptionGroupJson = orderJson.ProductOptionGroups;
-                if (OptionGroupJson != null)
-                {
-                    IEnumerable<dynamic> optionGroups = OptionGroupJson.ToList();
+                db.Entry(oldProduct).State = EntityState.Modified;
+                db.SaveChanges();
 
-                    foreach (var item in optionGroups)
-                    {
-                        int itemId = item.ToObject<int>();
-                        var prdopgp = db.ProductOptionGroups.Where(x => x.ProductId == product.Id && x.OptionGroupId == itemId).FirstOrDefault();
-                        if (prdopgp == null)
-                        {
-                            ProductOptionGroup productOptionGroup = new ProductOptionGroup();
-                            productOptionGroup.ProductId = product.Id;
-                            productOptionGroup.OptionGroupId = itemId;
-                            productOptionGroup.CompanyId = product.CompanyId;
-                            productOptionGroup.CreatedDate = DateTime.Now;
-                            productOptionGroup.ModifiedDate = DateTime.Now;
-                            db.ProductOptionGroups.Add(productOptionGroup);
-                            db.SaveChanges();
-                        }
-                    }
-                    var prdopgp1 = db.ProductOptionGroups.Where(x => x.ProductId == product.Id).ToList();
-                    foreach (var opgp in prdopgp1)
-                    {
-                        var delopgp = optionGroups.Where(x => x == opgp.OptionGroupId).FirstOrDefault();
-                        if (delopgp == null)
-                        {
-                            var delopgp1 = db.ProductOptionGroups.Find(opgp.Id);
-                            db.ProductOptionGroups.Remove(delopgp1);
-                            db.SaveChanges();
-                        }
-                    }
+                //List<UPProduct> uPProducts = db.UPProducts.Where(x => x.ProductId == product.Id && x.CompanyId == product.CompanyId).ToList();
+                //foreach(var upproduct in uPProducts)
+                //{
+                //    upproduct.Price = product.UPPrice;
+                //    db.Entry(upproduct).State = EntityState.Modified;
+                //    db.SaveChanges();
+                //}
 
-                }
+                //JArray OptionGroupJson = orderJson.ProductOptionGroups;
+                //if (OptionGroupJson != null)
+                //{
+                //    IEnumerable<dynamic> optionGroups = OptionGroupJson.ToList();
+
+                //    foreach (var item in optionGroups)
+                //    {
+                //        int itemId = item.ToObject<int>();
+                //        var prdopgp = db.ProductOptionGroups.Where(x => x.ProductId == product.Id && x.OptionGroupId == itemId).FirstOrDefault();
+                //        if (prdopgp == null)
+                //        {
+                //            ProductOptionGroup productOptionGroup = new ProductOptionGroup();
+                //            productOptionGroup.ProductId = product.Id;
+                //            productOptionGroup.OptionGroupId = itemId;
+                //            productOptionGroup.CompanyId = product.CompanyId;
+                //            productOptionGroup.CreatedDate = DateTime.Now;
+                //            productOptionGroup.ModifiedDate = DateTime.Now;
+                //            db.ProductOptionGroups.Add(productOptionGroup);
+                //            db.SaveChanges();
+                //        }
+                //    }
+                //    var prdopgp1 = db.ProductOptionGroups.Where(x => x.ProductId == product.Id).ToList();
+                //    foreach (var opgp in prdopgp1)
+                //    {
+                //        var delopgp = optionGroups.Where(x => x == opgp.OptionGroupId).FirstOrDefault();
+                //        if (delopgp == null)
+                //        {
+                //            var delopgp1 = db.ProductOptionGroups.Find(opgp.Id);
+                //            db.ProductOptionGroups.Remove(delopgp1);
+                //            db.SaveChanges();
+                //        }
+                //    }
+
+                //}
 
 
 
-                int compId = product.CompanyId;
-                int productId = product.Id;
                 SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
                 sqlCon.Open();
                 SqlCommand cmd = new SqlCommand("dbo.UpdateStoreProduct", sqlCon);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.Add(new SqlParameter("@compId", compId));
-                cmd.Parameters.Add(new SqlParameter("@productId", productId));
+                cmd.Parameters.Add(new SqlParameter("@compId", product.CompanyId));
+                cmd.Parameters.Add(new SqlParameter("@productId", product.Id));
                 int success = cmd.ExecuteNonQuery();
                 sqlCon.Close();
                 var error = new
@@ -1060,7 +1074,7 @@ namespace Biz1BookPOS.Controllers
             }
         }
 
-        public string ImageUpload(int companyid, IFormFile file)
+        public string ImageUpload(IFormFile file, string filename, string subdir = "/temp/audio/")
         {
             try
             {
@@ -1068,18 +1082,22 @@ namespace Biz1BookPOS.Controllers
 
                 // full path to file in temp location
                 // var filePath = "https://biz1app.azurewebsites.net/Images/3";
-                string subdir = "\\images\\" + companyid + "\\";
+                string baseUri = $"{Request.Scheme}://{Request.Host}";
+                if (filename == null || filename == "")
+                {
+                    filename = file.FileName;
+                }
                 if (!Directory.Exists(_environment.WebRootPath + subdir))
                 {
                     Directory.CreateDirectory(_environment.WebRootPath + subdir);
                 }
-                using (FileStream filestream = System.IO.File.Create(_environment.WebRootPath + subdir + file.FileName))
+                using (FileStream filestream = System.IO.File.Create(_environment.WebRootPath + subdir + filename))
                 {
                     file.CopyTo(filestream);
                     filestream.Flush();
                     var response = new
                     {
-                        url = "https://biz1pos.azurewebsites.net/images/"+companyid+"/"+ file.FileName
+                        url = baseUri + subdir + filename
                     };
                     return response.url;
                 }
@@ -1101,10 +1119,10 @@ namespace Biz1BookPOS.Controllers
             try
             {
                 //long size = file.Sum(f => f.Length);
-
+                string subdir = "\\temp\\audio\\";
                 // full path to file in temp location
                 // var filePath = "https://biz1app.azurewebsites.net/Images/3";
-                string subdir = "\\temp\\audio\\";
+                //if (filename == null) filename = file.FileName;
                 if (!Directory.Exists(_environment.WebRootPath + subdir))
                 {
                     Directory.CreateDirectory(_environment.WebRootPath + subdir);

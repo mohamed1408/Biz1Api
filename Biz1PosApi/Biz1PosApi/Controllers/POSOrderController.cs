@@ -573,6 +573,20 @@ namespace Biz1PosApi.Controllers
             }
         }
         //Master Save Order 5 Test Start -->
+        [HttpGet("OrderEntryLog")]
+        public IActionResult OrderEntryLog()
+        {
+            return Json(OrderEntryLogHandler.Logs);
+        }
+        [HttpGet("getstamp")]
+        public IActionResult getstamp()
+        {
+            var resp = new
+            {
+                stamp = new DateTimeOffset(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time)).ToUnixTimeMilliseconds()
+            };
+            return Json(resp);
+        }
         [HttpPost("saveorder_5")]
         public async Task<IActionResult> saveorder_5([FromBody] OrderPayload payload, [FromServices] Channel<UPRawPayload> channel)
         {
@@ -607,7 +621,11 @@ namespace Biz1PosApi.Controllers
                 {
                     createdtimestamp = (long)orderjson.cts;
                 }
-                if (db.Odrs.Where(x => x.od == ordereddate && x.si == storeid && x.on == orderno && x.cts == createdtimestamp).Any())
+                //if(!OrderEntryLogHandler.Logs.Where(x => x.ino == invoiceno && x.cts == createdtimestamp).Any())
+                //{
+                //    OrderEntryLogHandler.Logs.Add(new OrderEntryLog(invoiceno, createdtimestamp));
+                //}
+                if (db.Odrs.Where(x => x.od == ordereddate && x.si == storeid && x.on == orderno && x.cts == createdtimestamp).Any() || OrderEntryLogHandler.Logs.Where(x => x.ino == invoiceno && x.cts == createdtimestamp).Any())
                 {
                     message = "It is a duplicate Order!";
                     status = 409;
@@ -622,6 +640,12 @@ namespace Biz1PosApi.Controllers
                 }
                 else
                 {
+                    if (OrderEntryLogHandler.Logs.Count >= 500)
+                    {
+                        OrderEntryLogHandler.Logs.RemoveRange(0, OrderEntryLogHandler.Logs.Count - 50);
+                    }
+                    OrderEntryLogHandler.Logs.Add(new OrderEntryLog(invoiceno, createdtimestamp));
+                    
                     using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString(conn_name)))
                     {
                         conn.Open();
@@ -2720,7 +2744,42 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
-
+        [HttpGet("CancelledRpt")]
+        public IActionResult CancelledRpt(DateTime FrmDate, DateTime ToDate, int StoreId, int CompId, int SourceId)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.CancelledRpt", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@fromdate", FrmDate));
+                cmd.Parameters.Add(new SqlParameter("@todate", ToDate));
+                cmd.Parameters.Add(new SqlParameter("@storeId", StoreId));
+                cmd.Parameters.Add(new SqlParameter("@companyId", CompId));
+                cmd.Parameters.Add(new SqlParameter("@sourceId", SourceId));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    message = "Report Index Successfully",
+                    Index = ds.Tables[0]
+                };
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var response = new
+                {
+                    status = 0,
+                    msg = "Something Went Wrong",
+                    error = new Exception(ex.Message, ex.InnerException)
+                };
+                return Ok(response);
+            }
+        }
         [HttpGet("GetOrderId")]
         public IActionResult GetOrderId(int orderid)
         {

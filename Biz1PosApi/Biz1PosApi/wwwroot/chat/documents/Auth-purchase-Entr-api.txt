@@ -1,0 +1,52 @@
+Auth-purchase-Entry-------
+
+  getbyid(OrdId) {
+    return this.http.get(
+      this.base_url1 + 'STS/GetbyordId?OrdId=' + OrdId,  )
+  }
+
+  updatepurchase(payload) {
+    return this.http.post(this.base_url1 + 'STS/EditPurchase', payload)
+  }
+
+
+Api-purchase-entry---------------
+
+
+    [HttpGet("GetbyordId")]
+        public IActionResult GetbyordId(int OrdId)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("ConnStr"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.getprubyId", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@ordId", OrdId));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    Order = ds.Tables[0],
+                OrderItems = ds.Tables[1],
+                Trans = ds.Tables[2],
+                Bills = ds.Tables[3],
+
+                };
+                return Ok(response);
+
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+
+            }
+
+        }

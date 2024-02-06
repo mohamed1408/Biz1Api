@@ -21,6 +21,20 @@ using System.Threading.Tasks;
 
 namespace Biz1PosApi.Services
 {
+    public class OrderEntryLog
+    {
+        public OrderEntryLog(string ino, long cts)
+        {
+            this.ino = ino;
+            this.cts = cts;
+        }
+        public string ino { get; set; }
+        public long cts { get; set; }
+    }
+    public static class OrderEntryLogHandler
+    {
+        public static List<OrderEntryLog> Logs = new List<OrderEntryLog>();
+    }
     public class UPOrderService : BackgroundService
     {
         private readonly IHubContext<UrbanPiperHub, IHubClient> uhubContext;

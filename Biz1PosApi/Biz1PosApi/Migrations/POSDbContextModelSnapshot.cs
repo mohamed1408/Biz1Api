@@ -2034,6 +2034,19 @@ namespace Biz1PosApi.Migrations
                     b.ToTable("Addons","guest");
                 });
 
+            modelBuilder.Entity("Biz1PosApi.Models.Img", b =>
+                {
+                    b.Property<int>("ImgId")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Url");
+
+                    b.HasKey("ImgId");
+
+                    b.ToTable("Imgs");
+                });
+
             modelBuilder.Entity("Biz1PosApi.Models.KOTGroup", b =>
                 {
                     b.Property<int>("Id")
@@ -2149,6 +2162,38 @@ namespace Biz1PosApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("MenuMappings");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.Message", b =>
+                {
+                    b.Property<int>("MessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Content");
+
+                    b.Property<int?>("ImgId");
+
+                    b.Property<DateTime>("MessageDate")
+                        .HasColumnType("Date");
+
+                    b.Property<DateTime>("MessageDateTime");
+
+                    b.Property<int>("MessageType");
+
+                    b.Property<int>("MsgTransType");
+
+                    b.Property<int>("RecieverStatus");
+
+                    b.Property<int?>("StoreId");
+
+                    b.Property<int?>("UserId");
+
+                    b.HasKey("MessageId");
+
+                    b.HasIndex("ImgId");
+
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.Offer", b =>
@@ -5106,6 +5151,13 @@ namespace Biz1PosApi.Migrations
                         .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.Message", b =>
+                {
+                    b.HasOne("Biz1PosApi.Models.Img", "Img")
+                        .WithMany()
+                        .HasForeignKey("ImgId");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.Offer", b =>
