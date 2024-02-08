@@ -24,6 +24,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Biz1PosApi.Services;
 using Biz1Retail_API.Models;
 using System.Threading.Channels;
+using System.ComponentModel.Design;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Biz1PosApi.Controllers
@@ -541,6 +542,42 @@ namespace Biz1PosApi.Controllers
         {
             try
             {
+                //// DATA RETRIEVE FROM JSON
+                //dynamic orderjson = JsonConvert.DeserializeObject(orderpayload.OrderJson);
+                //string invoiceno = orderjson["in"].ToString();
+                //SplitInvocie si = splitinvoice(invoiceno);
+                //DateTime ordereddate = si.orderdate;
+                //int companyid = (int)orderjson.ci;
+                //int storeid = si.storeid;
+                //int orderno = si.orderno; 
+                //long createdtimestamp = 0;
+                //if (orderjson.cts != null)
+                //{
+                //    createdtimestamp = (long)orderjson.cts;
+                //}
+                //// DUPLICATE CHECK
+                //if (db.Odrs.Where(x => x.od == ordereddate && x.si == storeid && x.on == orderno && x.cts == createdtimestamp).Any() || OrderEntryLogHandler.Logs.Where(x => x.ino == invoiceno && x.cts == createdtimestamp).Any())
+                //{
+                //    DataTable data1 = new DataTable();
+                //    data1.Columns.Add(new DataColumn("OrderId", typeof(int)));
+                //    DataRow dr1 = data1.NewRow();
+                //    dr1[0] = 0;
+                //    data1.Rows.Add(dr1);
+                //    var resp = new
+                //    {
+                //        data = data1,
+                //        message = "Order Sent...",
+                //        status = 200
+                //    };
+                //    return Ok(resp);
+                //}
+                //// LOG ENTRY
+                //if (OrderEntryLogHandler.Logs.Count >= 500)
+                //{
+                //    OrderEntryLogHandler.Logs.RemoveRange(0, OrderEntryLogHandler.Logs.Count - 50);
+                //}
+                //OrderEntryLogHandler.Logs.Add(new OrderEntryLog(invoiceno, createdtimestamp));
+
                 UPRawPayload rawPayload = new UPRawPayload()
                 {
                     Payload = orderpayload.OrderJson,
@@ -601,10 +638,6 @@ namespace Biz1PosApi.Controllers
                 dynamic orderjson = JsonConvert.DeserializeObject(payload.OrderJson);
                 string invoiceno = orderjson["in"].ToString();
                 int oti = orderjson["oti"];
-                if(oti == 5)
-                {
-                    return await saveOrderAsync(payload, channel);
-                }
                 SplitInvocie si = splitinvoice(invoiceno);
                 DateTime ordereddate = si.orderdate;
                 companyid = (int)orderjson.ci;
@@ -645,7 +678,10 @@ namespace Biz1PosApi.Controllers
                         OrderEntryLogHandler.Logs.RemoveRange(0, OrderEntryLogHandler.Logs.Count - 50);
                     }
                     OrderEntryLogHandler.Logs.Add(new OrderEntryLog(invoiceno, createdtimestamp));
-                    
+                    if (oti == 5)
+                    {
+                        return await saveOrderAsync(payload, channel);
+                    }
                     using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString(conn_name)))
                     {
                         conn.Open();
