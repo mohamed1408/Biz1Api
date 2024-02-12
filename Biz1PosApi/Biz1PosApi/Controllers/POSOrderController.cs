@@ -633,6 +633,7 @@ namespace Biz1PosApi.Controllers
             int storeid = 0;
             string message = "Success";
             int status = 200;
+            OrderEntryLog oel = new OrderEntryLog("", 0);
             try
             {
                 dynamic orderjson = JsonConvert.DeserializeObject(payload.OrderJson);
@@ -677,7 +678,8 @@ namespace Biz1PosApi.Controllers
                     {
                         OrderEntryLogHandler.Logs.RemoveRange(0, OrderEntryLogHandler.Logs.Count - 50);
                     }
-                    OrderEntryLogHandler.Logs.Add(new OrderEntryLog(invoiceno, createdtimestamp));
+                    oel = new OrderEntryLog(invoiceno, createdtimestamp);
+                    OrderEntryLogHandler.Logs.Add(oel);
                     if (oti == 5)
                     {
                         return await saveOrderAsync(payload, channel);
@@ -739,6 +741,7 @@ namespace Biz1PosApi.Controllers
                 //orderLog.LoggedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
                 //db.OrderLogs.Add(orderLog);
                 //db.SaveChanges();
+                OrderEntryLogHandler.Logs.Remove(oel);
                 var error = new
                 {
                     error = new Exception(e.Message, e.InnerException),
