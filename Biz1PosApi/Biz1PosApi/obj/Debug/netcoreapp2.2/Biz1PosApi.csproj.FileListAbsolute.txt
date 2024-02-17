@@ -144,3 +144,34 @@ C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.p
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.genruntimeconfig.cache
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.csproj.CopyComplete
 C:\New folder\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\web.config
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\web.config
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\appsettings.Development.json
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\appsettings.json
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\google-services.json
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\libman.json
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\Biz1PosApi.deps.json
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\Biz1PosApi.runtimeconfig.json
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\Biz1PosApi.runtimeconfig.dev.json
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\Biz1PosApi.dll
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\Biz1PosApi.pdb
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\Biz1PosApi.Views.dll
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\bin\Debug\netcoreapp2.2\Biz1PosApi.Views.pdb
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.csproj.AssemblyReference.cache
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.GeneratedMSBuildEditorConfig.editorconfig
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.AssemblyInfoInputs.cache
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.AssemblyInfo.cs
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.csproj.CoreCompileInputs.cache
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.RazorAssemblyInfo.cache
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.RazorAssemblyInfo.cs
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.sourcelink.json
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.TagHelpers.input.cache
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.TagHelpers.output.cache
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.RazorCoreGenerate.cache
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Razor\Views\Login\password_reset.cshtml.g.cs
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.RazorTargetAssemblyInfo.cache
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.RazorTargetAssemblyInfo.cs
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.Views.pdb
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.dll
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.pdb
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.genruntimeconfig.cache
+D:\BizDom\Biz1Api\Biz1PosApi\Biz1PosApi\obj\Debug\netcoreapp2.2\Biz1PosApi.csproj.CopyComplete

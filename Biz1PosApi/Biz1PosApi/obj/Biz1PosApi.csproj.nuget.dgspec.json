@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\New folder\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {}
+    "D:\\BizDom\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {}
   },
   "projects": {
-    "C:\\New folder\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {
+    "D:\\BizDom\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\New folder\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
+        "projectUniqueName": "D:\\BizDom\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
         "projectName": "Biz1PosApi",
-        "projectPath": "C:\\New folder\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
-        "packagesPath": "C:\\Users\\USER\\.nuget\\packages\\",
-        "outputPath": "C:\\New folder\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\obj\\",
+        "projectPath": "D:\\BizDom\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\Biz1PosApi.csproj",
+        "packagesPath": "C:\\Users\\Master\\.nuget\\packages\\",
+        "outputPath": "D:\\BizDom\\Biz1Api\\Biz1PosApi\\Biz1PosApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\USER\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Master\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -99,7 +99,7 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101\\RuntimeIdentifierGraph.json"
         }
       }
     }

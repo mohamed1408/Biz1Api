@@ -52,6 +52,20 @@ namespace Biz1PosApi.Services
             this.provider = provider;
             this.uhubContext = uhubContext;
         }
+
+        public SplitInvocie splitinvoice(string invoice)
+        {
+            int orderno = Int32.Parse(invoice.Split("/")[1]);
+            invoice = invoice.Split("/")[0];
+            string datestr = invoice.Substring(invoice.Length - 8, 4) + "-" + invoice.Substring(invoice.Length - 4, 2) + "-" + invoice.Substring(invoice.Length - 2, 2);
+            DateTime orderdate = DateTime.ParseExact(datestr, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            int storeid = Int32.Parse(invoice.Substring(0, invoice.Length - 8));
+            SplitInvocie si = new SplitInvocie();
+            si.orderdate = orderdate;
+            si.storeid = storeid;
+            si.orderno = orderno;
+            return si;
+        }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!channel.Reader.Completion.IsCompleted)
@@ -64,7 +78,7 @@ namespace Biz1PosApi.Services
                 Random random = new Random();
                 try
                 {
-                    if(_payload.PayloadType == "place_order")
+                    if (_payload.PayloadType == "place_order")
                     {
                         using (var scope = provider.CreateScope())
                         {
@@ -124,8 +138,47 @@ namespace Biz1PosApi.Services
                             await uhubContext.Clients.All.NewOrder(platform, uPOrder.UPOrderId, uPOrder.StoreId);
                         }
                     }
-                    else if(_payload.PayloadType == "quick_order")
+                    else if (_payload.PayloadType == "quick_order")
                     {
+                        // Save customer HYPERTECH
+                        //START
+                        dynamic qucikOrder = JsonConvert.DeserializeObject(_payload.Payload);
+
+                        var customer = JsonConvert.SerializeObject(qucikOrder.cd);
+
+                        string invoiceno = qucikOrder["in"].ToString();
+                        SplitInvocie si = splitinvoice(invoiceno);
+                        int compid = (int)qucikOrder.ci;
+                        int storid = si.storeid;
+                        int CustomerIdFinal = 0;
+                        string cusph = qucikOrder.cd["ph"].ToString();
+
+                        if (!string.IsNullOrEmpty(cusph))
+                            //if (customer.ph != "")
+                        {
+                            using (SqlConnection sqlCon = new SqlConnection("Server=tcp:fbadmin.database.windows.net,1433;Initial Catalog=RetailPOS;Persist Security Info=False;User ID=FbAdmin;Password=FbCakes@2k23;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"))
+                            {
+                                sqlCon.Open();
+
+
+                                using (SqlCommand customerCmd = new SqlCommand("dbo.pos_customer", sqlCon))
+                                {
+                                    customerCmd.CommandType = CommandType.StoredProcedure;
+                                    customerCmd.Parameters.Add(new SqlParameter("@orderjson", customer));
+                                    customerCmd.Parameters.Add(new SqlParameter("@companyid", compid));
+                                    customerCmd.Parameters.Add(new SqlParameter("@storeid", storid));
+                                    DataSet ds = new DataSet();
+                                    SqlDataAdapter sqlAdp = new SqlDataAdapter(customerCmd);
+                                    sqlAdp.Fill(ds);
+                                    var response = new
+                                    {
+                                        TransId = Convert.ToInt32(ds.Tables[0].Rows[0]["CustomerId"])
+                                    };
+                                    CustomerIdFinal = response.TransId;
+                                }
+                            }
+
+                        }
                         using (SqlConnection conn = new SqlConnection("Server=tcp:b1zd0m.database.windows.net,1433;Initial Catalog=Biz1Retail;Persist Security Info=False;User ID=BizDom_Admin;Password=BIzD0m@2K23;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=1000;"))
                         {
                             conn.Open();
@@ -135,13 +188,14 @@ namespace Biz1PosApi.Services
                             SqlTransaction tran = conn.BeginTransaction("Transaction1");
                             try
                             {
-                                SqlCommand cmd = new SqlCommand("dbo.saveorder", conn);
+                                SqlCommand cmd = new SqlCommand("dbo.saveorder_2", conn);
                                 cmd.CommandType = CommandType.StoredProcedure;
                                 cmd.Transaction = tran;
 
                                 cmd.Parameters.Add(new SqlParameter("@orderjson", _payload.Payload));
                                 cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
                                 cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+                                cmd.Parameters.Add(new SqlParameter("@cusid", CustomerIdFinal));
 
                                 DataSet ds = new DataSet();
                                 SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
@@ -164,7 +218,7 @@ namespace Biz1PosApi.Services
                             }
                         }
                     }
-                    else if(_payload.PayloadType == "order_status_update")
+                    else if (_payload.PayloadType == "order_status_update")
                     {
                         using (var scope = provider.CreateScope())
                         {
@@ -217,7 +271,7 @@ namespace Biz1PosApi.Services
                                 orderstatusid = -1;
                                 statusDetail.delivered = json.timestamp_unix;
                             }
-                            if(orderstatusid == -1 || orderstatusid > order.OrderStatusId)
+                            if (orderstatusid == -1 || orderstatusid > order.OrderStatusId)
                             {
                                 order.OrderStatusId = orderstatusid;
                                 upOrder.OrderStatusId = orderstatusid;

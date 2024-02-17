@@ -144,22 +144,25 @@ namespace Biz1BookPOS.Controllers
                 return Json(error);
             }
         }
+        //Save Cus Data from BizDom to FbAdmin by HyperTech -- START
+
 
         [HttpGet("GetCustomerByPhone")]
         [EnableCors("AllowOrigin")]
-        public IActionResult GetCustomerByPhone(string Phone, int companyid)
+        public IActionResult GetCustomerByPhone(string Phone, int companyid, int storeid)
         {
             //var customer = db.Customers.Where(x => x.PhoneNo == Phone && x.CompanyId == companyid).FirstOrDefault();
             //customer.Addresses = db.CustomerAddresses.Where(x => x.CustomerId == customer.Id).Include(x => x.Customer).ToList();
             //return Ok(customer);
 
-            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("erpconn"));
             sqlCon.Open();
             SqlCommand cmd = new SqlCommand("dbo.getcustomerbyphonenum", sqlCon);
             cmd.CommandType = CommandType.StoredProcedure;
 
             cmd.Parameters.Add(new SqlParameter("@phonenum", Phone));
             cmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+            cmd.Parameters.Add(new SqlParameter("@storeid", storeid));
 
             DataSet ds = new DataSet();
             SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
@@ -174,6 +177,46 @@ namespace Biz1BookPOS.Controllers
             }
             return Json(JsonConvert.DeserializeObject(jsonString));
         }
+
+        [HttpPost("SavePosCustomer")]
+        public IActionResult SavePosCustomer([FromBody] dynamic orderjson)
+        {
+            try
+            {
+                var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(orderjson);
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("erpconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.pos_customer", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@orderjson", jsonString));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    CustomerId = ds.Tables[0],
+                    status = 200,
+                    message = "Customer Saved Successfully",
+
+                };
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var response = new
+                {
+                    status = 0,
+                    msg = "Something Went Wrong",
+                    error = new Exception(ex.Message, ex.InnerException)
+                };
+                return Ok(response);
+            }
+        }
+
+
+        //Save Cus Data from BizDom to FbAdmin by HyperTech -- END
+
+
         [HttpGet("GetCustomerList")]
         [EnableCors("AllowOrigin")]
         public IActionResult GetCustomerList(int companyid, DateTime frmdate, DateTime todate, int ordertype, float billamt)
