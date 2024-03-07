@@ -217,36 +217,123 @@ namespace Biz1BookPOS.Controllers
         //Save Cus Data from BizDom to FbAdmin by HyperTech -- END
 
 
+        //[HttpGet("GetCustomerList")]
+        //[EnableCors("AllowOrigin")]
+        //public IActionResult GetCustomerList(int companyid, DateTime frmdate, DateTime todate, int ordertype, float billamt)
+        //{
+        //    try
+        //    {
+        //        //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
+        //        SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+        //        sqlCon.Open();
+        //        SqlCommand cmd = new SqlCommand("dbo.customerdata", sqlCon);
+        //        cmd.CommandType = CommandType.StoredProcedure;
+
+        //        cmd.Parameters.Add(new SqlParameter("@fromdate", frmdate));
+        //        cmd.Parameters.Add(new SqlParameter("@todate", todate));
+        //        cmd.Parameters.Add(new SqlParameter("@companyId", companyid));
+        //        cmd.Parameters.Add(new SqlParameter("@orderTypeid", ordertype));
+        //        cmd.Parameters.Add(new SqlParameter("@billamt", billamt));
+        //        DataSet ds = new DataSet();
+        //        SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+        //        sqlAdp.Fill(ds);
+        //        DataTable table = ds.Tables[0];
+
+        //        var data = new
+        //        {
+        //            Order = ds.Tables[0]
+
+
+        //        };
+        //        sqlCon.Close();
+        //        return Ok(data);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        var error = new
+        //        {
+        //            error = new Exception(e.Message, e.InnerException),
+        //            status = 0,
+        //            msg = "Something went wrong  Contact our service provider"
+        //        };
+        //        return Json(error);
+        //    }
+        //}
+
+        //HYPER
+
         [HttpGet("GetCustomerList")]
         [EnableCors("AllowOrigin")]
-        public IActionResult GetCustomerList(int companyid, DateTime frmdate, DateTime todate, int ordertype, float billamt)
+        public IActionResult GetCustomerList(int companyid, DateTime frmdate, DateTime todate, int ordertype, double billamt)
         {
             try
             {
-                //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
                 SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
                 sqlCon.Open();
-                SqlCommand cmd = new SqlCommand("dbo.customerdata", sqlCon);
+
+                SqlCommand cmd = new SqlCommand("customerdata", sqlCon);
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                cmd.Parameters.Add(new SqlParameter("@fromdate", frmdate));
-                cmd.Parameters.Add(new SqlParameter("@todate", todate));
                 cmd.Parameters.Add(new SqlParameter("@companyId", companyid));
                 cmd.Parameters.Add(new SqlParameter("@orderTypeid", ordertype));
+                cmd.Parameters.Add(new SqlParameter("@fromdate", frmdate));
+                cmd.Parameters.Add(new SqlParameter("@todate", todate));
                 cmd.Parameters.Add(new SqlParameter("@billamt", billamt));
+
                 DataSet ds = new DataSet();
                 SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
                 sqlAdp.Fill(ds);
-                DataTable table = ds.Tables[0];
 
-                var data = new
+                DataTable BizData = ds.Tables[0];
+
+                var customerIds = new List<int>();
+                foreach (DataRow row in BizData.Rows)
                 {
-                    Order = ds.Tables[0]
+                    customerIds.Add((int)row["CusId"]);
+                }
 
+                SqlConnection sqlCon2 = new SqlConnection(Configuration.GetConnectionString("erpconn"));
+                sqlCon2.Open();
 
-                };
+                string SaveCusIds = string.Join(",", customerIds);
+
+                SqlCommand cmd2 = new SqlCommand($"SELECT Id AS CusId, Name AS CusName, PhoneNo AS CusPhone FROM Customers WHERE Id IN ({SaveCusIds})", sqlCon2);
+                cmd2.CommandType = CommandType.Text;
+
+                DataSet ds2 = new DataSet();
+                SqlDataAdapter sqlAdp2 = new SqlDataAdapter(cmd2);
+                sqlAdp2.Fill(ds2);
+
+                DataTable ERPData = ds2.Tables[0];
+
+                var result = new List<object>();
+                foreach (DataRow POSDetails in BizData.Rows)
+                {
+                    foreach (DataRow Customer in ERPData.Rows)
+                    {
+                        if (!(POSDetails["CusId"] is DBNull) && !(Customer["CusId"] is DBNull) &&
+                            (int)POSDetails["CusId"] == (int)Customer["CusId"])
+                        {
+                            result.Add(new
+                            {
+                                Store = POSDetails["Store"] as string,
+                                OrderTypeId = POSDetails["OrderTypeId"] as int? ?? 0,
+                                OrderedDate = POSDetails["OrderedDate"] as DateTime? ?? DateTime.MinValue,
+                                DeliveryDate = POSDetails["DeliveryDate"] as DateTime? ?? DateTime.MinValue,
+                                BillAmount = POSDetails["BillAmount"] as double? ?? 0.0,
+                                CusId = POSDetails["CusId"] as int? ?? 0,
+                                CusName = Customer["CusName"] as string,
+                                CusPhone = Customer["CusPhone"] as string
+                            });
+                            break;
+                        }
+                    }
+                }
+
                 sqlCon.Close();
-                return Ok(data);
+                sqlCon2.Close();
+
+                return Ok(result);
             }
             catch (Exception e)
             {
@@ -254,11 +341,12 @@ namespace Biz1BookPOS.Controllers
                 {
                     error = new Exception(e.Message, e.InnerException),
                     status = 0,
-                    msg = "Something went wrong  Contact our service provider"
+                    msg = "Something went wrong. Contact our service provider"
                 };
                 return Json(error);
             }
         }
+
         [HttpGet("Delete")]
         [EnableCors("AllowOrigin")]
         public IActionResult Delete(int Id)

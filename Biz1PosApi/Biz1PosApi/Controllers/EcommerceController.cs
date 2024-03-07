@@ -1658,7 +1658,9 @@ namespace Biz1PosApi.Controllers
             try
             {
                 Odrs ecomorder = db.Odrs.Where(x => x.OdrsId == OrderId).FirstOrDefault();
+                JObject json = JObject.Parse(ecomorder.oj);
                 ecomorder.osi = statusid;
+                json["OrderStatusId"] = ecomorder.osi;
                 db.Entry(ecomorder).State = EntityState.Modified;
                 db.SaveChanges();
                 var responce = new
@@ -1668,7 +1670,7 @@ namespace Biz1PosApi.Controllers
                 };
                 return Ok(responce);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var responce = new
                 {

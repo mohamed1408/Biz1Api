@@ -815,10 +815,10 @@ namespace Biz1PosApi.Controllers
                     }
                     oel = new OrderEntryLog(invoiceno, createdtimestamp);
                     OrderEntryLogHandler.Logs.Add(oel);
-                    if (oti == 5)
-                    {
-                        return await saveOrderAsync(payload, channel);
-                    }
+                    //if (oti == 5)
+                    //{
+                    //    return await saveOrderAsync(payload, channel);
+                    //}
                     // Save customer HYPERTECH
                     //START
 
@@ -3568,6 +3568,38 @@ namespace Biz1PosApi.Controllers
                     status = 0,
                     msg = "Something went wrong  Contact our service provider",
                     orders = new DataTable()
+                };
+                return Json(error);
+            }
+        }
+
+        [HttpGet("UpdateNote")]
+        public IActionResult GetDispatchedView(string Invoice, string Notes)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn")); sqlCon.Open();
+                SqlCommand cmd = new SqlCommand(@"UPDATE Odrs SET n = @Notes WHERE ino = @Invoice", sqlCon);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add(new SqlParameter("@Invoice", Invoice));
+                cmd.Parameters.Add(new SqlParameter("@Notes", Notes));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    msg = "Update Order Note Successfully",
+                };
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
                 };
                 return Json(error);
             }

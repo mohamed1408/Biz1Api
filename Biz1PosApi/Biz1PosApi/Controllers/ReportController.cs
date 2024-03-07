@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Biz1BookPOS.Models;
 using Biz1PosApi.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -487,8 +488,154 @@ namespace Biz1PosApi.Controllers
             }
         }
 
-        // GET: ReportController/Edit/5
-        public ActionResult Edit(int id)
+        [HttpGet("SPT_Reports")]
+        public IActionResult SPT_Reports(int storeId, int companyId, DateTime from, DateTime to, int spt)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.SPT_RPT", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@storeId", storeId));
+                cmd.Parameters.Add(new SqlParameter("@companyId", companyId));
+                cmd.Parameters.Add(new SqlParameter("@from", from));
+                cmd.Parameters.Add(new SqlParameter("@to", to));
+                cmd.Parameters.Add(new SqlParameter("@spt", @spt));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    spt = ds.Tables[0],
+                };
+                sqlCon.Close();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
+        [HttpGet("GetCusDeltbyId")]
+        public IActionResult GetCusDeltbyId(int CusId)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("erpconn")); sqlCon.Open();
+                SqlCommand cmd = new SqlCommand(@"SELECT Name, PhoneNo, Address, City, PostalCode FROM customers WHERE Id = @CusId", sqlCon);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add(new SqlParameter("@CusId", CusId));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    cus = ds.Tables[0],
+                    msg = "Get Customer Successfully",
+                };
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
+        [HttpGet("Get2CatOnly")]
+        [EnableCors("AllowOrigin")]
+        public IActionResult Get2CatOnly(int companyId)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.Get2CatOnly", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@companyId", companyId));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                DataTable table = ds.Tables[0];
+
+                var data = new
+                {
+                    cat = ds.Tables[0]
+                };
+                sqlCon.Close();
+                return Ok(table);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
+        [HttpGet("GetCatwiseAllStr")]
+        public IActionResult GetCatwiseAllStr(int cateId, int companyId, DateTime fromDate, DateTime toDate, int hidebool)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.GetCatwiseAllStr", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@cateId", cateId));
+                cmd.Parameters.Add(new SqlParameter("@companyId", companyId));
+                cmd.Parameters.Add(new SqlParameter("@fromDate", fromDate));
+                cmd.Parameters.Add(new SqlParameter("@toDate", toDate));
+                cmd.Parameters.Add(new SqlParameter("@hidebool", hidebool));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    spt = ds.Tables[0],
+                };
+                sqlCon.Close();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+    
+
+
+
+
+
+    // GET: ReportController/Edit/5
+    public ActionResult Edit(int id)
         {
             return View();
         }

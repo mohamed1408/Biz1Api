@@ -76,7 +76,7 @@ namespace Biz1PosApi.Controllers
                 payload.amount = (int)pyload.amount * 100;
                 payload.redirectUrl = pyload.redirecturl;
                 payload.redirectMode = "POST";
-                payload.callbackUrl = "https://biz1ps.azurewebsites.net/api/PhonePe/PaymentStatusCallback";
+                payload.callbackUrl = "https://biz1pos.azurewebsites.net/api/PhonePe/PaymentStatusCallback";
                 payload.mobileNumber = pyload.mobilenumber;
                 payload.paymentInstrument = new PaymentInstrument();
                 payload.paymentInstrument.type = "PAY_PAGE";
@@ -148,7 +148,7 @@ namespace Biz1PosApi.Controllers
                 //payload.amount = (int)pyload.amount * 100;
                 //payload.redirectUrl = pyload.redirecturl;
                 //payload.redirectMode = "POST";
-                //payload.callbackUrl = "https://biz1ps.azurewebsites.net/api/PhonePe/PaymentStatusCallback";
+                //payload.callbackUrl = "https://biz1pos.azurewebsites.net/api/PhonePe/PaymentStatusCallback";
                 //payload.mobileNumber = pyload.mobilenumber;
                 //payload.paymentInstrument = new PaymentInstrument();
                 //payload.paymentInstrument.type = "PAY_PAGE";
@@ -363,7 +363,7 @@ namespace Biz1PosApi.Controllers
                 pyload.originalTransactionId = trans.Notes;
                 pyload.merchantTransactionId = transaction.Notes;
                 pyload.amount = (int)trans.Amount * 100;
-                pyload.callbackUrl = "https://biz1ps.azurewebsites.net/api/PhonePe/PaymentStatusCallback";
+                pyload.callbackUrl = "https://biz1pos.azurewebsites.net/api/PhonePe/PaymentStatusCallback";
 
                 string base64Payload = Base64Encode(JsonConvert.SerializeObject(pyload, Formatting.Indented));
                 string sha256hash = ComputeSha256Hash(base64Payload + "/pg/v1/refund" + key) + "###" + salt;

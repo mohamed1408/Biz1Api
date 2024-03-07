@@ -1133,7 +1133,7 @@ namespace Biz1BookPOS.Controllers
                     filestream.Flush();
                     var response = new
                     {
-                        url = "https://biz1ps.azurewebsites.net/temp/audio/" + file.FileName
+                        url = "https://biz1pos.azurewebsites.net/temp/audio/" + file.FileName
                     };
                     return response.url;
                 }
