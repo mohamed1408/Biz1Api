@@ -613,6 +613,7 @@ namespace Biz1PosApi.Controllers
                 {
                     status = 200,
                     spt = ds.Tables[0],
+                    zspt = ds.Tables[1],
                 };
                 sqlCon.Close();
                 return Ok(response);
@@ -628,14 +629,14 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
-    
 
 
 
 
 
-    // GET: ReportController/Edit/5
-    public ActionResult Edit(int id)
+
+        // GET: ReportController/Edit/5
+        public ActionResult Edit(int id)
         {
             return View();
         }

@@ -29,7 +29,7 @@ namespace Biz1PosApi.Controllers
             try
             {
                 //SqlConnection sqlCon = new SqlConnection("server=(LocalDb)\\MSSQLLocalDB; database=Biz1POS;Trusted_Connection=True;");
-                SqlConnection sqlCon = new SqlConnection("Data Source=tcp:biz1server.database.windows.net,1433;Initial Catalog=biz1pos;User Id=dbadmin@biz1server;Password=B1zd0m##");
+                SqlConnection sqlCon = new SqlConnection("Data Source=tcp:b1zd0m.database.windows.net,1433;Initial Catalog=Biz1Retail;User Id=BizDom_Admin@b1zd0m;Password=BIzD0m@2K23");
                 sqlCon.Open();
                 SqlCommand cmd = new SqlCommand("dbo.CategoryWiseRpt", sqlCon);
                 cmd.CommandType = CommandType.StoredProcedure;

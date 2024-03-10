@@ -264,7 +264,7 @@ namespace Biz1BookPOS.Controllers
 
         [HttpGet("GetCustomerList")]
         [EnableCors("AllowOrigin")]
-        public IActionResult GetCustomerList(int companyid, DateTime frmdate, DateTime todate, int ordertype, double billamt)
+        public IActionResult GetCustomerList(int companyid, DateTime frmdate, DateTime todate, int ordertype, double billamt, string ProdName)
         {
             try
             {
@@ -279,6 +279,7 @@ namespace Biz1BookPOS.Controllers
                 cmd.Parameters.Add(new SqlParameter("@fromdate", frmdate));
                 cmd.Parameters.Add(new SqlParameter("@todate", todate));
                 cmd.Parameters.Add(new SqlParameter("@billamt", billamt));
+                cmd.Parameters.Add(new SqlParameter("@ProdName", ProdName));
 
                 DataSet ds = new DataSet();
                 SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
@@ -297,7 +298,8 @@ namespace Biz1BookPOS.Controllers
 
                 string SaveCusIds = string.Join(",", customerIds);
 
-                SqlCommand cmd2 = new SqlCommand($"SELECT Id AS CusId, Name AS CusName, PhoneNo AS CusPhone FROM Customers WHERE Id IN ({SaveCusIds})", sqlCon2);
+                //SqlCommand cmd2 = new SqlCommand($"SELECT Id AS CusId, Name AS CusName, PhoneNo AS CusPhone FROM Customers WHERE Id IN ({SaveCusIds})", sqlCon2);
+                SqlCommand cmd2 = new SqlCommand($"SELECT Id AS CusId, Name AS CusName, PhoneNo AS CusPhone FROM Customers WHERE Id IN ({SaveCusIds}) AND LEN(ISNULL(PhoneNo, '')) >= 10", sqlCon2);
                 cmd2.CommandType = CommandType.Text;
 
                 DataSet ds2 = new DataSet();
@@ -323,7 +325,9 @@ namespace Biz1BookPOS.Controllers
                                 BillAmount = POSDetails["BillAmount"] as double? ?? 0.0,
                                 CusId = POSDetails["CusId"] as int? ?? 0,
                                 CusName = Customer["CusName"] as string,
-                                CusPhone = Customer["CusPhone"] as string
+                                CusPhone = Customer["CusPhone"] as string,
+                                Prodname = POSDetails["Prodname"] as string,
+                                Invoice = POSDetails["Invoice"] as string
                             });
                             break;
                         }
@@ -332,6 +336,7 @@ namespace Biz1BookPOS.Controllers
 
                 sqlCon.Close();
                 sqlCon2.Close();
+               // _notificationHubContext.Clients.All.SendAsync("EcomOrder", result);
 
                 return Ok(result);
             }
