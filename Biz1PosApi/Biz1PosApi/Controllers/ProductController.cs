@@ -71,14 +71,18 @@ namespace Biz1BookPOS.Controllers
             int groupid = db.MenuMappings.Where(x => x.companyid == companyid).FirstOrDefault().groupid;
 
             List<OldProducts> oldProducts = db.OldProducts.Where(x => x.groupid == groupid).ToList();
-            List<Product> products = db.Products.Where(x => oldProducts.Where(op => op.OldId == x.Id).Any()).ToList();
+            List<Product> products = db.Products.Where(x => oldProducts.Where(op => op.OldId == x.Id).Any()).Include(x => x.TaxGroup).ToList();
+            //List<TaxGroup> taxGroups = db.TaxGroups.Where(x => x.groupid == groupid).ToList();
             products.ForEach(p =>
             {
                 OldProducts op = oldProducts.Where(x => x.OldId == p.Id).FirstOrDefault();
+
                 p.Name = op.Name;
                 p.TaxGroupId = op.TaxGroupId;
                 p.CategoryId = op.CategoryId;
                 p.Price = op.Price;
+
+
             });
 
             return Json(products);
@@ -1133,7 +1137,7 @@ namespace Biz1BookPOS.Controllers
                     filestream.Flush();
                     var response = new
                     {
-                        url = "https://biz1ps.azurewebsites.net/temp/audio/" + file.FileName
+                        url = "https://biz1pos.azurewebsites.net/temp/audio/" + file.FileName
                     };
                     return response.url;
                 }
