@@ -379,5 +379,72 @@ namespace Biz1BookPOS.Controllers
                 return Json(error);
             }
         }
+
+        [HttpGet("GetCusDetailsUP")]
+        public IActionResult GetCusDetailsUP(string cusname, string cusadd, string cuscity, string cusphone, int cuiId)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("erpconn")); sqlCon.Open();
+                SqlCommand cmd = new SqlCommand(@"UPDATE Customers SET Name = @name, Address = @address, City = @city, PhoneNo = @phone WHERE Id = @cuiId", sqlCon);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add(new SqlParameter("@name", cusname));
+                cmd.Parameters.Add(new SqlParameter("@address", cusadd));
+                cmd.Parameters.Add(new SqlParameter("@city", cuscity));
+                cmd.Parameters.Add(new SqlParameter("@phone", cusphone));
+                cmd.Parameters.Add(new SqlParameter("@cuiId", cuiId));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    //cus = ds.Tables[0],
+                    msg = "Update Customer Details Successfully",
+                };
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+        [HttpGet("GetCusDetails")]
+        public IActionResult GetCusDetails(int cuiId)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn")); sqlCon.Open();
+                SqlCommand cmd = new SqlCommand(@"SELECT * FROM Customers c WHERE c.Id = @cuiId", sqlCon);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add(new SqlParameter("@cuiId", cuiId));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    cus = ds.Tables[0],
+                    msg = "Get Customer Details Successfully",
+                };
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
     }
 }

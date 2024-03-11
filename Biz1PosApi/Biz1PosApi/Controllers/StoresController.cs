@@ -623,5 +623,25 @@ namespace Biz1PosApi.Controllers
                 return "Error";
             }
         }
+
+        //Store COntroller
+
+        [HttpGet("getallStores")]
+        public IActionResult getallStores()
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.getAllStores", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+            //cmd.Parameters.Add(new SqlParameter("@SPG_Id", SPG_Id));
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+            //var response = new
+            //{
+            //    AllStores = ds.Tables[0]
+            //};
+            return Json(ds.Tables[0]);
+        }
     }
 }

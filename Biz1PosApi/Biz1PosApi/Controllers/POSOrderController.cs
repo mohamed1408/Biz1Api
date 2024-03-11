@@ -1173,6 +1173,144 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        //[HttpPost("saveorder_3")]
+        //public IActionResult saveorder_3([FromBody] OrderPayload payload)
+        //{
+        //    int? storeid = null;
+        //    int? companyid = null;
+        //    try
+        //    {
+        //        int orderid = 0;
+        //        dynamic data = new { };
+        //        string message = "";
+        //        int status = 200;
+        //        dynamic orderjson = JsonConvert.DeserializeObject(payload.OrderJson);
+        //        string invoiceno = orderjson.InvoiceNo.ToString();
+        //        long createdtimestamp = 0;
+        //        if (orderjson.createdtimestamp != null)
+        //        {
+        //            createdtimestamp = (long)orderjson.createdtimestamp;
+        //        }
+        //        int paymenttypeid = (int)orderjson.PaymentTypeId;
+        //        int? storepaymenttypeid = null;
+        //        storeid = (int)orderjson.StoreId;
+        //        companyid = (int)orderjson.CompanyId;
+        //        if (orderjson.StorePaymentTypeId != null)
+        //        {
+        //            storepaymenttypeid = (int)orderjson.StorePaymentTypeId;
+        //        }
+        //        string cphone = orderjson.CustomerDetails.PhoneNo.ToString();
+        //        storeid = (int)orderjson.StoreId;
+        //        companyid = (int)orderjson.CompanyId;
+        //        int customerid = -1;
+        //        int last_orderno = 0;
+        //        if (db.Orders.Where(x => x.StoreId == storeid && x.OrderedDate == TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time).Date).Any())
+        //        {
+        //            last_orderno = db.Orders.Where(x => x.StoreId == storeid && x.OrderedDate == TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time).Date).Max(x => x.OrderNo);
+        //        }
+        //        int current_orderno = (int)orderjson.OrderNo;
+        //        int orderno_diff = current_orderno - last_orderno;
+        //        if (orderno_diff > 1)
+        //        {
+        //            Store store = db.Stores.Find(storeid);
+        //            Alert alert = new Alert();
+        //            alert.AlertDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+        //            alert.AlertName = "orderno_skip";
+        //            alert.CompanyId = (int)companyid;
+        //            alert.StoreId = (int)storeid;
+        //            string mailbody = store.Name + " has faced an orderno_skip event @" + alert.AlertDateTime + ". Last orderno is " + last_orderno.ToString() + " and Current orderno is " + current_orderno;
+        //            alert.Note = mailbody;
+        //            db.Alerts.Add(alert);
+        //            db.SaveChanges();
+        //            // send_alert_email(mailbody);
+        //        }
+        //        if (db.Orders.Where(x => x.InvoiceNo == invoiceno && x.CreatedTimeStamp == createdtimestamp).Any())
+        //        {
+        //            message = "It is a duplicate Order!";
+        //            status = 409;
+        //            OrderLog orderLog = new OrderLog();
+        //            orderLog.CompanyId = companyid;
+        //            orderLog.StoreId = storeid;
+        //            orderLog.Payload = payload.OrderJson;
+        //            orderLog.Error = "It is a Duplicate Order";
+        //            orderLog.LoggedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+        //            db.OrderLogs.Add(orderLog);
+        //            db.SaveChanges();
+        //        }
+        //        else
+        //        {
+        //            if (cphone != "" && cphone != null)
+        //            {
+        //                customerid = db.Customers.Where(x => x.PhoneNo == cphone).Any() ? db.Customers.Where(x => x.PhoneNo == cphone).FirstOrDefault().Id : 0;
+        //            }
+        //            using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("myconn")))
+        //            {
+        //                conn.Open();
+        //                SqlTransaction tran = conn.BeginTransaction("Transaction1");
+        //                try
+        //                {
+        //                    SqlCommand cmd = new SqlCommand("dbo.saveorder3", conn);
+        //                    cmd.CommandType = CommandType.StoredProcedure;
+        //                    cmd.Transaction = tran;
+
+        //                    cmd.Parameters.Add(new SqlParameter("@orderjson", payload.OrderJson));
+        //                    cmd.Parameters.Add(new SqlParameter("@paymenttypeid", paymenttypeid));
+        //                    //cmd.Parameters.Add(new SqlParameter("@storepaymenttypeid", storepaymenttypeid));
+        //                    //cmd.Parameters.Add(new SqlParameter("@customerid", customerid));l
+        //                    DataSet ds = new DataSet();
+        //                    SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+        //                    sqlAdp.Fill(ds);
+
+        //                    DataTable table = ds.Tables[0];
+        //                    data = table;
+        //                    //Your Code
+        //                    invoiceno = (string)table.Rows[0].ItemArray[1];
+        //                    orderid = (int)table.Rows[0].ItemArray[0];
+        //                    tran.Commit(); //both are successful
+        //                    conn.Close();
+        //                    if (orderjson.DeliveryStoreId != null)
+        //                    {
+        //                        _uhubContext.Clients.All.DeliveryOrderUpdate((int)orderjson.StoreId, (int)orderjson.DeliveryStoreId, invoiceno, "NEW_ORDER", orderid);
+        //                    }
+        //                }
+        //                catch (Exception e)
+        //                {
+        //                    //if error occurred, reverse all actions. By this, your data consistent and correct
+        //                    tran.Rollback();
+        //                    conn.Close();
+        //                    throw e;
+        //                }
+        //            }
+        //        }
+        //        var response = new
+        //        {
+        //            data = data,
+        //            message = message,
+        //            status = status
+        //        };
+        //        return Ok(response);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        OrderLog orderLog = new OrderLog();
+        //        orderLog.CompanyId = companyid;
+        //        orderLog.StoreId = storeid;
+        //        orderLog.Payload = payload.OrderJson;
+        //        orderLog.Error = e.ToString();
+        //        orderLog.LoggedDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time);
+        //        db.OrderLogs.Add(orderLog);
+        //        db.SaveChanges();
+        //        var error = new
+        //        {
+        //            error = new Exception(e.Message, e.InnerException),
+        //            status = 500,
+        //            msg = "Something went wrong  Contact our service provider"
+        //        };
+        //        return Json(error);
+        //    }
+        //}
+
+
         [HttpPost("saveorder_3")]
         public IActionResult saveorder_3([FromBody] OrderPayload payload)
         {
@@ -1204,9 +1342,9 @@ namespace Biz1PosApi.Controllers
                 companyid = (int)orderjson.CompanyId;
                 int customerid = -1;
                 int last_orderno = 0;
-                if (db.Orders.Where(x => x.StoreId == storeid && x.OrderedDate == TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time).Date).Any())
+                if (db.Odrs.Where(x => x.si == storeid && x.od == TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time).Date).Any())
                 {
-                    last_orderno = db.Orders.Where(x => x.StoreId == storeid && x.OrderedDate == TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time).Date).Max(x => x.OrderNo);
+                    last_orderno = db.Odrs.Where(x => x.si == storeid && x.od == TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, India_Standard_Time).Date).Max(x => (int)x.on);
                 }
                 int current_orderno = (int)orderjson.OrderNo;
                 int orderno_diff = current_orderno - last_orderno;
@@ -1224,7 +1362,7 @@ namespace Biz1PosApi.Controllers
                     db.SaveChanges();
                     // send_alert_email(mailbody);
                 }
-                if (db.Orders.Where(x => x.InvoiceNo == invoiceno && x.CreatedTimeStamp == createdtimestamp).Any())
+                if (db.Odrs.Where(x => x.ino == invoiceno && x.cts == createdtimestamp).Any())
                 {
                     message = "It is a duplicate Order!";
                     status = 409;
@@ -1239,9 +1377,45 @@ namespace Biz1PosApi.Controllers
                 }
                 else
                 {
-                    if (cphone != "" && cphone != null)
+                    //dynamic orderjson2 = JsonConvert.DeserializeObject(payload.OrderJson);
+                    var customer = JsonConvert.SerializeObject(orderjson.CustomerDetails);
+                    int CustomerIdFinal = 0;
+                    string cusph = orderjson.CustomerDetails["PhoneNo"].ToString();
+
+                    if (!string.IsNullOrEmpty(cusph))
+                    //if (customer.ph != "")
                     {
-                        customerid = db.Customers.Where(x => x.PhoneNo == cphone).Any() ? db.Customers.Where(x => x.PhoneNo == cphone).FirstOrDefault().Id : 0;
+
+
+                        using (SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("erpconn")))
+                        {
+                            sqlCon.Open();
+
+
+                            using (SqlCommand customerCmd = new SqlCommand("dbo.pos_customer_up", sqlCon))
+                            {
+                                customerCmd.CommandType = CommandType.StoredProcedure;
+                                customerCmd.Parameters.Add(new SqlParameter("@orderjson", customer));
+                                customerCmd.Parameters.Add(new SqlParameter("@companyid", companyid));
+                                customerCmd.Parameters.Add(new SqlParameter("@storeid", storeid));
+
+                                using (DataSet customerDs = new DataSet())
+                                {
+                                    using (SqlDataAdapter sqlAdp = new SqlDataAdapter(customerCmd))
+                                    {
+                                        sqlAdp.Fill(customerDs);
+                                    }
+
+                                    CustomerIdFinal = Convert.ToInt32(customerDs.Tables[0].Rows[0]["CustomerId"]);
+                                    var response_Cus = new
+                                    {
+                                        CustomerIdFinal = CustomerIdFinal,
+                                        status = 200,
+                                        message = "Customer Saved Successfully",
+                                    };
+                                }
+                            }
+                        }
                     }
                     using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("myconn")))
                     {
@@ -1249,12 +1423,13 @@ namespace Biz1PosApi.Controllers
                         SqlTransaction tran = conn.BeginTransaction("Transaction1");
                         try
                         {
-                            SqlCommand cmd = new SqlCommand("dbo.saveorder3", conn);
+                            SqlCommand cmd = new SqlCommand("dbo.SaveEnqOrd", conn);
                             cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Transaction = tran;
 
                             cmd.Parameters.Add(new SqlParameter("@orderjson", payload.OrderJson));
                             cmd.Parameters.Add(new SqlParameter("@paymenttypeid", paymenttypeid));
+                            cmd.Parameters.Add(new SqlParameter("@cusid", CustomerIdFinal));
                             //cmd.Parameters.Add(new SqlParameter("@storepaymenttypeid", storepaymenttypeid));
                             //cmd.Parameters.Add(new SqlParameter("@customerid", customerid));l
                             DataSet ds = new DataSet();
@@ -1293,6 +1468,7 @@ namespace Biz1PosApi.Controllers
             catch (Exception e)
             {
                 OrderLog orderLog = new OrderLog();
+                orderLog.Id = 0;
                 orderLog.CompanyId = companyid;
                 orderLog.StoreId = storeid;
                 orderLog.Payload = payload.OrderJson;
@@ -1309,6 +1485,40 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+
+        [HttpGet("GetWO_OrderDetails")]
+        public IActionResult GetWO_OrderDetails(int OrderId)
+        {
+            try
+            {
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.WO_OrderDetails", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@OrderId", OrderId));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var response = new
+                {
+                    status = 200,
+                    Deatails = ds.Tables[0],
+                };
+                sqlCon.Close();
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
         public Order GetOrder(dynamic raworder)
         {
             if (raworder.DiscAmount == null)
@@ -1416,7 +1626,11 @@ namespace Biz1PosApi.Controllers
             dynamic orderjson2 = JsonConvert.DeserializeObject(payload.OrderJson);
             var customer = JsonConvert.SerializeObject(orderjson2.CustomerDetails);
             string invoiceno = orderjson2["InvoiceNo"].ToString();
-            SplitInvocie si = splitinvoice(invoiceno);
+            if(orderjson2.OrderNo != -1)
+            {
+                SplitInvocie si = splitinvoice(invoiceno);
+            }
+            
             int compid = (int)orderjson2.CompanyId;
             int storid = (int)orderjson2.StoreId;
             //int storid = si.storeid;
@@ -3513,30 +3727,23 @@ namespace Biz1PosApi.Controllers
             return Ok(kOTs);
         }
         [HttpGet("enquiryOrders")]
-        public IActionResult enquiryOrders(int? orderid)
+        public IActionResult enquiryOrders(int orderid)
         {
-            try
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.EnqOrdIndex", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add(new SqlParameter("@orderid", orderid));
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+            DataTable table = ds.Tables[0];
+
+            var data = new
             {
-                List<int> stsList = new List<int>();
-                stsList.Add(-1);
-                stsList.Add(5);
-                List<Order> orders = db.Orders.Where(x => x.Id == orderid || (orderid == null && !stsList.Contains(x.OrderStatusId) && x.OrderNo == -1)).ToList();
-                var response = new
-                {
-                    orders
-                };
-                return Ok(response);
-            }
-            catch (Exception e)
-            {
-                var error = new
-                {
-                    error = new Exception(e.Message, e.InnerException),
-                    status = 0,
-                    msg = "Something went wrong  Contact our service provider"
-                };
-                return Json(error);
-            }
+                orders = ds.Tables[0]
+            };
+            return Ok(data);
         }
         [HttpGet("FetchEcomOrders")]
         public IActionResult FetchEcomOrders(int storeid)
