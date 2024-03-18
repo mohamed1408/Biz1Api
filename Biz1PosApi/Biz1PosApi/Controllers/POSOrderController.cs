@@ -90,12 +90,37 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+        //[HttpGet("getorderbyid")]
+        //public IActionResult getorderbyid(int companyId, int storeid, int orderid)
+        //{
+        //    try
+        //    {
+        //        string orderjson = db.Orders.Where(x => x.CompanyId == companyId && x.StoreId == storeid && x.Id == orderid).FirstOrDefault().OrderJson;
+        //        var response = new
+        //        {
+        //            status = 200,
+        //            OrderJson = orderjson
+        //        };
+        //        return Json(response);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        var error = new
+        //        {
+        //            error = new Exception(e.Message, e.InnerException),
+        //            status = 0,
+        //            msg = "Something went wrong  Contact our service provider"
+        //        };
+        //        return Json(error);
+        //    }
+        //}
+
         [HttpGet("getorderbyid")]
         public IActionResult getorderbyid(int companyId, int storeid, int orderid)
         {
             try
             {
-                string orderjson = db.Orders.Where(x => x.CompanyId == companyId && x.StoreId == storeid && x.Id == orderid).FirstOrDefault().OrderJson;
+                var orderjson = db.Odrs.Where(x => x.ci == companyId && x.si == storeid && x.OdrsId == orderid).FirstOrDefault();
                 var response = new
                 {
                     status = 200,
@@ -114,6 +139,7 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+
         [HttpGet("getorderbyinvoiceno")]
         public IActionResult getorderbyinvoiceno(int companyId, int storeid, DateTime date, string invoiceno, int? orderid)
         {
@@ -1506,6 +1532,32 @@ namespace Biz1PosApi.Controllers
                 };
                 sqlCon.Close();
                 return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
+
+        [HttpGet("GetPayTypes")]
+
+        public IActionResult GetPayTypes(int CompId, int StrId)
+        {
+            try
+            {
+                var data = new
+                {
+                    Payments = db.StorePaymentTypes.Where(x => x.CompanyId == CompId && x.StoreId == StrId && x.IsActive == true).ToList(),
+                };
+
+                return Ok(data);
             }
             catch (Exception e)
             {
@@ -3737,14 +3789,63 @@ namespace Biz1PosApi.Controllers
             DataSet ds = new DataSet();
             SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
             sqlAdp.Fill(ds);
-            DataTable table = ds.Tables[0];
+            DataTable BizData = ds.Tables[0];
 
-            var data = new
+            var customerIds = new List<int>();
+            foreach (DataRow row in BizData.Rows)
             {
-                orders = ds.Tables[0]
-            };
-            return Ok(data);
+                customerIds.Add((int)row["CustomerId"]);
+            }
+            SqlConnection sqlCon2 = new SqlConnection(Configuration.GetConnectionString("erpconn"));
+            sqlCon2.Open();
+
+            string SaveCusIds = string.Join(",", customerIds);
+
+            //SqlCommand cmd2 = new SqlCommand($"SELECT Id AS CusId, Name AS CusName, PhoneNo AS CusPhone FROM Customers WHERE Id IN ({SaveCusIds})", sqlCon2);
+            SqlCommand cmd2 = new SqlCommand($"SELECT Id AS CusId, Name AS CusName, PhoneNo AS CusPhone FROM Customers WHERE Id IN ({SaveCusIds})", sqlCon2);
+            cmd2.CommandType = CommandType.Text;
+
+            DataSet ds2 = new DataSet();
+            SqlDataAdapter sqlAdp2 = new SqlDataAdapter(cmd2);
+            sqlAdp2.Fill(ds2);
+
+            DataTable ERPData = ds2.Tables[0];
+
+            var result = new List<object>();
+            foreach (DataRow POSDetails in BizData.Rows)
+            {
+                foreach (DataRow Customer in ERPData.Rows)
+                {
+                    if (!(POSDetails["CustomerId"] is DBNull) && !(Customer["CusId"] is DBNull) &&
+                        (int)POSDetails["CustomerId"] == (int)Customer["CusId"])
+                    {
+                        result.Add(new
+                        {
+                            InvoiceNo = POSDetails["InvoiceNo"] as string,
+                            OdrsId = POSDetails["OdrsId"] as int? ?? 0,
+                            Id = POSDetails["Id"] as int? ?? 0,
+                            BillAmount = Convert.ToDecimal(POSDetails["BillAmount"] ?? 0),
+                            PaidAmount = Convert.ToDecimal(POSDetails["PaidAmount"] ?? 0),
+                            OrderedDateTime = POSDetails["OrderedDateTime"] as DateTime? ?? DateTime.MinValue,
+                            DeliveryDateTime = POSDetails["DeliveryDateTime"] as DateTime? ?? DateTime.MinValue,
+                            CustomerId = POSDetails["CustomerId"] as int? ?? 0,
+                            OrderStatusId = POSDetails["OrderStatusId"] as int? ?? 0,
+                            CusName = Customer["CusName"] as string,
+                            CusPhone = Customer["CusPhone"] as string,
+                            ordStore = POSDetails["ordStore"] as string,
+                            delStore = POSDetails["delStore"] as string
+                        });
+                        break;
+                    }
+                }
+            }
+
+            sqlCon.Close();
+            sqlCon2.Close();
+
+            return Ok(result);
         }
+
         [HttpGet("FetchEcomOrders")]
         public IActionResult FetchEcomOrders(int storeid)
         {
@@ -3810,6 +3911,84 @@ namespace Biz1PosApi.Controllers
                 };
                 return Json(error);
             }
+        }
+
+
+        [HttpGet("GetReceipt_WO")]
+        public IActionResult GetReceipt_WO(int orderid)
+        {
+            SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn"));
+            sqlCon.Open();
+            SqlCommand cmd = new SqlCommand("dbo.GetReceipt_WO", sqlCon);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add(new SqlParameter("@orderid", orderid));
+            DataSet ds = new DataSet();
+            SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+            sqlAdp.Fill(ds);
+            DataTable BizData = ds.Tables[0];
+
+            var customerIds = new List<int>();
+            foreach (DataRow row in BizData.Rows)
+            {
+                customerIds.Add((int)row["CustomerId"]);
+            }
+            SqlConnection sqlCon2 = new SqlConnection(Configuration.GetConnectionString("erpconn"));
+            sqlCon2.Open();
+
+            string SaveCusIds = string.Join(",", customerIds);
+
+            SqlCommand cmd2 = new SqlCommand($"SELECT Id AS CusId, Name AS CusName, PhoneNo AS CusPhone FROM Customers WHERE Id IN ({SaveCusIds})", sqlCon2);
+            cmd2.CommandType = CommandType.Text;
+
+            DataSet ds2 = new DataSet();
+            SqlDataAdapter sqlAdp2 = new SqlDataAdapter(cmd2);
+            sqlAdp2.Fill(ds2);
+
+            DataTable ERPData = ds2.Tables[0];
+
+            var result = new List<object>();
+            foreach (DataRow POSDetails in BizData.Rows)
+            {
+                foreach (DataRow Customer in ERPData.Rows)
+                {
+                    if (!(POSDetails["CustomerId"] is DBNull) && !(Customer["CusId"] is DBNull) &&
+                        (int)POSDetails["CustomerId"] == (int)Customer["CusId"])
+                    {
+                        result.Add(new
+                        {
+                            ITEM = POSDetails["ITEM"] as string,
+                            QTY = POSDetails["QTY"] is DBNull ? 0f : (float)POSDetails["QTY"],
+                            Price = POSDetails["Price"] is DBNull ? 0f : (float)POSDetails["Price"],
+                            Paid = Convert.ToDecimal(POSDetails["Paid"] is DBNull ? 0 : POSDetails["Paid"]),
+                            Bill = Convert.ToDecimal(POSDetails["Bill"] is DBNull ? 0 : POSDetails["Bill"]),
+                            CGST = Convert.ToDecimal(POSDetails["CGST"] is DBNull ? 0 : POSDetails["CGST"]),
+                            SGST = Convert.ToDecimal(POSDetails["SGST"] is DBNull ? 0 : POSDetails["SGST"]),
+                            TotalAmount = POSDetails["TotalAmount"] as int? ?? 0,
+                            //Total = Convert.ToDecimal(POSDetails["Total"] is DBNull ? 0 : POSDetails["Total"]),
+                            Store = POSDetails["Store"] as string,
+                            Invoice = POSDetails["Invoice"] as string,
+                            OderedDate = POSDetails["OderedDate"] is DBNull ? DateTime.MinValue : (DateTime)POSDetails["OderedDate"],
+                            GST = POSDetails["GST"] as string,
+                            Conatct = POSDetails["Conatct"] as string,
+                            Company = POSDetails["Company"] as string,
+                            Address = POSDetails["Address"] as string,
+                            City = POSDetails["City"] as string,
+                            CusName = Customer["CusName"] as string,
+                            CusPhone = Customer["CusPhone"] as string,
+                            ComplementryQty = POSDetails["ComplementryQty"] is DBNull ? 0f : (float)POSDetails["ComplementryQty"],
+                            Extra = Convert.ToDecimal(POSDetails["Extra"] is DBNull ? 0 : POSDetails["Extra"]),
+                            OrderTotDisc = Convert.ToDecimal(POSDetails["OrderTotDisc"] is DBNull ? 0 : POSDetails["OrderTotDisc"]),
+                            AllItemTotalDisc = Convert.ToDecimal(POSDetails["AllItemTotalDisc"] is DBNull ? 0 : POSDetails["AllItemTotalDisc"])
+                        });
+                        break;
+                    }
+                }
+            }
+
+            sqlCon.Close();
+            sqlCon2.Close();
+
+            return Ok(result);
         }
 
     }

@@ -210,5 +210,46 @@ namespace Biz1PosApi.Controllers
                 return Json(error);
             }
         }
+
+        [HttpGet("GetWOReportV2")]
+        public IActionResult GetReportWOV2(DateTime fromdate, DateTime todate, int storeid, int companyid, int sourceid, int cancelorder)
+        {
+            try
+            {
+                string conname = connserve.getConnString(companyid);
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString(conname));
+                sqlCon.Open();
+                SqlCommand cmd = new SqlCommand("dbo.WebOrderWiseReportV2", sqlCon);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@fromDate", fromdate));
+                cmd.Parameters.Add(new SqlParameter("@toDate", todate));
+                cmd.Parameters.Add(new SqlParameter("@storeId", storeid));
+                cmd.Parameters.Add(new SqlParameter("@companyId", companyid));
+                cmd.Parameters.Add(new SqlParameter("@sourceId", sourceid));
+                cmd.Parameters.Add(new SqlParameter("@cancelorder", 0));
+                DataSet ds = new DataSet();
+                SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                sqlAdp.Fill(ds);
+                var report = new
+                {
+                    status = 200,
+                    report = ds.Tables[0],
+                    transaxns = ds.Tables[1],
+                };
+                return Json(report);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong  Contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
     }
 }
