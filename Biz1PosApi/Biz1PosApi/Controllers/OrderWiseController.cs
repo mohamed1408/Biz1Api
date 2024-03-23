@@ -196,6 +196,8 @@ namespace Biz1PosApi.Controllers
                     status = 200,
                     report = ds.Tables[0],
                     transaxns = ds.Tables[1],
+                    ZSorder = ds.Tables[3],
+                    ZSorderTrans = ds.Tables[4],
                 };
                 return Json(report);
             }

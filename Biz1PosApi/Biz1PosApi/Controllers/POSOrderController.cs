@@ -1546,6 +1546,90 @@ namespace Biz1PosApi.Controllers
         }
 
 
+        [HttpPost("UpdateOrder_WO")]
+        public IActionResult UpdateOrder_WO([FromBody] OrderPayload_WO OrderJson_WO)
+        {
+            try
+            {
+                dynamic orderjson = JsonConvert.DeserializeObject(OrderJson_WO.OrderJson);
+                string invoiceno = orderjson.InvoiceNo.ToString();
+                int orderId = orderjson.OdrsId;
+                dynamic data = new { };
+                int paymenttypeid = (int)orderjson.PaymentTypeId;
+
+                List<KOT> kOTs = new List<KOT>();
+
+                if (orderId > 0)
+                {
+                    kOTs = db.KOTs.Where(x => x.OrderId == orderId).ToList();
+                }
+                else
+                {
+                    return BadRequest("Invalid OrderId");
+                }
+
+                List<int> kOTIds = kOTs.Select(k => k.KOTId).ToList();
+
+                var orderItemsToRemove = db.Otms.Where(x => kOTIds.Contains((int)x.ki));
+                db.Otms.RemoveRange(orderItemsToRemove);
+
+                var KotsToRemove = db.KOTs.Where(x => x.OrderId == orderId);
+                db.KOTs.RemoveRange(KotsToRemove);
+
+                var TransactionToRemove = db.Transactions.Where(x => x.OrderId == orderId);
+                db.Transactions.RemoveRange(TransactionToRemove);
+                db.SaveChanges();
+
+                using (SqlConnection conn = new SqlConnection(Configuration.GetConnectionString("myconn")))
+                {
+                    conn.Open();
+                    SqlTransaction tran = conn.BeginTransaction("Transaction1");
+                    try
+                    {
+                        SqlCommand cmd = new SqlCommand("dbo.UpdateEnqOrd", conn);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Transaction = tran;
+
+                        cmd.Parameters.Add(new SqlParameter("@orderjson", OrderJson_WO.OrderJson));
+                        cmd.Parameters.Add(new SqlParameter("@paymenttypeid", paymenttypeid));
+                        DataSet ds = new DataSet();
+                        SqlDataAdapter sqlAdp = new SqlDataAdapter(cmd);
+                        sqlAdp.Fill(ds);
+
+                        DataTable table = ds.Tables[0];
+                        data = table;
+                        invoiceno = (string)table.Rows[0].ItemArray[1];
+                        tran.Commit();
+                        conn.Close();
+
+                    }
+                    catch (Exception e)
+                    {
+                        conn.Close();
+                        throw e;
+                    }
+                }
+                var response = new
+                {
+                    data = data,
+                    message = "Order Successfully Updated",
+                    status = 200,
+                };
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                var error = new
+                {
+                    error = new Exception(e.Message, e.InnerException),
+                    status = 0,
+                    msg = "Something went wrong. Please contact our service provider"
+                };
+                return Json(error);
+            }
+        }
+
+
         [HttpGet("GetPayTypes")]
 
         public IActionResult GetPayTypes(int CompId, int StrId)
@@ -3994,6 +4078,12 @@ namespace Biz1PosApi.Controllers
     }
 
     public class OrderPayload
+    {
+        public string OrderJson { get; set; }
+        public List<Transaction> Transactions { get; set; }
+    }
+
+    public class OrderPayload_WO
     {
         public string OrderJson { get; set; }
         public List<Transaction> Transactions { get; set; }

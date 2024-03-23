@@ -168,6 +168,8 @@ namespace Biz1BookPOS.Models
         public DbSet<T> T { get; set; }
         public DbSet<Y> Y { get; set; }
         public DbSet<GuestAddon> GuestAddons { get; set; }
+
+        public DbSet<UpOrdItm> UpOrdItms { get; set; }
     }
 
     public class TempDbContext : DbContext
@@ -305,5 +307,6 @@ namespace Biz1BookPOS.Models
         public DbSet<R> R { get; set; }
         public DbSet<T> T { get; set; }
         public DbSet<Y> Y { get; set; }
+
     }
 }

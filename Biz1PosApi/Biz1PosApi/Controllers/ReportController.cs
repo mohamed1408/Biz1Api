@@ -593,7 +593,7 @@ namespace Biz1PosApi.Controllers
         }
 
         [HttpGet("GetCatwiseAllStr")]
-        public IActionResult GetCatwiseAllStr(int cateId, int companyId, DateTime fromDate, DateTime toDate, int hidebool)
+        public IActionResult GetCatwiseAllStr(string cateId, int companyId, DateTime fromDate, DateTime toDate, int hidebool)
         {
             try
             {
