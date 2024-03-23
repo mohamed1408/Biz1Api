@@ -726,7 +726,7 @@ namespace Biz1PosApi.Migrations
 
             modelBuilder.Entity("Biz1BookPOS.Models.Product", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ProductId")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -743,6 +743,8 @@ namespace Biz1PosApi.Migrations
                     b.Property<string>("Description");
 
                     b.Property<int?>("GroupSortOrder");
+
+                    b.Property<int>("Id");
 
                     b.Property<byte[]>("Image");
 
@@ -792,7 +794,7 @@ namespace Biz1PosApi.Migrations
 
                     b.Property<int?>("minquantity");
 
-                    b.HasKey("Id");
+                    b.HasKey("ProductId");
 
                     b.HasIndex("CategoryId");
 
@@ -3785,6 +3787,25 @@ namespace Biz1PosApi.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("UPTags");
+                });
+
+            modelBuilder.Entity("Biz1PosApi.Models.UpOrdItm", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("OrdId");
+
+                    b.Property<float>("Price");
+
+                    b.Property<string>("ProdName");
+
+                    b.Property<float>("Qty");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UpOrdItms");
                 });
 
             modelBuilder.Entity("Biz1PosApi.Models.UrbanPiperKey", b =>

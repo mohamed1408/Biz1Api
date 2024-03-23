@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Biz1PosApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+968019140912139e44acc4fe956f531040effe8d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1f79176f028680fc2ffeae1187874ea444bbad9d")]
 [assembly: System.Reflection.AssemblyProductAttribute("Biz1PosApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Biz1PosApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

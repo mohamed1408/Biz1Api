@@ -1082,7 +1082,7 @@ FOR JSON PATH
             --JOIN MenuMappings cm on cm.groupid = ca.groupid and pm.menutype = 1 and cm.companyid = pm.companyid
             --JOIN MenuMappings tm on tm.groupid = tg.groupid and pm.menutype = 2 and tm.companyid = pm.companyid
             WHERE p.isactive = 1 AND ca.isactive = 1 AND
-            (sp.StoreId = @storeid) AND (sp.CompanyId = @companyid) --AND ((sr.ShowUpcategory = 0 AND ca.IsUPCategory = 0) OR (sr.ShowUpcategory = 1))
+            (sp.StoreId = @storeid) AND (sp.CompanyId = @companyid) ORDER BY Product ASC --AND ((sr.ShowUpcategory = 0 AND ca.IsUPCategory = 0) OR (sr.ShowUpcategory = 1))
             FOR JSON PATH", sqlCon);
             SqlCommand cmd = new SqlCommand("dbo.productsTask", sqlCon);
             cmd.CommandType = CommandType.StoredProcedure;

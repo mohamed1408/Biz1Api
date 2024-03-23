@@ -420,7 +420,7 @@ namespace Biz1BookPOS.Controllers
         {
             try
             {
-                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("myconn")); sqlCon.Open();
+                SqlConnection sqlCon = new SqlConnection(Configuration.GetConnectionString("erpconn")); sqlCon.Open();
                 SqlCommand cmd = new SqlCommand(@"SELECT * FROM Customers c WHERE c.Id = @cuiId", sqlCon);
                 cmd.CommandType = CommandType.Text;
                 cmd.Parameters.Add(new SqlParameter("@cuiId", cuiId));

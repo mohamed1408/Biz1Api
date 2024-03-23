@@ -77,6 +77,8 @@
     <Compile Include="Migrations\20240128094241_Message.Designer.cs" />
     <Compile Include="Migrations\20240128100137_Message1.cs" />
     <Compile Include="Migrations\20240128100137_Message1.Designer.cs" />
+    <Compile Include="Migrations\20240320121650_AddProdUpOrdItm.cs" />
+    <Compile Include="Migrations\20240320121650_AddProdUpOrdItm.Designer.cs" />
     <Compile Include="Migrations\POSDbContextModelSnapshot.cs" />
   </ItemGroup>
 
